@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "jsx": "react",
+        "outDir": "./build",
+        "experimentalDecorators": true,
+        "sourceMap": true
+    },
+    "include": [
+        "src/**/*",
+        "tests/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
+    ]
+}

@@ -1,0 +1,37 @@
+{
+  "name": "truck_backer_upper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "mocha build/tests/truckTest.js",
+    "dev-test-watch": "mocha-typescript-watch -o mocha.opts build/tests/truckTest.js"
+  },
+  "author": "Tino Fuhrmann",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "@types/chai": "^4.0.3",
+    "chai": "^4.1.1",
+    "copy-webpack-plugin": "^4.0.1",
+    "css-loader": "^0.28.4",
+    "mocha": "^3.5.0",
+    "mocha-typescript": "^1.1.7",
+    "style-loader": "^0.18.2",
+    "ts-loader": "^2.3.2",
+    "ts-mocha": "^1.0.3",
+    "typescript": "^2.4.2",
+    "webpack": "^3.5.4"
+  },
+  "dependencies": {
+    "@types/bootstrap": "^3.3.35",
+    "@types/jquery": "^3.2.11",
+    "@types/react": "^16.0.2",
+    "@types/react-dom": "^15.5.2",
+    "bootstrap": "^3.3.7",
+    "jquery": "^3.2.1",
+    "konva": "^1.6.7",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
+    "react-konva": "^1.1.4"
+  }
+}
