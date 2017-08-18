@@ -19,6 +19,11 @@ export class Point implements Object2D {
     }
 }
 
+export class StraightLine {
+    constructor(public base: Point, public direction: Vector) {
+
+    }
+}
 export class Vector implements Object2D {
     constructor(public x: number,public  y: number) {
     }
@@ -45,12 +50,17 @@ export function rotate(b: Vector, degree: Angle) {
     let y = Math.sin(degree) * b.x + b.y * Math.cos(degree);
     return new Vector(x, y);
 }
-export function plus(a: Point, b: Vector) {
+export function plus(a: Point, b: Vector | Point) {
     return new Point(a.x + b.x, a.y + b.y);
 }
-export function minus(a: Point, b: Vector) {
+export function minus(a: Point, b: Vector | Point) {
     return new Point(a.x - b.x, a.y - b.y);
 }
+
+export function mapPoint(a: Point, scale: number) {
+    return new Point(a.x * scale, a.y * scale);
+}
+
 export function scale(a: Vector, scale: number) {
     return new Vector(a.x * scale, a.y * scale);
 }

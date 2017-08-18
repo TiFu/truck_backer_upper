@@ -20,6 +20,9 @@ export class Truck {
         return this.cabinFrontPosition.addVector(vec);
     }
 
+    public getWidth(): number {
+        return this.truckLength;
+    }
     private calculateAngles() {
         let cabinVector = calculateVector(this.couplingDevicePosition, this.cabinFrontPosition);
         let xVector = new Vector(1, 0);
