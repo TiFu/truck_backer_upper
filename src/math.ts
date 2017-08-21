@@ -45,6 +45,10 @@ export class Vector implements Object2D {
 
 export type Angle = number;
 
+export function isLeftOf(a: Point, b: Point, testPoint: c) {
+    let d = (testPoint.x - a.x) * (b.y - a.y) - (testPoint.y - a.y) * (b.x - a.x);
+    return d <= 0;
+}
 export function rotate(b: Vector, degree: Angle) {
     let x = Math.cos(degree) * b.x - b.y * Math.sin(degree);
     let y = Math.sin(degree) * b.x + b.y * Math.cos(degree);

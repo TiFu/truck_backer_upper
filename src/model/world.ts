@@ -1,4 +1,4 @@
-import { Point, Vector } from '../math'
+import { Point, Vector, isLeftOf, plus } from '../math'
 import { Truck } from './truck'
 
 export class Dock {
@@ -16,7 +16,7 @@ export class World {
 
     constructor() {      
         this.dock = new Dock(new Point(0, 0));         
-        this.truck = new Truck(new Point(20,20), new Point(20, 14), new Point(20, 0));
+        this.truck = new Truck(new Point(25,0), new Point(19, 0), new Point(5, 0));
         // TODO: assert that truck is right of dock
     }
 
@@ -25,7 +25,14 @@ export class World {
     }
 
     private isTruckAtDock() {
-        return this.truck.trailerEndPosition.x < this.dock.position.x;
+        let truckCorners = this.truck.getTruckCorners();
+        let trailerCorners = this.truck.getTrailerCorners();
+        let a = this.dock.position;
+        let b = plus(a, this.dock.dockDirection);
+
+        let truckLeftOf = truckCorners.some((p) => isLeftOf(a, b, p));
+        let trailerLeftOf = trailerCorners.some((p) => isLeftOf(a, b, p));
+        return truckLeftOf || trailerLeftOf;
     }
 
 
