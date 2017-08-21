@@ -29,22 +29,13 @@ export default class WorldVisualization extends React.Component<{ world: World},
 
     }
 
-    public mapPointToCanvas(point: Point) {
-        return new Point(10 *point.x + this.canvasWidth * 1/4., this.canvasHeight - (10 * point.y + this.canvasHeight / 2))
-    }  
-
-    public mapPointToWorld(point: Point) {
-        return new Point(point.x / 10 - this.canvasWidth * 1 /4, this.canvasHeight + point.y / 10 - this.canvasHeight / 2)
-    }
-
     public render() {
-        let cst = new CoordinateSystemTransformation(10, new Vector(this.canvasWidth * 1 / 40., this.canvasHeight / 2.0));
-//        <TruckTrailerVisualization cordSystemTransformer={cst} truck={this.props.world.truck}/>
-//        <DockVisualization cordSystemTransformer={cst} dock={this.props.world.dock} canvasWidth={this.canvasWidth} canvasHeight={this.canvasHeight} />
+        let cst = new CoordinateSystemTransformation(15, new Vector(this.canvasWidth * 1 / 4.0, this.canvasHeight / 2.0));
 
         return <Stage width={this.canvasHeight} height={this.canvasWidth}>
                         <Layer>
-                            <WheelVisualization cordSystemTransformer={cst} pointA={new Point(0,0)} pointB={new Point(0,1)} basePoint={new Point(0, 0)} boxWidth={1} wheelLength={1} wheelOffset={0.1} />
+                            <DockVisualization cordSystemTransformer={cst} dock={this.props.world.dock} canvasWidth={this.canvasWidth} canvasHeight={this.canvasHeight} />
+                            <TruckTrailerVisualization cordSystemTransformer={cst} truck={this.props.world.truck}/>
                         </Layer>
                     </Stage>
     }

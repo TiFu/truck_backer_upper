@@ -39,7 +39,8 @@ export class WheelVisualization extends React.Component<WheelVisualizationProps,
         let directionVector = calculateVector(this.props.pointA, this.props.pointB);
         console.log("Direction: ", directionVector);
 
-        let perpendicular = scale(directionVector.getOrthogonalVector(), (this.props.boxWidth + this.props.wheelOffset) / directionVector.getLength());
+        let ortho = directionVector.getOrthogonalVector();
+        let perpendicular = scale(ortho, (0.5 * this.props.boxWidth * (1 + this.props.wheelOffset)) / ortho.getLength());
         console.log("Perp: ", perpendicular);
 
         let wheelDirection = scale(directionVector, this.props.wheelLength / directionVector.getLength());

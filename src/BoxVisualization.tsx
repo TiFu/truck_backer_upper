@@ -18,11 +18,17 @@ export class BoxVisualization extends React.Component<BoxVisualizationProps, {}>
     }
 
     public map(b: Point) { 
-        return this.props.cordSystemTransformer.mapIntoNewCordSystem(b);
+        console.log("Old: ", b.toString());
+        let n =  this.props.cordSystemTransformer.mapIntoNewCordSystem(b);
+        console.log("New: ", n.toString());
+        return n;
     }
+
     public render() {
+        console.log("Box Width: ", this.props.width);
         let directionVector = calculateVector(this.props.pointA, this.props.pointB);
-        let perpendicular = scale(directionVector.getOrthogonalVector(), this.props.width / directionVector.getLength());
+        let ortho = directionVector.getOrthogonalVector();
+        let perpendicular = scale(ortho, 0.5 * this.props.width / ortho.getLength());
 
         let leftTop = this.map(plus(this.props.pointA, perpendicular));
         let rightTop = this.map(minus(this.props.pointA, perpendicular));
@@ -30,10 +36,12 @@ export class BoxVisualization extends React.Component<BoxVisualizationProps, {}>
         let leftBottom = this.map(minus(this.props.pointB, perpendicular));
         let rectanglePoints: number[] = [leftTop.x, leftTop.y, rightTop.x, rightTop.y, leftBottom.x, leftBottom.y, rightBottom.x, rightBottom.y, leftTop.x, leftTop.y];
         
+        let mappedA = this.map(this.props.pointA);
+        let mappedB = this.map(this.props.pointB);
         return  <Group>
                     <Line points={rectanglePoints} stroke="black" />
-                    <Circle radius={3} x={this.props.pointA.x} y={this.props.pointA.y} fill="black" />
-                    <Circle radius={3} x={this.props.pointB.x} y={this.props.pointB.y} fill="black" />           
+                    <Circle radius={3} x={mappedA.x} y={mappedA.y} fill="black" />
+                    <Circle radius={3} x={mappedB.x} y={mappedB.y} fill="black" />           
                 </Group>
     }
 }

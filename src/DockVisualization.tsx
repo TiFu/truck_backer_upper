@@ -20,7 +20,7 @@ export class DockVisualization extends React.Component<DockVisualizationProps, {
         return this.props.cordSystemTransformer.mapIntoNewCordSystem(b);
     }
 
-    public extend(a: StraightLine, height: number, width: number): Point[] {
+    public extendLine(a: StraightLine, height: number, width: number): Point[] {
         let start = new Point(0,0)
         let end = new Point(0, 0)
         if (a.direction.x == 0) {
@@ -35,21 +35,22 @@ export class DockVisualization extends React.Component<DockVisualizationProps, {
             let b = a.base.y - slope * a.base.x
             start.y = slope * start.x + b
             end.y = slope * end.x + b
-        return [start, end]
         }
+        return [start, end]
     }
         
     public render() {
-        let p = this.props.dock.position;
+        let p = this.map(this.props.dock.position);
         let d = this.props.dock.dockDirection;
         
-        let mappedP = this.map(p);
-        let [start, end] = this.extend(new StraightLine(p, d),  this.props.canvasHeight, this.props.canvasWidth);
-
-
+        let points = this.extendLine(new StraightLine(p, d),  this.props.canvasHeight, this.props.canvasWidth);
+        let start = points[0];
+        let end = points[1];
+        console.log(start.toString());
+        console.log(end.toString());
         return <Group>
-                    <Circle radius={3} x={mappedP.x} y={mappedP.y} fill="black" />
                     <Line points={[start.x, start.y, end.x, end.y]} stroke="black" />           
+                    <Circle radius={3} x={p.x} y={p.y} fill="red" />
         </Group>
     }
 }

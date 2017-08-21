@@ -25,10 +25,10 @@ export class CouplingDeviceVisualization extends React.Component<CouplingDeviceV
         let cab = this.props.truck.getEndOfTruck();
 
         // need rotated vector (e.g. 30 degrees)
-        let vec = calculateVector(cab, cdp);
-        let rotateDegree: Angle = 30 / 180.0 * Math.PI;
-        let rotatedDirectionA = scale(rotateVector(vec, rotateDegree), vec.getLength() / Math.cos(rotateDegree));
-        let rotatedDirectionB = scale(rotateVector(vec, -rotateDegree), vec.getLength() / Math.cos(rotateDegree));
+        let vec = calculateVector(cdp, cab);
+        let rotateDegree: Angle = 10 / 180.0 * Math.PI;
+        let rotatedDirectionA = scale(rotateVector(vec, rotateDegree), 1 / Math.cos(rotateDegree));
+        let rotatedDirectionB = scale(rotateVector(vec, -rotateDegree), 1 / Math.cos(rotateDegree));
         
         let connectPointA = this.map(plus(cdp, rotatedDirectionA))
         let connectPointB = this.map(plus(cdp, rotatedDirectionB));

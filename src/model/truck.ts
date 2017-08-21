@@ -16,13 +16,14 @@ export class Truck {
         this.calculateLengths();
     }
     public getEndOfTruck(): Point {
-        let vec = calculateVector(this.cabinFrontPosition, this.couplingDevicePosition).scale(1/2.);
+        let vec = calculateVector(this.cabinFrontPosition, this.couplingDevicePosition).scale(7/12.);
         return this.cabinFrontPosition.addVector(vec);
     }
 
     public getWidth(): number {
-        return this.truckLength;
+        return calculateVector(this.getEndOfTruck(), this.cabinFrontPosition).getLength();
     }
+
     private calculateAngles() {
         let cabinVector = calculateVector(this.couplingDevicePosition, this.cabinFrontPosition);
         let xVector = new Vector(1, 0);
