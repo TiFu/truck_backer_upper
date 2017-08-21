@@ -29,7 +29,12 @@ export class World {
     }
 
 
-    public nextTimeStep(steeringSignal: number) {
-        this.truck.nextTimeStep(steeringSignal);        
+    public nextTimeStep(steeringSignal: number): boolean {
+        if (!this.isTruckAtDock()) {
+            this.truck.nextTimeStep(steeringSignal);        
+            return this.isTruckAtDock();
+        } else {
+            return false;
+        }
     }
 }

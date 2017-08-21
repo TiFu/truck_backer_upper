@@ -1,4 +1,4 @@
-import { Point, Vector, Angle, getAngle, calculateVector, rotateVector } from '../math'
+import { Point, scale, minus, plus,  Vector, Angle, getAngle, calculateVector, rotateVector } from '../math'
 import {expect} from 'chai';
 
 export class Truck {
@@ -18,6 +18,26 @@ export class Truck {
     public getEndOfTruck(): Point {
         let vec = calculateVector(this.cabinFrontPosition, this.couplingDevicePosition).scale(7/12.);
         return this.cabinFrontPosition.addVector(vec);
+    }
+
+    public getTruckCorners(): Point[] {
+        return this.calculateCornersFrom2Points(this.getEndOfTruck(), this.cabinFrontPosition);
+    }
+
+    private calculateCornersFrom2Points(a: Point, b: Point): Point[] {
+        let directionVector = calculateVector(a, b);
+        let ortho = directionVector.getOrthogonalVector();
+        let perpendicular = scale(ortho, 0.5 * this.getWidth() / ortho.getLength());
+
+        let leftTop = plus(a, perpendicular);
+        let rightTop = minus(a, perpendicular);
+        let rightBottom = minus(b, perpendicular);
+        let leftBottom = plus(b, perpendicular);       
+        return [leftTop, rightTop, rightBottom, leftBottom];
+    }
+
+    public getTrailerCorners(): Point[] {
+        return this.calculateCornersFrom2Points(this.trailerEndPosition, this.couplingDevicePosition);
     }
 
     public getWidth(): number {
