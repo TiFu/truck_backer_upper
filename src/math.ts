@@ -2,6 +2,7 @@ export interface Object2D {
     x: number;
     y: number;
 }
+export type Scalar = number;
 
 export class Point implements Object2D {
     constructor(public x: number, public y: number) {
