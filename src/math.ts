@@ -46,7 +46,7 @@ export class Vector implements Object2D {
 
 export type Angle = number;
 
-export function isLeftOf(a: Point, b: Point, testPoint: c) {
+export function isLeftOf(a: Point, b: Point, testPoint: Point) {
     let d = (testPoint.x - a.x) * (b.y - a.y) - (testPoint.y - a.y) * (b.x - a.x);
     return d <= 0;
 }

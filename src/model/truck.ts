@@ -1,5 +1,8 @@
 import { Point, scale, minus, plus,  Vector, Angle, getAngle, calculateVector, rotateVector } from '../math'
+import * as nnMath from '../neuralnet/math' // TODO: union math libraries..
+
 import {expect} from 'chai';
+
 
 export class Truck {
     public velocity = 1; // m/sec
@@ -15,6 +18,11 @@ export class Truck {
         this.calculateAngles();
         this.calculateLengths();
     }
+
+    public getStateVector(): nnMath.Vector {
+        return new nnMath.Vector([this.couplingDevicePosition.x, this.couplingDevicePosition.y, this.truckXAngle, this.trailerEndPosition.x, this.trailerEndPosition.y, this.trailerXAngle]);
+    }
+
     public getEndOfTruck(): Point {
         let vec = calculateVector(this.cabinFrontPosition, this.couplingDevicePosition).scale(7/12.);
         return this.cabinFrontPosition.addVector(vec);
@@ -82,7 +90,6 @@ export class Truck {
 
     public nextTimeStep(steeringSignal: number) {
         let steeringAngle = steeringSignal * this.maxSteeringAngle;
-        console.log("Last Angle: " + steeringAngle);
         this.lastSteeringAngle = steeringAngle;
 
         let a = this.velocity * Math.cos(steeringAngle)
@@ -100,9 +107,6 @@ export class Truck {
             this.truckXAngle -= newTrailerAngle + Math.PI / 2;
             this.lastSteeringAngle = 0;
         }
-        console.log("New Truck Angle: " + this.truckXAngle);
-        console.log("New Trailer Angle: " + this.trailerXAngle);
-        console.log("Diff: " + this.getTrailerAngle());
         this.couplingDevicePosition.x = this.trailerEndPosition.x + Math.cos(this.trailerXAngle) * this.trailerLength
         this.couplingDevicePosition.y = this.trailerEndPosition.y + Math.sin(this.trailerXAngle) * this.trailerLength
         this.cabinFrontPosition.x = this.couplingDevicePosition.x + Math.cos(this.truckXAngle) * this.truckLength
@@ -110,6 +114,7 @@ export class Truck {
     }
 }
 
+TODO: set truck into random position!
 export class TruckException extends Error {
     public constructor(message: string) {
         super(message);

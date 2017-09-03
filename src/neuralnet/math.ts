@@ -9,6 +9,14 @@ export class Vector {
         this.length = entries.length;
     }
 
+    public isEntryNaN() {
+        for (let i = 0; i < this.entries.length; i++) {
+            if (Number.isNaN(this.entries[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
     public multiply(other: Vector): Scalar {
         let sum = 0.0;
         for (let i = 0; i < this.entries.length; i++) {
@@ -43,4 +51,12 @@ export class Vector {
         }
         return new Vector(scaledEntries);
     }
+}
+
+export function plus(a: Vector, b: Vector): Vector {
+    let entries = [];
+    for (let i = 0; i < a.length; i++) {
+        entries[i] = a.entries[i] + b.entries[i];
+    }  
+    return new Vector(entries);
 }

@@ -14,11 +14,27 @@ export class Tanh implements ActivationFunction {
     }
 
     apply(input: Scalar) {
-        return (Math.exp(input) - Math.exp(-input)) / (Math.exp(input)  + Math.exp(-input));
+        return Math.tanh(input);
     }
 
     // TODO: do we assume that the input is tanh(x) or x?
     applyDerivative(input: Scalar) {
         return 1 - this.apply(input) * this.apply(input);
     }
+}
+
+export class Linear implements ActivationFunction {
+    getName() {
+        return "linear";
+    }
+
+    apply(input: Scalar) {
+        return input;
+    }
+
+    // TODO: do we assume that the input is tanh(x) or x?
+    applyDerivative(input: Scalar) {
+        return 1;
+    }
+    
 }

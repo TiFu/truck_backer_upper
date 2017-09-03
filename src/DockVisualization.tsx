@@ -46,8 +46,6 @@ export class DockVisualization extends React.Component<DockVisualizationProps, {
         let points = this.extendLine(new StraightLine(p, d),  this.props.canvasHeight, this.props.canvasWidth);
         let start = points[0];
         let end = points[1];
-        console.log(start.toString());
-        console.log(end.toString());
         return <Group>
                     <Line points={[start.x, start.y, end.x, end.y]} stroke="black" />           
                     <Circle radius={3} x={p.x} y={p.y} fill="red" />

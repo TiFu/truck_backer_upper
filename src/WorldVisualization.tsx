@@ -17,7 +17,7 @@ export default class WorldVisualization extends React.Component<{ world: World},
 
     public constructor(props: { world: World}) {
         super(props);
-        this.canvasWidth = 800
+        this.canvasWidth = 1600
         this.canvasHeight = 800
     }
 
@@ -32,7 +32,7 @@ export default class WorldVisualization extends React.Component<{ world: World},
     public render() {
         let cst = new CoordinateSystemTransformation(15, new Vector(this.canvasWidth * 1 / 4.0, this.canvasHeight / 2.0));
 
-        return <Stage width={this.canvasHeight} height={this.canvasWidth}>
+        return <Stage width={this.canvasWidth} height={this.canvasHeight}>
                         <Layer>
                             <DockVisualization cordSystemTransformer={cst} dock={this.props.world.dock} canvasWidth={this.canvasWidth} canvasHeight={this.canvasHeight} />
                             <TruckTrailerVisualization cordSystemTransformer={cst} truck={this.props.world.truck}/>

@@ -15,15 +15,10 @@ export class World {
     public truck: Truck;
 
     constructor() {      
-        this.dock = new Dock(new Point(0, 0));         
-        this.truck = new Truck(new Point(25,0), new Point(19, 0), new Point(5, 0));
-        // TODO: assert that truck is right of dock
+        this.resetWorld();
     }
 
-    public isEndState() {
-        return this.truck.isJacknifed() || this.isTruckAtDock();
-    }
-
+    // TODO: add check that truck is not too far away from area
     private isTruckAtDock() {
         let truckCorners = this.truck.getTruckCorners();
         let trailerCorners = this.truck.getTrailerCorners();
@@ -34,12 +29,16 @@ export class World {
         let trailerLeftOf = trailerCorners.some((p) => isLeftOf(a, b, p));
         return truckLeftOf || trailerLeftOf;
     }
+// TODO: reset world state function
 
-
+    public resetWorld() {
+        this.dock = new Dock(new Point(0, 0));         
+        this.truck = new Truck(new Point(50,0), new Point(44, 0), new Point(30, 0));
+    }
     public nextTimeStep(steeringSignal: number): boolean {
         if (!this.isTruckAtDock()) {
             this.truck.nextTimeStep(steeringSignal);        
-            return this.isTruckAtDock();
+            return !this.isTruckAtDock();
         } else {
             return false;
         }
