@@ -39,6 +39,15 @@ export class NeuralNet {
         this.outputDim = lastNeuronCount;
     }
 
+    public getWeights(): Array<Array<Array<number>>> {
+        return this.layers.map(l => l.getWeights());
+    }
+
+    public loadWeights(weights: Array<Array<Array<number>>>) {
+        for (let i = 0; i < this.layers.length; i++) {
+            this.layers[i].loadWeights(weights[i]);
+        }
+    }
     public getOutputDim(): number {
         return this.outputDim;
     }
@@ -47,8 +56,16 @@ export class NeuralNet {
         return this.inputDim;
     }
 
-    public fixWeights() {
+    public fixWeights(fixed: boolean) {
+        for (let layer of this.layers) {
+            layer.fixWeights(fixed);
+        }
+    }
 
+    public updateWithAccumulatedWeights() {
+        for (let layer of this.layers) {
+            layer.updateWithAccumulatedWeights();
+        }        
     }
     public forward(input: Vector): Vector {
         let nextInput = input;
@@ -58,13 +75,18 @@ export class NeuralNet {
         return nextInput;
     }
 
+    public backwardWithGradient(gradient: Vector, accumulateWeigthUpdates: boolean): Vector {
+        let error = gradient;
+        for (let i = this.netConfig.layerConfigs.length - 1; i >= 0; i--) {
+            error = this.layers[i].backward(error, this.netConfig.learningRate, accumulateWeigthUpdates);
+        }
+        return error;        
+    }
+
     public backward(output: Vector, expected: Vector): Vector {
         let error = this.netConfig.errorFunction.getErrorDerivative(output, expected);
         this.errors.push(this.netConfig.errorFunction.getError(output, expected));
         console.log("[Net] Remaining Error: ", this.netConfig.errorFunction.getError(output, expected));
-        for (let i = this.netConfig.layerConfigs.length - 1; i >= 0; i--) {
-            error = this.layers[i].backward(error, this.netConfig.learningRate);
-        }
-        return error;
+        return this.backwardWithGradient(error, false);
     }
 }

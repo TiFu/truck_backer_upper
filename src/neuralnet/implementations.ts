@@ -25,4 +25,27 @@ export var emulatorNetConfig: NetConfig = {
         outputEmulatorLayer
     ]
 }
+
 export var emulatorNet = new NeuralNet(emulatorNetConfig);
+
+export var hiddenControllerLayer: LayerConfig = {
+    neuronCount: 25,
+    unitConstructor: (weights: Vector, activation: ActivationFunction) => new AdalineUnit(weights, activation),
+    activation: new Tanh()
+}
+
+export var outputControllerLayer: LayerConfig = {
+    neuronCount: 1,
+    unitConstructor: (weights: Vector, activation: ActivationFunction) => new AdalineUnit(weights, activation),
+    activation: new Linear()       
+}
+
+export var controllerNetConfig: NetConfig = {
+    inputs: 6,
+    learningRate: 0.0001,
+    errorFunction: new MSE(),
+    layerConfigs: [
+        hiddenControllerLayer,
+        outputControllerLayer
+    ]    
+}

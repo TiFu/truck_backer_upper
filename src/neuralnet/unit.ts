@@ -3,22 +3,33 @@ import {ActivationFunction} from './activation';
 
 export interface Unit {
     forward(input: Vector): Scalar;
-    backward(error: Scalar, learningRate: Scalar): Vector;
-    getWeights(): Vector;
-    fixWeights(): void;
+    backward(error: Scalar, learningRate: Scalar, accumulatedWeightUpdates: boolean): Vector;
+    updateWithAccumulatedWeights(): void;
+    fixWeights(fixed: boolean): void;
+    getWeights(): Array<number>;
+    loadWeights(weights: Array<number>): void;
 }
 
 export class AdalineUnit implements Unit {
     private lastSum: Scalar;
     private lastInput: Vector;
     private fixedWeights: boolean;
+    private accumulatedWeights: Vector;
 
     constructor(private weights: Vector, private activation: ActivationFunction) {
         this.fixedWeights = false;
     }
 
-    public getWeights(): Vector {
-        return this.weights;
+    public saveWeights(): Vector {
+        return this.weights
+    }
+
+    public loadWeights(weights: Array<number>) {
+        this.weights = new Vector(weights);
+    }
+
+    public getWeights(): Array<number> {
+        return this.weights.entries;
     }
 
     public forward(input: Vector): Scalar {
@@ -38,23 +49,36 @@ export class AdalineUnit implements Unit {
         return activated;
     }
 
-    public fixWeights() {
-        this.fixedWeights = true;
+    public fixWeights(fixed: boolean) {
+        this.fixedWeights = fixed;
     }
+    public updateWithAccumulatedWeights() {
+        this.updateWeights(this.accumulatedWeights);
+    }
+
     // Returns derivative wrt to the inputs
-    public backward(error: Scalar, learningRate: Scalar): Vector {
+    public backward(error: Scalar, learningRate: Scalar, accumulateWeigthUpdates: boolean): Vector {
         let activationDerivative = this.activation.applyDerivative(this.lastSum);
         let scalarFactor = error * activationDerivative;
         let inputDerivative: Vector = this.weights.getScaled(scalarFactor);
         if (!this.fixedWeights) {
             let weightDerivative: Vector = this.lastInput.getScaled(scalarFactor);
-            this.updateWeights(learningRate, weightDerivative);
+            let update = this.calculateWeightUpdate(learningRate, weightDerivative);
+
+            if (accumulateWeigthUpdates) {
+                this.accumulatedWeights.add(update);
+            } else {
+                this.updateWeights(update);
+            }
         }
 
         return inputDerivative;
     }
 
-    private updateWeights(learningRate: Scalar, weightDerivative: Vector) {
-        this.weights.add(weightDerivative.scale(- learningRate))
+    private calculateWeightUpdate(learningRate: Scalar, weightDerivative: Vector): Vector {
+        return weightDerivative.scale(- learningRate);
+    }
+    private updateWeights( update: Vector) {
+        this.weights.add(update)
     }
 }
