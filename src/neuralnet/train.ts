@@ -14,8 +14,10 @@ export class TrainTruckEmulator {
         }
     }
 
-    public trainStep(): boolean {
-        let nextSteeringAngle = Math.random() * 2 - 1;
+    public getErrorCurve(): Array<number> {
+        return this.neuralNet.errors;
+    }
+    public trainStep(nextSteeringAngle: number): boolean {
         let stateVector = this.world.truck.getStateVector();
         stateVector = stateVector.getWithNewElement(nextSteeringAngle);
 //        console.log("[TrainTruckEmulator] Steering Angle: ", nextSteeringAngle);
@@ -32,9 +34,13 @@ export class TrainTruckEmulator {
     }
 
     public train(epochs: number) {
+        let nextSteeringAngle = Math.random() * 2 - 1;
         for (let i = 0; i < epochs; i++) {
-            console.log("Step: " + i);
-            this.trainStep();
+            let cont = this.trainStep(nextSteeringAngle);
+            if (!cont) {
+                return i;
+            }
         }
+        return epochs;
     }
 }

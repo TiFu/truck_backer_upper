@@ -5,14 +5,16 @@ export interface Unit {
     forward(input: Vector): Scalar;
     backward(error: Scalar, learningRate: Scalar): Vector;
     getWeights(): Vector;
+    fixWeights(): void;
 }
 
 export class AdalineUnit implements Unit {
     private lastSum: Scalar;
     private lastInput: Vector;
+    private fixedWeights: boolean;
 
     constructor(private weights: Vector, private activation: ActivationFunction) {
-
+        this.fixedWeights = false;
     }
 
     public getWeights(): Vector {
@@ -36,22 +38,19 @@ export class AdalineUnit implements Unit {
         return activated;
     }
 
+    public fixWeights() {
+        this.fixedWeights = true;
+    }
     // Returns derivative wrt to the inputs
     public backward(error: Scalar, learningRate: Scalar): Vector {
         let activationDerivative = this.activation.applyDerivative(this.lastSum);
         let scalarFactor = error * activationDerivative;
-        let weightDerivative: Vector = this.lastInput.getScaled(scalarFactor);
         let inputDerivative: Vector = this.weights.getScaled(scalarFactor);
-        if (weightDerivative.isEntryNaN()) { 
-            console.log("[Unit] Activation Derivative: ", activationDerivative);
-            console.log("[Unit] Error: ", error);
-            console.log("[Unit] Weight Derivative: ", weightDerivative.entries);
-            console.log("[Unit] Input Derivative: ", inputDerivative.entries);
+        if (!this.fixedWeights) {
+            let weightDerivative: Vector = this.lastInput.getScaled(scalarFactor);
+            this.updateWeights(learningRate, weightDerivative);
         }
-        this.updateWeights(learningRate, weightDerivative);
-        if (this.weights.isEntryNaN()) {
-            console.log("[Unit][Backprop] Weights: ", this.weights.entries);            
-        }
+
         return inputDerivative;
     }
 

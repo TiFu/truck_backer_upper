@@ -4,6 +4,8 @@ import {World} from './model/world'
 import {TrainTruckEmulator} from './neuralnet/train'
 import {emulatorNet} from './neuralnet/implementations'
 
+const HighCharts = require("react-highcharts");
+
 interface SimulationState {
      world: World;
      steeringSignal: number;
@@ -15,6 +17,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
     private emulatorTrainSteps = 0;
     private emulatorTrainStepsTarget = 0;
     private emulatorTrainStepsPerFrame = 1;
+    private emulatedSteps = 5;
 
     private lastTimestamp: number;
 
@@ -36,7 +39,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
     }
 
     public nextTrainStep() {
-        this.emulatorTrainStepsTarget += 1000;
+        this.emulatorTrainStepsTarget += 20;
         this.lastTimestamp = this.lastTimestamp = performance.now();
         window.requestAnimationFrame(this.aniFrameCallback);
     }
@@ -53,17 +56,17 @@ export default class Simulation extends React.Component<{}, SimulationState> {
         for (let i = 0; i < this.emulatorTrainStepsPerFrame && this.emulatorTrainSteps < this.emulatorTrainStepsTarget; i++) {
             this.emulatorTrainSteps++;
             console.log(this.emulatorTrainSteps + " of " + this.emulatorTrainStepsTarget);
-            let canDoNextStep = this.trainTruckEmulator.trainStep();
-            if (!canDoNextStep) {
-                this.state.world.resetWorld();
-//                this.emulatorTrainStepsTarget = this.emulatorTrainSteps;
-//                break;
+            let epochs = 0;
+            while (epochs < this.emulatedSteps) {
+                epochs += this.trainTruckEmulator.train(this.emulatedSteps);
+                this.state.world.randomize();
             }
-
         }
-        this.onFrame(true);
+        this.onFrame(false);
         if (this.emulatorTrainSteps < this.emulatorTrainStepsTarget) {
             window.requestAnimationFrame(this.aniFrameCallback);
+        } else {
+            this.onFrame(true);
         }
     }
 
@@ -73,6 +76,26 @@ export default class Simulation extends React.Component<{}, SimulationState> {
         
     }
 
+    public getErrorConfig() {
+        console.log(this.trainTruckEmulator.getErrorCurve());
+        return {
+            "chart": {
+                "type": "line"
+            },
+            xAxis: {
+
+            },
+            yAxis: {
+
+            },
+            series: [
+                {
+                    name: "Emulator Error",
+                    data: this.trainTruckEmulator.getErrorCurve()
+                }
+            ]
+        }
+    }
     public render() {
         return <div>
             <WorldVisualization world={this.state.world} />
@@ -80,6 +103,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
             <input type="text"  onChange={this.steeringSignalChanged.bind(this)}/>
             <input type="button" onClick={this.nextStep.bind(this)} value="Next Time Step" />
             <input type="button" disabled={this.state.stopSimulation} onClick={this.nextTrainStep.bind(this)} value="Next Train Step" />
+            <HighCharts config={this.getErrorConfig()} />
         </div>
     }
 }

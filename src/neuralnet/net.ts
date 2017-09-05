@@ -20,8 +20,11 @@ export class NeuralNet {
     private layers: Layer[];
     private outputDim: number;
     private inputDim: number;
+    public errors: Array<number> = [];
+    private fixedWeights: boolean;
 
     constructor(private netConfig: NetConfig) {
+        this.fixedWeights = false;
         this.layers = new Array(netConfig.layerConfigs.length);
         let input = netConfig.inputs;
         this.inputDim = input;
@@ -44,6 +47,9 @@ export class NeuralNet {
         return this.inputDim;
     }
 
+    public fixWeights() {
+
+    }
     public forward(input: Vector): Vector {
         let nextInput = input;
         for (let i = 0; i < this.netConfig.layerConfigs.length; i++) {
@@ -54,6 +60,7 @@ export class NeuralNet {
 
     public backward(output: Vector, expected: Vector): Vector {
         let error = this.netConfig.errorFunction.getErrorDerivative(output, expected);
+        this.errors.push(this.netConfig.errorFunction.getError(output, expected));
         console.log("[Net] Remaining Error: ", this.netConfig.errorFunction.getError(output, expected));
         for (let i = this.netConfig.layerConfigs.length - 1; i >= 0; i--) {
             error = this.layers[i].backward(error, this.netConfig.learningRate);

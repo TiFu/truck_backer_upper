@@ -22,6 +22,11 @@ export class Layer {
         return new Vector(random);
     }
 
+    public fixWeights() {
+        for (let unit of this.units) {
+            unit.fixWeights();
+        }
+    }
     public forward(input: Vector): Vector {
         if (input.length != this.inputDim) {
             throw new Error("Invalid Input Dimension! Expected " + this.inputDim + ", but got " + input.length);

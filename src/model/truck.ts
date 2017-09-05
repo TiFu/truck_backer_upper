@@ -1,4 +1,4 @@
-import { Point, scale, minus, plus,  Vector, Angle, getAngle, calculateVector, rotateVector } from '../math'
+import { Point, scale, minus, plus,  Vector, Angle, getAngle, calculateVector, rotate } from '../math'
 import * as nnMath from '../neuralnet/math' // TODO: union math libraries..
 
 import {expect} from 'chai';
@@ -30,6 +30,33 @@ export class Truck {
 
     public getTruckCorners(): Point[] {
         return this.calculateCornersFrom2Points(this.getEndOfTruck(), this.cabinFrontPosition);
+    }
+
+    public setTruckIntoRandomPosition(topLeft: Point, bottomRight: Point) {
+        let width = bottomRight.x - topLeft.x;
+        let height = bottomRight.y - topLeft.y;
+
+        let cdpX = topLeft.x + width * Math.random();
+        let cdpY = topLeft.y + height * Math.random();
+        let cdp = new Point(cdpX, cdpY);
+
+        let trailerDirectionVector = new Vector(2 * Math.random() - 1, 2 * Math.random() - 1);
+        trailerDirectionVector.scale(this.trailerLength / trailerDirectionVector.getLength());
+        let tep = plus(cdp, trailerDirectionVector);
+
+        // now points from tep to cdp
+        trailerDirectionVector.scale(-1);
+        trailerDirectionVector.scale(this.truckLength / trailerDirectionVector.getLength());
+        let degree: Angle = (Math.random() * 2 -1 ) * Math.PI / 2; // rotation between -90 and 90 degrees
+        let rotatedVector = rotate(trailerDirectionVector, degree);
+
+        let cfp = plus(cdp, rotatedVector);
+
+        this.couplingDevicePosition = cdp;
+        this.cabinFrontPosition = cfp;
+        this.trailerEndPosition = tep;
+        console.log("New Position: ",  this.cabinFrontPosition.toString(), this.couplingDevicePosition.toString(), this.trailerEndPosition.toString());
+        this.calculateAngles();
     }
 
     private calculateCornersFrom2Points(a: Point, b: Point): Point[] {
@@ -114,7 +141,6 @@ export class Truck {
     }
 }
 
-TODO: set truck into random position!
 export class TruckException extends Error {
     public constructor(message: string) {
         super(message);

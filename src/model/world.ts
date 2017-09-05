@@ -35,6 +35,14 @@ export class World {
         this.dock = new Dock(new Point(0, 0));         
         this.truck = new Truck(new Point(50,0), new Point(44, 0), new Point(30, 0));
     }
+
+    public randomize() {
+        this.truck.setTruckIntoRandomPosition(new Point(0, 10), new Point(55, 0) );
+        while(this.isTruckAtDock()) {
+            this.truck.setTruckIntoRandomPosition(new Point(0, 10), new Point(55, 0) );
+        }
+    }
+
     public nextTimeStep(steeringSignal: number): boolean {
         if (!this.isTruckAtDock()) {
             this.truck.nextTimeStep(steeringSignal);        
