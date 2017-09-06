@@ -47,6 +47,8 @@ export class TrainTruckEmulator {
 export class TrainTruckController {
     public errors: Array<number> = [];
     public fixedEmulator = false;
+    private maxSteps = 100;
+
     public constructor(private world: World, private controllerNet: NeuralNet, private emulatorNet: NeuralNet) {
         // TODO: verify compatibility of emulator net and controller net
     }
@@ -60,6 +62,9 @@ export class TrainTruckController {
         this.fixEmulator(false);
     }
 
+    public getErrorCurve(): Array<number> {
+        return this.errors;
+    }
     private fixEmulator(fix: boolean) {
         if (this.fixedEmulator != fix) {
             this.emulatorNet.fixWeights(fix); // do not train emulator
@@ -70,18 +75,27 @@ export class TrainTruckController {
         this.fixEmulator(true);
 
         let currentState = this.world.truck.getStateVector();
+        console.log("[TrainTruckCnotroller] Initial State: ", currentState.toString());
         let canContinue = true;
         let controllerSignals = [];
         let statesFromEmulator = [];
+        let i = 0;
         while (canContinue) {
             let controllerSignal = this.controllerNet.forward(currentState);
             let stateWithSteering = currentState.getWithNewElement(controllerSignal.entries[0]);
+            // TODO: remove these variables => replace with counter
+            console.log("[Controller] ", controllerSignal.entries[0]);
             controllerSignals.push(controllerSignal);
 
             currentState = this.emulatorNet.forward(stateWithSteering);
             statesFromEmulator.push(currentState);
 
-            let canContinue = this.world.nextTimeStep(controllerSignal.entries[0]);
+            canContinue = this.world.nextTimeStep(controllerSignal.entries[0]);
+            console.log(this.world.truck.getStateVector().toString());
+            if (i > this.maxSteps) {
+                throw Error("ugh")
+            }
+            i++;
         }
 
         // we hit the end => calculate our erro, backpropagate
@@ -93,7 +107,7 @@ export class TrainTruckController {
         console.log("[TruckController] Remaining Error: ", error);
         this.errors.push(error);
 
-        for (let i = statesFromEmulator.length; i >= 0; i++){ 
+        for (let i = statesFromEmulator.length; i >= 0; i--){ 
             let emulatorDerivative = this.emulatorNet.backwardWithGradient(controllerDerivative, false);
             let steeringSignalDerivative = emulatorDerivative.entries[6]; // last entry
             controllerDerivative = this.controllerNet.backwardWithGradient(new Vector([steeringSignalDerivative]), true);

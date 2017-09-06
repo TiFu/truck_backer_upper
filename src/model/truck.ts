@@ -17,6 +17,9 @@ export class Truck {
     public constructor(public cabinFrontPosition: Point, public couplingDevicePosition: Point, public trailerEndPosition: Point) {
         this.calculateAngles();
         this.calculateLengths();
+        console.log(this.cabinFrontPosition.x);
+        console.log(this.couplingDevicePosition.x)
+        console.log("Initial Position: ", this.getStateVector().toString());
     }
 
     public getStateVector(): nnMath.Vector {
@@ -112,7 +115,8 @@ export class Truck {
     }
 
     private getTrailerAngle(): Angle {
-        return this.truckXAngle - this.trailerXAngle;
+        let val = this.truckXAngle - this.trailerXAngle;
+        return val;
     }
 
     public nextTimeStep(steeringSignal: number) {
@@ -126,6 +130,7 @@ export class Truck {
         
         this.trailerXAngle -= Math.asin((a * Math.sin(this.truckXAngle - this.trailerXAngle))/this.trailerLength)
         this.truckXAngle += Math.asin((this.velocity * Math.sin(steeringAngle))/(this.truckLength + this.trailerLength))
+
         let newTrailerAngle = this.getTrailerAngle();
         if (newTrailerAngle > Math.PI / 2) {
             this.truckXAngle -= newTrailerAngle - Math.PI / 2;
@@ -134,10 +139,22 @@ export class Truck {
             this.truckXAngle -= newTrailerAngle + Math.PI / 2;
             this.lastSteeringAngle = 0;
         }
+
+        if (this.trailerXAngle >= 2 * Math.PI) {
+            this.truckXAngle -= 2 * Math.PI;
+            this.trailerXAngle -= 2 * Math.PI;
+        } else if (this.trailerXAngle < 0) {
+            this.truckXAngle += 2 * Math.PI;
+            this.trailerXAngle += 2 * Math.PI;
+        }
+
+
         this.couplingDevicePosition.x = this.trailerEndPosition.x + Math.cos(this.trailerXAngle) * this.trailerLength
         this.couplingDevicePosition.y = this.trailerEndPosition.y + Math.sin(this.trailerXAngle) * this.trailerLength
         this.cabinFrontPosition.x = this.couplingDevicePosition.x + Math.cos(this.truckXAngle) * this.truckLength
         this.cabinFrontPosition.y = this.couplingDevicePosition.y + Math.sin(this.truckXAngle) * this.truckLength
+
+        // normalize angles
     }
 }
 

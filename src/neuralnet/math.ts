@@ -51,6 +51,19 @@ export class Vector {
         }
         return new Vector(scaledEntries);
     }
+
+    public toString(): string {
+        let str = "(";
+        for (let i = 0; i < this.entries.length; i++) {
+            if (i == 0) {
+                str += this.entries[i];
+            } else {
+            str += ", " + this.entries[i];
+            }
+        }
+        str += ")";
+        return str;
+    }
 }
 
 export function plus(a: Vector, b: Vector): Vector {

@@ -18,6 +18,7 @@ export class AdalineUnit implements Unit {
 
     constructor(private weights: Vector, private activation: ActivationFunction) {
         this.fixedWeights = false;
+        this.resetAccumulatedWeights();
     }
 
     public saveWeights(): Vector {
@@ -51,6 +52,11 @@ export class AdalineUnit implements Unit {
 
     public fixWeights(fixed: boolean) {
         this.fixedWeights = fixed;
+    }
+    private resetAccumulatedWeights() {
+        let entries = new Array(this.weights.length);
+        entries.fill(0);
+        this.accumulatedWeights = new Vector(entries);
     }
     public updateWithAccumulatedWeights() {
         this.updateWeights(this.accumulatedWeights);

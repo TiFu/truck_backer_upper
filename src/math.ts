@@ -24,6 +24,10 @@ export class StraightLine {
     constructor(public base: Point, public direction: Vector) {
 
     }
+
+    public isLeftOf(b: Point) {
+        return isLeftOf(this.base, plus(this.base, this.direction), b);
+    }
 }
 export class Vector implements Object2D {
     constructor(public x: number,public  y: number) {

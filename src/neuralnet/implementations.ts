@@ -37,7 +37,7 @@ export var hiddenControllerLayer: LayerConfig = {
 export var outputControllerLayer: LayerConfig = {
     neuronCount: 1,
     unitConstructor: (weights: Vector, activation: ActivationFunction) => new AdalineUnit(weights, activation),
-    activation: new Linear()       
+    activation: new Tanh() // [-1, 1]       
 }
 
 export var controllerNetConfig: NetConfig = {
@@ -49,3 +49,5 @@ export var controllerNetConfig: NetConfig = {
         outputControllerLayer
     ]    
 }
+
+export var controllerNet = new NeuralNet(controllerNetConfig);

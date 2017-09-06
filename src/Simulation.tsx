@@ -2,8 +2,8 @@ declare var require: any; // trust me require exists
 import * as React from 'react'
 import WorldVisualization from "./WorldVisualization"
 import {World} from './model/world'
-import {TrainTruckEmulator} from './neuralnet/train'
-import {emulatorNet} from './neuralnet/implementations'
+import {TrainTruckEmulator, TrainTruckController} from './neuralnet/train'
+import {emulatorNet, controllerNet} from './neuralnet/implementations'
 
 const HighCharts = require("react-highcharts");
 
@@ -16,11 +16,16 @@ interface SimulationState {
 export default class Simulation extends React.Component<{}, SimulationState> {
     static instance: Simulation;
     private trainTruckEmulator: TrainTruckEmulator;
+    private trainTruckController: TrainTruckController
 
+    private emulatorNetTextArea: HTMLTextAreaElement;
     private emulatorTrainSteps = 0;
     private emulatorTrainStepsTarget = 0;
     private emulatorTrainStepsPerFrame = 1;
     private emulatedSteps = 5;
+
+    private controllerTrainStepsTarget = 0;
+    private controllerTrainSteps = 0;
 
     private lastTimestamp: number;
 
@@ -30,6 +35,8 @@ export default class Simulation extends React.Component<{}, SimulationState> {
         else Simulation.instance = this;
         this.state = {world: new World(), steeringSignal: 0, running: false, emulatorWeights: undefined};
         this.trainTruckEmulator = new TrainTruckEmulator(this.state.world, emulatorNet);
+        this.trainTruckController = new TrainTruckController(this.state.world, controllerNet, emulatorNet);
+        TrainTruckController
     }
 
     public steeringSignalChanged(evt: any) {
@@ -37,8 +44,40 @@ export default class Simulation extends React.Component<{}, SimulationState> {
     }
 
     public nextStep() {
-        this.state.world.nextTimeStep(this.state.steeringSignal);
+        console.log(this.state.world.nextTimeStep(this.state.steeringSignal));
+        console.log(this.state.world.truck.getStateVector().toString());
         this.forceUpdate();
+    }
+
+    public nextControllerTrainStep() {
+        this.controllerTrainStepsTarget += 1;
+        this.setState({running: true})
+        this.lastTimestamp = this.lastTimestamp = performance.now();
+        window.requestAnimationFrame(this.controllerAniFrameCallback);
+
+    }
+
+    public controllerAniFrameCallback = this.controllerAnimationStep.bind(this);
+    public controllerAnimationStep(timestamp: number) {
+        let delta = timestamp - this.lastTimestamp;
+        this.lastTimestamp = timestamp;
+        if (delta > 1000 / 5) {
+            console.log(delta)
+			console.warn(`only ${(1000 / delta).toFixed(1)} fps`);
+            delta = 1000 / 5;            
+        }
+        this.controllerTrainSteps++;
+        console.log(this.controllerTrainSteps + " of " + this.controllerTrainStepsTarget);
+        this.state.world.randomizeMax(20);
+        this.onFrame(true);
+        this.trainTruckController.trainStep();
+        console.log("End of train truck controller");
+        if (this.controllerTrainSteps < this.controllerTrainStepsTarget) {
+            this.onFrame(true);
+            window.requestAnimationFrame(this.controllerAniFrameCallback);
+        } else {
+            this.setState({running: false});
+        }
     }
 
     public nextEmulatorTrainStep() {
@@ -66,8 +105,8 @@ export default class Simulation extends React.Component<{}, SimulationState> {
                 this.state.world.randomize();
             }
         }
-        this.onFrame(false);
         if (this.emulatorTrainSteps < this.emulatorTrainStepsTarget) {
+            this.onFrame(false);
             window.requestAnimationFrame(this.emulatorAniFrameCallback);
         } else {
             this.setState({running: false});
@@ -81,7 +120,6 @@ export default class Simulation extends React.Component<{}, SimulationState> {
     }
 
     public getEmulatorErrorConfig() {
-        console.log(this.trainTruckEmulator.getErrorCurve());
         return {
             "chart": {
                 "type": "line"
@@ -101,10 +139,39 @@ export default class Simulation extends React.Component<{}, SimulationState> {
         }
     }
 
+    public getControllerErrorConfig() {
+        return {
+            "chart": {
+                "type": "line"
+            },
+            xAxis: {
+
+            },
+            yAxis: {
+
+            },
+            series: [
+                {
+                    name: "Controller Error",
+                    data: this.trainTruckController.getErrorCurve()
+                }
+            ]
+        }
+    }
     public saveEmulatorWeights() {
         console.log("saving emulator weights")
         console.log("Weights: ", this.trainTruckEmulator.getEmulatorNet().getWeights());
         this.setState({emulatorWeights: this.trainTruckEmulator.getEmulatorNet().getWeights()});
+    }
+
+    public loadEmulatorWeights() {
+        let val = this.emulatorNetTextArea.value
+        try {
+            let newWeights = JSON.parse(val);
+            this.trainTruckEmulator.getEmulatorNet().loadWeights(newWeights);
+        } catch(e) {
+            alert("Invalid Emulator Weights");
+        }
     }
 
     public render() {
@@ -116,12 +183,13 @@ export default class Simulation extends React.Component<{}, SimulationState> {
             <input type="button" onClick={this.nextStep.bind(this)} value="Next Time Step" />
             <input type="button" disabled={this.state.running} onClick={this.nextEmulatorTrainStep.bind(this)} value="Train Emulator" />
             <input type="button" disabled={this.state.running} onClick={this.saveEmulatorWeights.bind(this)} value="Save Emulator Weights" />
+            <input type="button" disabled={this.state.running} onClick={this.loadEmulatorWeights.bind(this)} value="Load Emulator Weights" />
+            <input type="button" disabled={this.state.running} onClick={this.nextControllerTrainStep.bind(this)} value="Train Controller" />
             
             <HighCharts config={this.getEmulatorErrorConfig()} />
+            <HighCharts config={this.getControllerErrorConfig()} />
             Emulator Weights: 
-            <textarea value={JSON.stringify(this.state.emulatorWeights)}></textarea>
+            <textarea ref={(input) => this.emulatorNetTextArea = input} value={JSON.stringify(this.state.emulatorWeights)}></textarea>
         </div>
-        TODO: add neural net controller
-//            <input type="button" disabled={this.state.running} onClick={this.nextControllerTrainingStep.bind(this)} value="Train Controller" />
     }
 }
