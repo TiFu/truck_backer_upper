@@ -40,9 +40,9 @@ export default class WorldVisualization extends React.Component<{ world: World},
         }
         return <Stage width={this.canvasWidth} height={this.canvasHeight}>
                         <Layer>
+                            {limitVis}
                             <DockVisualization cordSystemTransformer={cst} dock={this.props.world.dock} canvasWidth={this.canvasWidth} canvasHeight={this.canvasHeight} />
                             <TruckTrailerVisualization cordSystemTransformer={cst} truck={this.props.world.truck}/>
-                            {limitVis}
                         </Layer>
                     </Stage>
     }

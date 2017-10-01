@@ -68,11 +68,10 @@ export default class Simulation extends React.Component<{}, SimulationState> {
         }
         this.controllerTrainSteps++;
         console.log(this.controllerTrainSteps + " of " + this.controllerTrainStepsTarget);
-        this.state.world.randomizeMax(20);
-        this.onFrame(true);
+        this.trainTruckController.prepareTruckPosition();
         this.trainTruckController.trainStep();
         console.log("End of train truck controller");
-        if (this.controllerTrainSteps < this.controllerTrainStepsTarget) {
+        if (this.controllerTrainSteps < this.controllerTrainStepsTarget && this.state.running) {
             this.onFrame(true);
             window.requestAnimationFrame(this.controllerAniFrameCallback);
         } else {
@@ -81,7 +80,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
     }
 
     public nextEmulatorTrainStep() {
-        this.emulatorTrainStepsTarget += 20;
+        this.emulatorTrainStepsTarget += 1;
         this.setState({running: true})
         this.lastTimestamp = this.lastTimestamp = performance.now();
         window.requestAnimationFrame(this.emulatorAniFrameCallback);
@@ -96,16 +95,17 @@ export default class Simulation extends React.Component<{}, SimulationState> {
 			console.warn(`only ${(1000 / delta).toFixed(1)} fps`);
             delta = 1000 / 5;            
         }
-        for (let i = 0; i < this.emulatorTrainStepsPerFrame && this.emulatorTrainSteps < this.emulatorTrainStepsTarget; i++) {
+        for (let i = 0; i < this.emulatorTrainStepsPerFrame && this.emulatorTrainSteps < this.emulatorTrainStepsTarget && this.state.running; i++) {
             this.emulatorTrainSteps++;
             console.log(this.emulatorTrainSteps + " of " + this.emulatorTrainStepsTarget);
             let epochs = 0;
-            while (epochs < this.emulatedSteps) {
+            while (epochs < this.emulatedSteps && this.state.running) {
                 epochs += this.trainTruckEmulator.train(this.emulatedSteps);
                 this.state.world.randomize();
+                this.onFrame(true);
             }
         }
-        if (this.emulatorTrainSteps < this.emulatorTrainStepsTarget) {
+        if (this.emulatorTrainSteps < this.emulatorTrainStepsTarget && this.state.running) {
             this.onFrame(false);
             window.requestAnimationFrame(this.emulatorAniFrameCallback);
         } else {
@@ -174,6 +174,10 @@ export default class Simulation extends React.Component<{}, SimulationState> {
         }
     }
 
+    public stopTraining() {
+        this.setState({running: false});
+    }
+
     public render() {
         console.log("Text Area Content: ", JSON.stringify(this.state.emulatorWeights))
         return <div>
@@ -185,7 +189,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
             <input type="button" disabled={this.state.running} onClick={this.saveEmulatorWeights.bind(this)} value="Save Emulator Weights" />
             <input type="button" disabled={this.state.running} onClick={this.loadEmulatorWeights.bind(this)} value="Load Emulator Weights" />
             <input type="button" disabled={this.state.running} onClick={this.nextControllerTrainStep.bind(this)} value="Train Controller" />
-            
+            <input type="button" onClick={this.stopTraining.bind(this)} value="Stop" />
             <HighCharts config={this.getEmulatorErrorConfig()} />
             <HighCharts config={this.getControllerErrorConfig()} />
             Emulator Weights: 

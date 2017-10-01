@@ -35,24 +35,23 @@ export class Truck {
         return this.calculateCornersFrom2Points(this.getEndOfTruck(), this.cabinFrontPosition);
     }
 
-    public setTruckIntoRandomPosition(topLeft: Point, bottomRight: Point) {
-        let width = bottomRight.x - topLeft.x;
-        let height = bottomRight.y - topLeft.y;
-
-        let cdpX = topLeft.x + width * Math.random();
-        let cdpY = topLeft.y + height * Math.random();
-        let cdp = new Point(cdpX, cdpY);
-
-        let trailerDirectionVector = new Vector(2 * Math.random() - 1, 2 * Math.random() - 1);
-        trailerDirectionVector.scale(this.trailerLength / trailerDirectionVector.getLength());
-        let tep = plus(cdp, trailerDirectionVector);
+    /**
+     * 
+     * @param topLeft left top most position of coupling device
+     * @param bottomRight right bottom most position of coupling device
+     * @param maxTrailerAngle maximum angle between trailer and x-axis
+     * @param maxCabinTrailerAngle maximum angle between cabin and trailer 
+     */
+    public setTruckIntoRandomPosition(tep: Point, tepDirection: Vector, maxAdditionalTrailerAngle: Array<Angle>, maxCabinTrailerAngle: Array<Angle>) {
+        let additionalTrailerAngle = Math.random() * (maxAdditionalTrailerAngle[1] - maxAdditionalTrailerAngle[0]) + maxAdditionalTrailerAngle[0];
+        let rotatedTepDirection = rotate(tepDirection, additionalTrailerAngle);
+        rotatedTepDirection = rotatedTepDirection.scale(this.trailerLength / rotatedTepDirection.getLength());
+        let cdp = plus(tep, rotatedTepDirection);
 
         // now points from tep to cdp
-        trailerDirectionVector.scale(-1);
-        trailerDirectionVector.scale(this.truckLength / trailerDirectionVector.getLength());
-        let degree: Angle = (Math.random() * 2 -1 ) * Math.PI / 2; // rotation between -90 and 90 degrees
-        let rotatedVector = rotate(trailerDirectionVector, degree);
-
+        rotatedTepDirection.scale(this.truckLength / rotatedTepDirection.getLength());
+        let degree: Angle = Math.random() * (maxCabinTrailerAngle[1] - maxCabinTrailerAngle[0]) + maxCabinTrailerAngle[0];
+        let rotatedVector = rotate(rotatedTepDirection, degree);
         let cfp = plus(cdp, rotatedVector);
 
         this.couplingDevicePosition = cdp;
@@ -94,10 +93,8 @@ export class Truck {
 
     public toString(): string {
         let str = "";
-       // str += "Cabin: " + this.cabinFrontPosition.toString() + "\n"
         str += this.cabinFrontPosition.x + "," + this.cabinFrontPosition.y + "," + this.couplingDevicePosition.x + "," + this.couplingDevicePosition.y;
         str += "," + this.trailerEndPosition.x + "," + this.trailerEndPosition.y;
-//              str += "Trailer End Position: " + this.trailerEndPosition.toString() + "\n"
         return str;
     }
 
