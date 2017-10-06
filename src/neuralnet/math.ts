@@ -44,6 +44,12 @@ export class Vector {
         newArr.push(element);
         return new Vector(newArr);
     }
+
+    public getWithoutLastElement(): Vector {
+        let newArr = this.entries.slice(0);
+        newArr.pop();
+        return new Vector(newArr);
+    }
     public getScaled(factor: Scalar): Vector {
         let scaledEntries = new Array(this.length);
         for (let i = 0; i < this.length; i++) {

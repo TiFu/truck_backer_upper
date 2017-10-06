@@ -22,8 +22,8 @@ export class TrailerVisualization extends React.Component<TrailerVisualizationPr
     }
 
     public render() {
-        let eot = this.props.truck.trailerEndPosition;
-        let cfp = this.props.truck.couplingDevicePosition;
+        let eot = this.props.truck.getTrailerEndPosition();
+        let cfp = this.props.truck.getCouplingDevicePosition();
         let mappedEot = this.map(eot);
         let mappedCfp = this.map(cfp);
         return <Group>
@@ -31,6 +31,7 @@ export class TrailerVisualization extends React.Component<TrailerVisualizationPr
             <Circle radius={3} x={mappedEot.x} y={mappedEot.y} fill="black" />
             <Circle radius={3} x={mappedCfp.x} y={mappedCfp.y} fill="black" />
             <WheelVisualization cordSystemTransformer={this.props.cordSystemTransformer} basePoint={eot} pointA={eot} pointB={cfp} wheelLength={1} wheelOffset={this.props.wheelOffset} boxWidth={this.props.truck.getWidth()} />
+            <WheelVisualization cordSystemTransformer={this.props.cordSystemTransformer} basePoint={cfp} pointA={cfp} pointB={eot} wheelLength={1} wheelOffset={this.props.wheelOffset} boxWidth={this.props.truck.getWidth()} />
         </Group>
     }
 }

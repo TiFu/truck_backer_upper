@@ -57,32 +57,25 @@ export class World {
     }
     public resetWorld() {
         this.dock = new Dock(new Point(0, 0));         
-        this.truck = new Truck(new Point(55,0), new Point(49, 0), new Point(35, 0));
+        this.truck = new Truck(new Point(55,0), 0, 0);
     }
 
-    public randomizeMax(distFromDock: Array<number>, maxDockAngle: Array<number>, maxAdditionalTrailerAngle: Array<Angle>, maxCabinTrailerAngle: Array<Angle>) {
-        let dockDegree = Math.random() * (maxDockAngle[1] - maxDockAngle[0]) + maxDockAngle[0];
-        let dockDirection = rotate(new Vector(1, 0), dockDegree);
-        let dockDistance = Math.random() * (distFromDock[1] - distFromDock[0]) + distFromDock[0];
-        dockDirection = dockDirection.scale(dockDistance / dockDirection.getLength());
-        let tep = plus(this.dock.position, dockDirection);
-
-        this.truck.setTruckIntoRandomPosition(tep, dockDirection, maxAdditionalTrailerAngle, maxCabinTrailerAngle );
+    public randomizeMax() {
+        let tep = new Point(7,18)
+        let tep2 = new Point(63, -18)
+        this.truck.setTruckIntoRandomPosition([tep, tep2], [-Math.PI, Math.PI] );
         while(!this.isTruckInValidPosition()) {
-            let dockDegree = Math.random() * (maxDockAngle[1] - maxDockAngle[0]) + maxDockAngle[0];
-            let dockDirection = rotate(new Vector(1, 0), dockDegree);
-            let dockDistance = Math.random() * (distFromDock[1] - distFromDock[0]) + distFromDock[0];
-            dockDirection = dockDirection.scale(dockDistance / dockDirection.getLength());
-            let tep = plus(this.dock.position, dockDirection);
-            this.truck.setTruckIntoRandomPosition(tep, dockDirection, maxAdditionalTrailerAngle, maxCabinTrailerAngle);
+            this.truck.setTruckIntoRandomPosition([tep, tep2], [-Math.PI, Math.PI] );
         }
         console.log("[World][RandMax]: ", this.truck.getStateVector().toString());
     }
 
     public randomize() {
-        this.truck.setTruckIntoRandomPosition(new Point(30, 0), new Vector(2 * Math.random() - 1, 2 * Math.random() - 1), [- Math.PI, Math.PI], [- Math.PI / 2, Math.PI / 2]);
+        let tep = new Point(12,13)
+        let tep2 = new Point(58, -13)
+        this.truck.setTruckIntoRandomPosition([tep, tep2], [-Math.PI, Math.PI] );
         while(!this.isTruckInValidPosition()) {// TODO: better max implementation
-            this.truck.setTruckIntoRandomPosition(new Point(30, 0), new Vector(2 * Math.random() - 1, 2 * Math.random() - 1), [- Math.PI, Math.PI], [- Math.PI / 2, Math.PI / 2]);
+            this.truck.setTruckIntoRandomPosition([tep, tep2], [-Math.PI, Math.PI] );
         }
     }
 

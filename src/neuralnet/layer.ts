@@ -6,20 +6,15 @@ import {Unit, AdalineUnit} from './unit';
 export class Layer {
     private units: Unit[];
 
-    constructor(private inputDim: number, private outputDim: number, private activation: ActivationFunction, private unitConstructor: (weights: Vector, activation: ActivationFunction) => Unit) {
+    constructor(private inputDim: number, private outputDim: number, private activation: ActivationFunction, private unitConstructor: (inputDim: number, activation: ActivationFunction) => Unit) {
         this.units = [];
         for (let i = 0; i < outputDim; i++) {
-            this.units.push(this.unitConstructor(this.getRandomWeights(inputDim + 1), activation));
+            this.units.push(this.unitConstructor(inputDim, activation));
         }
     }
 
-    private getRandomWeights(inputDim: number): Vector { 
-        let random = [];
-        for (let i = 0; i < inputDim; i++) {
-//            random.push(0.1);
-            random.push(Math.random() * (0.6) - 0.3); // [-0.3, 0.6]
-        }
-        return new Vector(random);
+    public getUnits(): Unit[] {
+        return this.units;
     }
 
     public getWeights(): Array<Array<number>> {
@@ -42,12 +37,9 @@ export class Layer {
         if (input.length != this.inputDim) {
             throw new Error("Invalid Input Dimension! Expected " + this.inputDim + ", but got " + input.length);
         }
-
-        // TODO: add bias
-        let biasedInput = input.getWithNewElement(1);
         let outputs = new Array(this.outputDim);
         for (let i = 0; i < this.outputDim; i++) {
-            outputs[i] = this.units[i].forward(biasedInput);
+            outputs[i] = this.units[i].forward(input);
         }
         return new Vector(outputs);
     }

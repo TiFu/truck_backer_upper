@@ -21,7 +21,7 @@ export class CouplingDeviceVisualization extends React.Component<CouplingDeviceV
     }
 
     public render() {
-        let cdp = this.props.truck.couplingDevicePosition;
+        let cdp = this.props.truck.getCouplingDevicePosition();
         let cab = this.props.truck.getEndOfTruck();
 
         // need rotated vector (e.g. 30 degrees)

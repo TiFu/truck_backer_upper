@@ -4,6 +4,8 @@ import {Vector} from './math'
 import {Angle} from '../math'
 
 export class TrainTruckEmulator {
+
+    private lastError: number;
     public constructor(private world: World, private neuralNet: NeuralNet) { 
         if (neuralNet.getInputDim() != 6 + 1) {
             throw new Error("Invalid Input Dim! Expected 7 but got " + neuralNet.getInputDim());
@@ -29,18 +31,24 @@ export class TrainTruckEmulator {
         let retVal = this.world.nextTimeStep(nextSteeringAngle);
         let expectedVector = this.world.truck.getStateVector();
         let error = this.neuralNet.backward(result, expectedVector);
-
+        this.lastError = this.neuralNet.errors[this.neuralNet.errors.length - 1]
+        
         return retVal && !result.isEntryNaN();
     }
 
     public train(epochs: number) {
         let nextSteeringAngle = Math.random() * 2 - 1;
+        let err = 0;
+        let count = 0;
         for (let i = 0; i < epochs; i++) {
             let cont = this.trainStep(nextSteeringAngle);
+            err += this.lastError;
+            count++;
             if (!cont) {
                 return i;
             }
         }
+        console.log(err / count)
         return epochs;
     }
 }
@@ -79,7 +87,9 @@ export class TrainTruckController {
         let maxDockAngle = [- this.currentMaxDockAngle, this.currentMaxDockAngle];
         let maxAdditionalTrailerAngle = [- this.currentMaxAdditionalTrailerAngle, this.currentMaxAdditionalTrailerAngle];
         let maxCabinTrailerAngle = [- this.currentMaxCabinTrailerAngle, this.currentMaxCabinTrailerAngle];
-        this.world.randomizeMax(distFromDock, maxDockAngle, maxAdditionalTrailerAngle, maxCabinTrailerAngle );        
+//        TODO: rewrite randomize max
+        this.world.randomizeMax();    
+        console.log("[PrepareTruckPosition] " + this.world.truck.getStateVector());    
     }
 
     private fixEmulator(fix: boolean) {
@@ -99,15 +109,20 @@ export class TrainTruckController {
         let statesFromEmulator = [];
         let i = 0;
         while (canContinue) {
+            console.log("[TrainTruckController] Feeding " + currentState);
             let controllerSignal = this.controllerNet.forward(currentState);
+            console.log("[TRainTRuckController] " + controllerSignal)
             let stateWithSteering = currentState.getWithNewElement(controllerSignal.entries[0]);
-            // TODO: remove these variables => replace with counter
+            console.log("[TrainTruckController] State with steering " + stateWithSteering);
             controllerSignals.push(controllerSignal);
 
             currentState = this.emulatorNet.forward(stateWithSteering);
+            console.log("Updated current state: " + currentState)
+
             statesFromEmulator.push(currentState);
 
             canContinue = this.world.nextTimeStep(controllerSignal.entries[0]);
+            console.log("State should: " + this.world.truck.getStateVector());
             if (i > this.maxSteps) {
                 break;
 //                throw Error("ugh")
@@ -129,6 +144,7 @@ export class TrainTruckController {
         for (let i = statesFromEmulator.length; i >= 0; i--){ 
             let emulatorDerivative = this.emulatorNet.backwardWithGradient(controllerDerivative, false);
             let steeringSignalDerivative = emulatorDerivative.entries[6]; // last entry
+            console.log("[SteeringSignalDerivative] " + steeringSignalDerivative)
             controllerDerivative = this.controllerNet.backwardWithGradient(new Vector([steeringSignalDerivative]), true);
         }
         this.controllerNet.updateWithAccumulatedWeights();
@@ -155,9 +171,9 @@ export class TrainTruckController {
         let yTrailer = finalState.entries[4];
         let thetaTrailer = finalState.entries[5];
         
-        let xDiff = dock.position.x - xTrailer
-        let yDiff = dock.position.y - yTrailer
-        let thetaDiff = 0 - thetaTrailer
+        let xDiff = xTrailer - dock.position.x
+        let yDiff = yTrailer - dock.position.y
+        let thetaDiff = thetaTrailer - 0
 
         return xDiff * xDiff + yDiff * yDiff + thetaDiff * thetaDiff;
     }
@@ -169,8 +185,8 @@ export class TrainTruckController {
         let thetaTrailer = finalState.entries[5];
 
         // Derivative of SSE
-        let xDiff = -1 * (dock.position.x - xTrailer); 
-        let yDiff = -1 * (dock.position.y - yTrailer);
+        let xDiff = xTrailer - dock.position.x; 
+        let yDiff = yTrailer - dock.position.y;
         let thetaDiff = thetaTrailer
         
         // first 3 do not matter for the error

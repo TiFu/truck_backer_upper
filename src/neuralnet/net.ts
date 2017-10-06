@@ -12,7 +12,7 @@ export interface NetConfig {
 
 export interface LayerConfig {
     neuronCount: number
-    unitConstructor: (weights: Vector, activation: ActivationFunction) => Unit
+    unitConstructor: (inputDim: number, activation: ActivationFunction) => Unit
     activation: ActivationFunction
 }
 
@@ -39,6 +39,9 @@ export class NeuralNet {
         this.outputDim = lastNeuronCount;
     }
 
+    public getLayers(): Layer[] {
+        return this.layers;
+    }
     public getWeights(): Array<Array<Array<number>>> {
         return this.layers.map(l => l.getWeights());
     }
@@ -77,8 +80,11 @@ export class NeuralNet {
 
     public backwardWithGradient(gradient: Vector, accumulateWeigthUpdates: boolean): Vector {
         let error = gradient;
+        console.log("End: " + error);
         for (let i = this.netConfig.layerConfigs.length - 1; i >= 0; i--) {
+            console.log("-------------------------")
             error = this.layers[i].backward(error, this.netConfig.learningRate, accumulateWeigthUpdates);
+            console.log("Layer " + i + ": " + error)
         }
         return error;        
     }
@@ -86,7 +92,6 @@ export class NeuralNet {
     public backward(output: Vector, expected: Vector): Vector {
         let error = this.netConfig.errorFunction.getErrorDerivative(output, expected);
         this.errors.push(this.netConfig.errorFunction.getError(output, expected));
-        console.log("[Net] Remaining Error: ", this.netConfig.errorFunction.getError(output, expected));
         return this.backwardWithGradient(error, false);
     }
 }

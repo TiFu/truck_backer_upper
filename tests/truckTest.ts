@@ -8,22 +8,22 @@ class TruckTest {
     private truck: Truck;
 
     before() {
-        this.truck = new Truck(new Point(5, 5), new Point(5, 4), new Point(5, 1));
+        this.truck = new Truck(new Point(5, 5), 0, 0);
     }
     @test
     public driveStraight() {
         this.truck.nextTimeStep(0);
-        expect(this.truck.couplingDevicePosition).to.deep.equal(new Point(5,3));
-        expect(this.truck.trailerEndPosition).to.deep.equal(new Point(5,0));
+        expect(this.truck.getCouplingDevicePosition()).to.deep.equal(new Point(5,3));
+        expect(this.truck.getTrailerEndPosition()).to.deep.equal(new Point(5,0));
 
-        expect(this.truck.trailerXAngle).to.equal(Math.PI / 2);
-        expect(this.truck.truckXAngle).to.equal(Math.PI / 2);
+        expect(this.truck.getCabTrailerAngle()).to.equal(Math.PI / 2);
+        expect(this.truck.getTruckAngle()).to.equal(Math.PI / 2);
     }
     
     @test 
     lengths() {
-        expect(this.truck.trailerLength).to.equal(3);
-        expect(this.truck.truckLength).to.equal(1);
+        expect(this.truck.getTrailerLength()).to.equal(3);
+        expect(this.truck.getTruckLength()).to.equal(1);
     }
 
     @test
@@ -37,10 +37,10 @@ class TruckTest {
                 }
             }
         }
-        expect(this.truck.couplingDevicePosition).to.deep.equal(new Point(6.046214828989526,2.3848171641391906));
-        expect(this.truck.trailerEndPosition).to.deep.equal(new Point(4.937097615808898,-0.4026295182973429));
+        expect(this.truck.getCouplingDevicePosition()).to.deep.equal(new Point(7.162421935274231,1.6093177159004508));
+        expect(this.truck.getTrailerEndPosition()).to.deep.equal(new Point(4.937097615808898,-0.40262951829734295));
 
-        expect(Math.abs(this.truck.trailerXAngle -1.192104026941941) < 10e-9).to.be.true;
-        expect(Math.abs(this.truck.truckXAngle -2.9936333869959677) < 10e-9).to.be.true;
+        expect(Math.abs(this.truck.getTrailerAngle() -0.7350834755962865) < 10e-9).to.be.true;
+        expect(Math.abs(this.truck.getTruckAngle() -2.305879802391183) < 10e-9).to.be.true;
     }
 }

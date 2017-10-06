@@ -6,152 +6,146 @@ import {expect} from 'chai';
 
 export class Truck {
     public velocity = 1; // m/sec
-    public maxSteeringAngle = Math.PI / 180 * 70 // 45 degree
+    public maxSteeringAngle = Math.PI / 180 * 70 // 70 degree
+    public trailerLength = 7;
+    public cabinLength = 5;
 
-    public trailerLength: number;
-    public truckLength: number;
-    public trailerXAngle: Angle;
-    public truckXAngle: Angle;
+    private lastSteeringAngle: Angle = 0;
+    public constructor(private tep: Point, private trailerAngle: Angle, private cabinAngle: Angle) {
 
-    private lastSteeringAngle: Angle;
-    public constructor(public cabinFrontPosition: Point, public couplingDevicePosition: Point, public trailerEndPosition: Point) {
-        this.calculateAngles();
-        this.calculateLengths();
-        console.log(this.cabinFrontPosition.x);
-        console.log(this.couplingDevicePosition.x)
-        console.log("Initial Position: ", this.getStateVector().toString());
     }
 
     public getStateVector(): nnMath.Vector {
-        return new nnMath.Vector([this.couplingDevicePosition.x, this.couplingDevicePosition.y, this.truckXAngle, this.trailerEndPosition.x, this.trailerEndPosition.y, this.trailerXAngle]);
+        let cdp = this.getCouplingDevicePosition();
+
+        return new nnMath.Vector([cdp.x, cdp.y, this.fixAngle(this.cabinAngle), this.tep.x, this.tep.y, this.fixAngle(this.trailerAngle)])
     }
 
-    public getEndOfTruck(): Point {
-        let vec = calculateVector(this.cabinFrontPosition, this.couplingDevicePosition).scale(7/12.);
-        return this.cabinFrontPosition.addVector(vec);
+    private fixAngle(angle: Angle): Angle {
+        angle = angle % (2 * Math.PI)
+        if (angle > Math.PI) { // 180 deg + some deg => 
+            angle = Math.PI - (angle - Math.PI);
+        }
+        if (angle < - Math.PI) {
+            angle = Math.PI - (angle + Math.PI)
+        }
+        return angle;
+    }
+    public getTruckLength(): number {
+        return this.cabinLength
     }
 
-    public getTruckCorners(): Point[] {
-        return this.calculateCornersFrom2Points(this.getEndOfTruck(), this.cabinFrontPosition);
+    public getLastSteeringAngle() {
+        return this.lastSteeringAngle;
     }
-
     /**
      * 
-     * @param topLeft left top most position of coupling device
-     * @param bottomRight right bottom most position of coupling device
-     * @param maxTrailerAngle maximum angle between trailer and x-axis
-     * @param maxCabinTrailerAngle maximum angle between cabin and trailer 
+     * @param maxTep 
+     * @param maxTrailerAngle 
      */
-    public setTruckIntoRandomPosition(tep: Point, tepDirection: Vector, maxAdditionalTrailerAngle: Array<Angle>, maxCabinTrailerAngle: Array<Angle>) {
-        let additionalTrailerAngle = Math.random() * (maxAdditionalTrailerAngle[1] - maxAdditionalTrailerAngle[0]) + maxAdditionalTrailerAngle[0];
-        let rotatedTepDirection = rotate(tepDirection, additionalTrailerAngle);
-        rotatedTepDirection = rotatedTepDirection.scale(this.trailerLength / rotatedTepDirection.getLength());
-        let cdp = plus(tep, rotatedTepDirection);
+    public setTruckIntoRandomPosition(maxTep: Array<Point>, maxTrailerAngle: Array<Angle>) {
+        let tepAngle = Math.random() * (maxTrailerAngle[1] - maxTrailerAngle[0]) + maxTrailerAngle[0];
+        this.trailerAngle = tepAngle
+        this.tep.x = Math.random() * (maxTep[1].x - maxTep[0].x) + maxTep[0].x
+        this.tep.y = Math.random() * (maxTep[1].y - maxTep[0].y) + maxTep[0].y
 
-        // now points from tep to cdp
-        rotatedTepDirection.scale(this.truckLength / rotatedTepDirection.getLength());
-        let degree: Angle = Math.random() * (maxCabinTrailerAngle[1] - maxCabinTrailerAngle[0]) + maxCabinTrailerAngle[0];
-        let rotatedVector = rotate(rotatedTepDirection, degree);
-        let cfp = plus(cdp, rotatedVector);
+        let cabAng = Math.random() * Math.PI - 0.5 * Math.PI;
+        let cabinAngle = tepAngle + cabAng;
+        this.cabinAngle = cabinAngle;
+    }
+    
+    public getTrailerLength(): number {
+        return this.trailerLength
+    }
+    public getTrailerAngle() {
+        return this.trailerAngle
+    }
+    public getTruckAngle() {
+        return this.cabinAngle
+    }
+    public getTruckCorners() {
+        let cabinDirection = rotate(new Vector(1, 0), this.cabinAngle);
+        let orthogonal = cabinDirection.getOrthogonalVector();
+        let scaled = orthogonal.scale(this.getWidth() / 2);
 
-        this.couplingDevicePosition = cdp;
-        this.cabinFrontPosition = cfp;
-        this.trailerEndPosition = tep;
-        console.log("New Position: ",  this.cabinFrontPosition.toString(), this.couplingDevicePosition.toString(), this.trailerEndPosition.toString());
-        this.calculateAngles();
+        let cdp = this.getCouplingDevicePosition();
+        let cep = this.getEndOfTruck()
+        let first = plus(cep, scaled);
+        let second = minus(cep, scaled);
+
+        let cfp = this.getCabinFrontPosition();
+        let third = minus(cfp, scaled)
+        let fourth = plus(cfp, scaled)
+
+        return [first, second, third, fourth]
     }
 
-    private calculateCornersFrom2Points(a: Point, b: Point): Point[] {
-        let directionVector = calculateVector(a, b);
-        let ortho = directionVector.getOrthogonalVector();
-        let perpendicular = scale(ortho, 0.5 * this.getWidth() / ortho.getLength());
+    public getTrailerCorners() {
+        let trailerDirection = rotate(new Vector(1,0), this.trailerAngle)
+        let orthogonal = trailerDirection.getOrthogonalVector();
+        let scaled = orthogonal.scale(this.getWidth() / 2);
+        let first = plus(this.tep, scaled)
+        let second = minus(this.tep, scaled);
 
-        let leftTop = plus(a, perpendicular);
-        let rightTop = minus(a, perpendicular);
-        let rightBottom = minus(b, perpendicular);
-        let leftBottom = plus(b, perpendicular);       
-        return [leftTop, rightTop, rightBottom, leftBottom];
-    }
-
-    public getTrailerCorners(): Point[] {
-        return this.calculateCornersFrom2Points(this.trailerEndPosition, this.couplingDevicePosition);
+        let cdp = this.getCouplingDevicePosition()
+        let third = minus(cdp, scaled);
+        let fourth = plus(cdp, scaled);
+        return [first, second, third, fourth]
     }
 
     public getWidth(): number {
-        return calculateVector(this.getEndOfTruck(), this.cabinFrontPosition).getLength();
+        return 0.5 * this.cabinLength;
     }
 
-    private calculateAngles() {
-        let cabinVector = calculateVector(this.couplingDevicePosition, this.cabinFrontPosition);
-        let xVector = new Vector(1, 0);
-        this.truckXAngle = getAngle(cabinVector, xVector);
-
-        let trailerVector = calculateVector(this.trailerEndPosition, this.couplingDevicePosition);
-        this.trailerXAngle = getAngle(trailerVector, xVector);
+    public getTrailerEndPosition(): Point {
+        return this.tep;
     }
 
-
-    public toString(): string {
-        let str = "";
-        str += this.cabinFrontPosition.x + "," + this.cabinFrontPosition.y + "," + this.couplingDevicePosition.x + "," + this.couplingDevicePosition.y;
-        str += "," + this.trailerEndPosition.x + "," + this.trailerEndPosition.y;
-        return str;
+    public getCouplingDevicePosition(): Point {
+        let truckDirection = rotate(new Vector(1,0), this.trailerAngle).scale(this.trailerLength);
+        let cdp = plus(this.tep, truckDirection)
+        return cdp;
     }
 
-    public getSteeringAngle(): number {
-        return this.lastSteeringAngle === undefined ? 0 : this.lastSteeringAngle;
+    public getCabinFrontPosition(): Point {
+       let cdp = this.getCouplingDevicePosition();
+       let cabinDirection = rotate(new Vector(1, 0), this.cabinAngle).scale(this.cabinLength);
+       return plus(cdp, cabinDirection);
     }
 
-    public isJacknifed() {
-        return Math.abs(this.trailerXAngle - this.truckXAngle) > 90 * Math.PI / 180;
+    public getEndOfTruck(): Point {
+       let cabinDirection = rotate(new Vector(1, 0), this.cabinAngle);
+       return plus(this.getCouplingDevicePosition(), cabinDirection.scale(2 / cabinDirection.getLength()));
     }
-
-    private calculateLengths() {
-        this.trailerLength = calculateVector(this.couplingDevicePosition, this.trailerEndPosition).getLength();        
-        this.truckLength = calculateVector(this.cabinFrontPosition, this.couplingDevicePosition).getLength();
-    }
-
-    private getTrailerAngle(): Angle {
-        let val = this.truckXAngle - this.trailerXAngle;
-        return val;
+    public getCabTrailerAngle(): Angle {
+        return Math.abs(this.trailerAngle - this.cabinAngle);
     }
 
     public nextTimeStep(steeringSignal: number) {
-        let steeringAngle = steeringSignal * this.maxSteeringAngle;
-        this.lastSteeringAngle = steeringAngle;
+        this.drive(steeringSignal);
+    }
 
-        let a = this.velocity * Math.cos(steeringAngle)
-        let b = a * Math.cos(this.truckXAngle - this.trailerXAngle)
-        this.trailerEndPosition.x -= b * Math.cos(this.trailerXAngle)
-        this.trailerEndPosition.y -= b * Math.sin(this.trailerXAngle)
-        
-        this.trailerXAngle -= Math.asin((a * Math.sin(this.truckXAngle - this.trailerXAngle))/this.trailerLength)
-        this.truckXAngle += Math.asin((this.velocity * Math.sin(steeringAngle))/(this.truckLength + this.trailerLength))
+    // -1, 1
+    public drive(steeringSignal: number) {
+        let steeringAngle = this.maxSteeringAngle * Math.min(Math.max(-1, steeringSignal), 1);
+        this.lastSteeringAngle = steeringAngle
+        let A = this.velocity * Math.cos(steeringAngle);
+        let B = A * Math.cos(this.cabinAngle - this.trailerAngle)
 
-        let newTrailerAngle = this.getTrailerAngle();
-        if (newTrailerAngle > Math.PI / 2) {
-            this.truckXAngle -= newTrailerAngle - Math.PI / 2;
-            this.lastSteeringAngle = 0;
-        } else if (newTrailerAngle < - Math.PI / 2) {
-            this.truckXAngle -= newTrailerAngle + Math.PI / 2;
-            this.lastSteeringAngle = 0;
+        this.tep.x -= B * Math.cos(this.trailerAngle);
+        this.tep.y -= B * Math.sin(this.trailerAngle);
+        this.trailerAngle -= Math.asin(A * Math.sin(this.cabinAngle - this.trailerAngle) / this.trailerLength)
+        this.cabinAngle += Math.asin(this.velocity * Math.sin(steeringAngle) / (this.trailerLength + this.cabinLength))
+
+        // adjust cabinangle, s. t. getCabTrailerAngle <= 90 degrees (Math.PI / 2)
+        let diff = this.trailerAngle - this.cabinAngle;
+        if (diff < - Math.PI / 2) {
+            this.cabinAngle = this.trailerAngle + Math.PI / 2
+            this.lastSteeringAngle = 0
+        } else if (diff > Math.PI / 2) { // this means, that trailerAngle is too big compared to cabinAngle =>
+            this.cabinAngle = this.trailerAngle - Math.PI / 2;
+            this.lastSteeringAngle = 0
         }
-
-        if (this.trailerXAngle >= 2 * Math.PI) {
-            this.truckXAngle -= 2 * Math.PI;
-            this.trailerXAngle -= 2 * Math.PI;
-        } else if (this.trailerXAngle < 0) {
-            this.truckXAngle += 2 * Math.PI;
-            this.trailerXAngle += 2 * Math.PI;
-        }
-
-
-        this.couplingDevicePosition.x = this.trailerEndPosition.x + Math.cos(this.trailerXAngle) * this.trailerLength
-        this.couplingDevicePosition.y = this.trailerEndPosition.y + Math.sin(this.trailerXAngle) * this.trailerLength
-        this.cabinFrontPosition.x = this.couplingDevicePosition.x + Math.cos(this.truckXAngle) * this.truckLength
-        this.cabinFrontPosition.y = this.couplingDevicePosition.y + Math.sin(this.truckXAngle) * this.truckLength
-
-        // normalize angles
     }
 }
 

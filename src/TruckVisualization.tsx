@@ -24,13 +24,15 @@ export class TruckVisualization extends React.Component<TruckVisualizationProps,
 
     public render() {
         let eot = this.props.truck.getEndOfTruck();
-        let cfp = this.props.truck.cabinFrontPosition;
+        let cfp = this.props.truck.getCabinFrontPosition();
+        console.log("Truck Position: " + eot.x + " / " + eot.y) 
+        console.log("TRuck Front Posd " + cfp.x + " / " + cfp.y)
         let mappedEOT = this.map(eot);
         let mappedCFP = this.map(cfp);
         return <Group>
             <BoxVisualization points={this.props.truck.getTruckCorners()} cordSystemTransformer={this.props.cordSystemTransformer} />
             <WheelVisualization cordSystemTransformer={this.props.cordSystemTransformer} basePoint={eot} pointA={eot} pointB={cfp} wheelLength={1} wheelOffset={this.props.wheelOffset} boxWidth={this.props.truck.getWidth()} />
-            <WheelVisualization cordSystemTransformer={this.props.cordSystemTransformer} basePoint={cfp} pointA={cfp} pointB={eot} wheelLength={1} wheelOffset={this.props.wheelOffset} boxWidth={this.props.truck.getWidth()} steeringAngle={- this.props.truck.getSteeringAngle()} />
+            <WheelVisualization cordSystemTransformer={this.props.cordSystemTransformer} basePoint={cfp} pointA={cfp} pointB={eot} wheelLength={1} wheelOffset={this.props.wheelOffset} boxWidth={this.props.truck.getWidth()} steeringAngle={- this.props.truck.getLastSteeringAngle()} />
             <Circle radius={3} x={mappedEOT.x} y={mappedEOT.y} fill="black" />
             <Circle radius={3} x={mappedCFP.x} y={mappedCFP.y} fill="black" />
         </Group>

@@ -23,6 +23,20 @@ export class Tanh implements ActivationFunction {
     }
 }
 
+export class Sigmoid implements ActivationFunction {
+    getName() {
+        return "sigmoid"
+    }
+
+    apply(input: Scalar) {
+        return 1 / (1 + Math.exp(-input));
+    }
+
+    applyDerivative(input: Scalar) {
+        return this.apply(input) * (1 - this.apply(input))
+    }
+}
+
 export class Linear implements ActivationFunction {
     getName() {
         return "linear";

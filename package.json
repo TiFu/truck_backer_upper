@@ -4,7 +4,7 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "test": "mocha build/tests/truckTest.js",
+    "test": "mocha --recursive build/tests",
     "dev-test-watch": "mocha-typescript-watch -o mocha.opts build/tests/truckTest.js"
   },
   "author": "Tino Fuhrmann",

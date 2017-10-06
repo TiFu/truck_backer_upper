@@ -8,6 +8,8 @@ export interface Unit {
     fixWeights(fixed: boolean): void;
     getWeights(): Array<number>;
     loadWeights(weights: Array<number>): void;
+    setWeights(weights: Vector): void;
+    getLastUpdate(): Vector;
 }
 
 export class AdalineUnit implements Unit {
@@ -15,12 +17,33 @@ export class AdalineUnit implements Unit {
     private lastInput: Vector;
     private fixedWeights: boolean;
     private accumulatedWeights: Vector;
+    private weights: Vector;
+    private lastUpdate: Vector;
 
-    constructor(private weights: Vector, private activation: ActivationFunction) {
+    constructor(private inputDim: number, private activation: ActivationFunction) {
         this.fixedWeights = false;
+        this.weights = this.getRandomWeights(inputDim + 1); // bias
         this.resetAccumulatedWeights();
     }
 
+    public getLastUpdate(): Vector {
+        return this.lastUpdate;
+    }
+
+    private getRandomWeights(inputDim: number): Vector { 
+        let random = [];
+        for (let i = 0; i < inputDim; i++) {
+            random.push(Math.random() * (0.6) - 0.3); // [-0.3, 0.3]
+        }
+        return new Vector(random);
+    }
+
+    public setWeights(weights: Vector) {
+        if (weights.length != this.weights.length) {
+            throw new Error("Unit#setWeights() needs to use inputDim + 1 as dimension.");
+        }
+        this.weights = weights;
+    }
     public saveWeights(): Vector {
         return this.weights
     }
@@ -34,12 +57,13 @@ export class AdalineUnit implements Unit {
     }
 
     public forward(input: Vector): Scalar {
+        input = input.getWithNewElement(1); // add bias
         this.lastInput = input;
         if (input.length != this.weights.length) {
             throw new Error("Invalid Input Size: expected "  + this.weights.length + ", but got " + input.length);
         }
 
-        this.lastSum = this.weights.multiply(input);
+        this.lastSum = this.weights.multiply(input); // last is bias
         if (Number.isNaN(this.lastSum)) {
             console.log("[Unit] Weights: ", this.weights.entries);
             console.log("[Unit] Sum: ", this.lastSum);
@@ -53,6 +77,7 @@ export class AdalineUnit implements Unit {
     public fixWeights(fixed: boolean) {
         this.fixedWeights = fixed;
     }
+
     private resetAccumulatedWeights() {
         let entries = new Array(this.weights.length);
         entries.fill(0);
@@ -63,9 +88,11 @@ export class AdalineUnit implements Unit {
     }
 
     // Returns derivative wrt to the inputs
-    public backward(error: Scalar, learningRate: Scalar, accumulateWeigthUpdates: boolean): Vector {
+    public backward(errorDerivative: Scalar, learningRate: Scalar, accumulateWeigthUpdates: boolean): Vector {
+        console.log(errorDerivative)
         let activationDerivative = this.activation.applyDerivative(this.lastSum);
-        let scalarFactor = error * activationDerivative;
+        let scalarFactor = errorDerivative * activationDerivative;
+        console.log("E/dx: " + scalarFactor)
         let inputDerivative: Vector = this.weights.getScaled(scalarFactor);
         if (!this.fixedWeights) {
             let weightDerivative: Vector = this.lastInput.getScaled(scalarFactor);
@@ -77,14 +104,15 @@ export class AdalineUnit implements Unit {
                 this.updateWeights(update);
             }
         }
-
-        return inputDerivative;
+        console.log("Input Derivative: " + inputDerivative)
+        return inputDerivative.getWithoutLastElement();
     }
 
     private calculateWeightUpdate(learningRate: Scalar, weightDerivative: Vector): Vector {
         return weightDerivative.scale(- learningRate);
     }
     private updateWeights( update: Vector) {
+        this.lastUpdate = update;
         this.weights.add(update)
     }
 }

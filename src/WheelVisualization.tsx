@@ -59,6 +59,7 @@ export class WheelVisualization extends React.Component<WheelVisualizationProps,
         wheelEndLeft = this.map(wheelEndLeft);
         wheelBeginRight = this.map(wheelBeginRight);
         wheelEndRight = this.map(wheelEndRight)
+
         return  <Group>
                     <Line points={[wheelBeginLeft.x, wheelBeginLeft.y, wheelEndLeft.x, wheelEndLeft.y]} stroke="black" />
                     <Line points={[wheelBeginRight.x, wheelBeginRight.y, wheelEndRight.x, wheelEndRight.y]} stroke="black" />

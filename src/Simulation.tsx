@@ -4,7 +4,7 @@ import WorldVisualization from "./WorldVisualization"
 import {World} from './model/world'
 import {TrainTruckEmulator, TrainTruckController} from './neuralnet/train'
 import {emulatorNet, controllerNet} from './neuralnet/implementations'
-
+import {Point, Vector} from './math'
 const HighCharts = require("react-highcharts");
 
 interface SimulationState {
@@ -23,7 +23,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
     private emulatorTrainStepsTarget = 0;
     private emulatorTrainStepsPerFrame = 1;
     private emulatedSteps = 5;
-
+    private worldIsSet = false;
     private controllerTrainStepsTarget = 0;
     private controllerTrainSteps = 0;
 
@@ -44,8 +44,11 @@ export default class Simulation extends React.Component<{}, SimulationState> {
     }
 
     public nextStep() {
+        let predicted = this.trainTruckEmulator.getEmulatorNet().forward(this.state.world.truck.getStateVector().getWithNewElement(this.state.steeringSignal));
+        console.log("[Old Pos is] " + this.state.world.truck.getStateVector());
         console.log(this.state.world.nextTimeStep(this.state.steeringSignal));
-        console.log(this.state.world.truck.getStateVector().toString());
+        console.log("[New Pos predicted] " + predicted);
+        console.log("[New Pos is] " + this.state.world.truck.getStateVector().toString());
         this.forceUpdate();
     }
 
@@ -54,7 +57,17 @@ export default class Simulation extends React.Component<{}, SimulationState> {
         this.setState({running: true})
         this.lastTimestamp = this.lastTimestamp = performance.now();
         window.requestAnimationFrame(this.controllerAniFrameCallback);
+    }
 
+    public randomizePosition() {
+        let tep = new Point(12,12)
+        let tep2 = new Point(58,-13)
+        this.state.world.truck.setTruckIntoRandomPosition([tep, tep2], [- Math.PI, Math.PI]);
+        this.onFrame(true);
+    }
+    public prepTrainTruckPositon() {
+        this.trainTruckController.prepareTruckPosition();
+        this.onFrame(true);
     }
 
     public controllerAniFrameCallback = this.controllerAnimationStep.bind(this);
@@ -72,15 +85,15 @@ export default class Simulation extends React.Component<{}, SimulationState> {
         this.trainTruckController.trainStep();
         console.log("End of train truck controller");
         if (this.controllerTrainSteps < this.controllerTrainStepsTarget && this.state.running) {
-            this.onFrame(true);
-            window.requestAnimationFrame(this.controllerAniFrameCallback);
+                this.onFrame(true);
+                window.requestAnimationFrame(this.controllerAniFrameCallback);
         } else {
-            this.setState({running: false});
+                this.setState({running: false});
         }
     }
 
     public nextEmulatorTrainStep() {
-        this.emulatorTrainStepsTarget += 1;
+        this.emulatorTrainStepsTarget += 1000;
         this.setState({running: true})
         this.lastTimestamp = this.lastTimestamp = performance.now();
         window.requestAnimationFrame(this.emulatorAniFrameCallback);
@@ -189,7 +202,9 @@ export default class Simulation extends React.Component<{}, SimulationState> {
             <input type="button" disabled={this.state.running} onClick={this.saveEmulatorWeights.bind(this)} value="Save Emulator Weights" />
             <input type="button" disabled={this.state.running} onClick={this.loadEmulatorWeights.bind(this)} value="Load Emulator Weights" />
             <input type="button" disabled={this.state.running} onClick={this.nextControllerTrainStep.bind(this)} value="Train Controller" />
+            <input type="button" disabled={this.state.running} onClick={this.prepTrainTruckPositon.bind(this)} value="Prep Position" />
             <input type="button" onClick={this.stopTraining.bind(this)} value="Stop" />
+            <input type="button" onClick={this.randomizePosition.bind(this)} value="Randomize Pos" />
             <HighCharts config={this.getEmulatorErrorConfig()} />
             <HighCharts config={this.getControllerErrorConfig()} />
             Emulator Weights: 

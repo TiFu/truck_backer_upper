@@ -13,7 +13,7 @@ export var hiddenEmulatorLayer: LayerConfig = {
 export var outputEmulatorLayer: LayerConfig = {
     neuronCount: 6,
     unitConstructor: (weights: Vector, activation: ActivationFunction) => new AdalineUnit(weights, activation),
-    activation: new Linear()   
+    activation: new Linear()
 }
 
 export var emulatorNetConfig: NetConfig = {
@@ -43,7 +43,7 @@ export var outputControllerLayer: LayerConfig = {
 export var controllerNetConfig: NetConfig = {
     inputs: 6,
     learningRate: 0.0001,
-    errorFunction: new MSE(),
+    errorFunction: new MSE(), // ignored
     layerConfigs: [
         hiddenControllerLayer,
         outputControllerLayer
