@@ -58,12 +58,14 @@ export class AdalineUnit implements Unit {
 
     public forward(input: Vector): Scalar {
         input = input.getWithNewElement(1); // add bias
+
         this.lastInput = input;
         if (input.length != this.weights.length) {
             throw new Error("Invalid Input Size: expected "  + this.weights.length + ", but got " + input.length);
         }
 
         this.lastSum = this.weights.multiply(input); // last is bias
+
         if (Number.isNaN(this.lastSum)) {
             console.log("[Unit] Weights: ", this.weights.entries);
             console.log("[Unit] Sum: ", this.lastSum);
@@ -71,7 +73,7 @@ export class AdalineUnit implements Unit {
         let activated = this.activation.apply(this.lastSum);
         if (Number.isNaN(activated))
             console.log("[Unit] Activated: ", activated, "Last Sum: ", this.lastSum);
-        return activated;
+            return activated;
     }
 
     public fixWeights(fixed: boolean) {
@@ -89,10 +91,9 @@ export class AdalineUnit implements Unit {
 
     // Returns derivative wrt to the inputs
     public backward(errorDerivative: Scalar, learningRate: Scalar, accumulateWeigthUpdates: boolean): Vector {
-        console.log(errorDerivative)
         let activationDerivative = this.activation.applyDerivative(this.lastSum);
         let scalarFactor = errorDerivative * activationDerivative;
-        console.log("E/dx: " + scalarFactor)
+
         let inputDerivative: Vector = this.weights.getScaled(scalarFactor);
         if (!this.fixedWeights) {
             let weightDerivative: Vector = this.lastInput.getScaled(scalarFactor);
@@ -104,7 +105,7 @@ export class AdalineUnit implements Unit {
                 this.updateWeights(update);
             }
         }
-        console.log("Input Derivative: " + inputDerivative)
+
         return inputDerivative.getWithoutLastElement();
     }
 

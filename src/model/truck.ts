@@ -43,13 +43,13 @@ export class Truck {
      * @param maxTep 
      * @param maxTrailerAngle 
      */
-    public setTruckIntoRandomPosition(maxTep: Array<Point>, maxTrailerAngle: Array<Angle>) {
+    public setTruckIntoRandomPosition(maxTep: Array<Point>, maxTrailerAngle: Array<Angle>, maxCabinAngle: Array<Angle>) {
         let tepAngle = Math.random() * (maxTrailerAngle[1] - maxTrailerAngle[0]) + maxTrailerAngle[0];
         this.trailerAngle = tepAngle
         this.tep.x = Math.random() * (maxTep[1].x - maxTep[0].x) + maxTep[0].x
         this.tep.y = Math.random() * (maxTep[1].y - maxTep[0].y) + maxTep[0].y
 
-        let cabAng = Math.random() * Math.PI - 0.5 * Math.PI;
+        let cabAng = Math.random() * (maxCabinAngle[1] - maxCabinAngle[0]) + maxCabinAngle[0]// Math.PI - 0.5 * Math.PI;
         let cabinAngle = tepAngle + cabAng;
         this.cabinAngle = cabinAngle;
     }

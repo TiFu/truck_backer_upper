@@ -60,22 +60,36 @@ export class World {
         this.truck = new Truck(new Point(55,0), 0, 0);
     }
 
-    public randomizeMax() {
-        let tep = new Point(7,18)
-        let tep2 = new Point(63, -18)
-        this.truck.setTruckIntoRandomPosition([tep, tep2], [-Math.PI, Math.PI] );
-        while(!this.isTruckInValidPosition()) {
-            this.truck.setTruckIntoRandomPosition([tep, tep2], [-Math.PI, Math.PI] );
+    private radToDeg(arr: Array<Angle>) {
+        return [arr[0] * 180 / Math.PI, arr[1] * 180 / Math.PI];
+    }
+    public randomizeMax(tep1: Point, tep2: Point, maxTrailerAngle: Array<Angle>, maxCabinAngle: Array<Angle>) {
+        if (tep1 == undefined) {
+            tep1 = new Point(7,18)
         }
-        console.log("[World][RandMax]: ", this.truck.getStateVector().toString());
+        if (tep2 == undefined) {
+            tep2 = new Point(63, -18)            
+        }
+
+        tep1.x = Math.min(Math.max(7, tep1.x), 63);
+        tep1.y = Math.max(Math.min(18, tep1.y), -18);        
+
+        tep2.x = Math.min(Math.max(tep2.x, tep1.x), 63);
+        tep2.y = Math.max(Math.min(tep2.y, tep1.y), -18);
+
+//        console.log("Random Position in " + tep1 + " and " + tep2 + " with angles " + this.radToDeg(maxTrailerAngle) + " / " + this.radToDeg(maxCabinAngle))
+        this.truck.setTruckIntoRandomPosition([tep1, tep2], maxTrailerAngle, maxCabinAngle );
+        while(!this.isTruckInValidPosition()) {
+            this.truck.setTruckIntoRandomPosition([tep1, tep2], maxTrailerAngle, maxCabinAngle);
+        }
     }
 
     public randomize() {
         let tep = new Point(12,13)
         let tep2 = new Point(58, -13)
-        this.truck.setTruckIntoRandomPosition([tep, tep2], [-Math.PI, Math.PI] );
+        this.truck.setTruckIntoRandomPosition([tep, tep2], [-Math.PI, Math.PI], [-0.5 * Math.PI, 0.5 * Math.PI]);
         while(!this.isTruckInValidPosition()) {// TODO: better max implementation
-            this.truck.setTruckIntoRandomPosition([tep, tep2], [-Math.PI, Math.PI] );
+            this.truck.setTruckIntoRandomPosition([tep, tep2], [-Math.PI, Math.PI], [-0.5 * Math.PI, 0.5 * Math.PI] );
         }
     }
 

@@ -62,10 +62,8 @@ class AdalineUnit {
         this.updateWeights(this.accumulatedWeights);
     }
     backward(errorDerivative, learningRate, accumulateWeigthUpdates) {
-        console.log(errorDerivative);
         let activationDerivative = this.activation.applyDerivative(this.lastSum);
         let scalarFactor = errorDerivative * activationDerivative;
-        console.log("E/dx: " + scalarFactor);
         let inputDerivative = this.weights.getScaled(scalarFactor);
         if (!this.fixedWeights) {
             let weightDerivative = this.lastInput.getScaled(scalarFactor);
@@ -77,7 +75,6 @@ class AdalineUnit {
                 this.updateWeights(update);
             }
         }
-        console.log("Input Derivative: " + inputDerivative);
         return inputDerivative.getWithoutLastElement();
     }
     calculateWeightUpdate(learningRate, weightDerivative) {

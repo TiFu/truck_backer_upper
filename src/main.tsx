@@ -16,7 +16,7 @@ class NeuralNetTest {
     constructor() {
         let layer1: LayerConfig = {
             neuronCount: 1,
-            unitConstructor: (weights: Vector, activation: ActivationFunction) => new AdalineUnit(weights, activation),
+            unitConstructor: (weights: number, activation: ActivationFunction) => new AdalineUnit(weights, activation),
             activation: new Tanh()            
         }
 

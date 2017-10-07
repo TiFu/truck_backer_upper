@@ -48,7 +48,7 @@ class Simulation extends React.Component {
     randomizePosition() {
         let tep = new math_1.Point(12, 12);
         let tep2 = new math_1.Point(58, -13);
-        this.state.world.truck.setTruckIntoRandomPosition([tep, tep2], [-Math.PI, Math.PI]);
+        this.state.world.randomize();
         this.onFrame(true);
     }
     prepTrainTruckPositon() {
@@ -95,7 +95,7 @@ class Simulation extends React.Component {
             console.log(this.emulatorTrainSteps + " of " + this.emulatorTrainStepsTarget);
             let epochs = 0;
             while (epochs < this.emulatedSteps && this.state.running) {
-                epochs += this.trainTruckEmulator.train(this.emulatedSteps);
+                epochs += this.trainTruckEmulator.train(this.emulatedSteps)[0];
                 this.state.world.randomize();
                 this.onFrame(true);
             }

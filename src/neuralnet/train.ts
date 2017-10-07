@@ -1,7 +1,7 @@
 import {World, Dock} from '../model/world';
 import {NeuralNet} from './net'
 import {Vector} from './math'
-import {Angle} from '../math'
+import {Angle, Point} from '../math'
 
 export class TrainTruckEmulator {
 
@@ -45,11 +45,10 @@ export class TrainTruckEmulator {
             err += this.lastError;
             count++;
             if (!cont) {
-                return i;
+                return [i, err / count];
             }
         }
-        console.log(err / count)
-        return epochs;
+        return [epochs, err / count];
     }
 }
 
@@ -58,24 +57,31 @@ export class TrainTruckController {
     public fixedEmulator = false;
     private maxSteps = 100;
     private performedTrainSteps = 0;
-    private increaseDifficultyEpisodeDiff = 500;
+    private increaseDifficultyEpisodeDiff = 300000;
 
     private currentMaxDistFromDock: number = 10;
-    private currentMinDistFromDock: number = 10;
-    private currentMaxDockAngle: Angle = Math.PI / 6; // 30 degrees
-    private currentMaxAdditionalTrailerAngle: Angle = Math.PI / 36; // start with 30 degrees
-    private currentMaxCabinTrailerAngle: Angle = Math.PI / 36; // start with 30 degrees at most
+    private currentMinDistFromDock: number = 7;
+    private currentMaxTrailerAngle: Angle = Math.PI / 36; // start with 5 degrees
+    private currentMaxCabinTrailerAngle: Angle = Math.PI / 36; // start with 5 degrees at most
 
     public constructor(private world: World, private controllerNet: NeuralNet, private emulatorNet: NeuralNet) {
         // TODO: verify compatibility of emulator net and controller net
     }
 
-    public train(trials: number) {
+    public getControllerNet() {
+        return this.controllerNet;
+    }
+    public train(trials: number): number {
+        let errorSum = 0;
         this.fixEmulator(true);
-        for (let i = 0; i < trials; i++) {
-            this.trainStep();
+        for (let i = 0; i < trials; i++) { // TODO: this is incorrect. We need to reset the truck! otherwise we do incorrect updates...
+            let error = this.trainStep();
+            if (!isNaN(error)) {
+                errorSum += error;
+            }
         }
         this.fixEmulator(false);
+        return errorSum / trials;
     }
 
     public getErrorCurve(): Array<number> {
@@ -83,13 +89,7 @@ export class TrainTruckController {
     }
     
     public prepareTruckPosition() {
-        let distFromDock = [this.currentMinDistFromDock, this.currentMaxDistFromDock];
-        let maxDockAngle = [- this.currentMaxDockAngle, this.currentMaxDockAngle];
-        let maxAdditionalTrailerAngle = [- this.currentMaxAdditionalTrailerAngle, this.currentMaxAdditionalTrailerAngle];
-        let maxCabinTrailerAngle = [- this.currentMaxCabinTrailerAngle, this.currentMaxCabinTrailerAngle];
-//        TODO: rewrite randomize max
-        this.world.randomizeMax();    
-        console.log("[PrepareTruckPosition] " + this.world.truck.getStateVector());    
+        this.world.randomizeMax(new Point(this.currentMinDistFromDock, this.currentMaxDistFromDock), new Point(this.currentMaxDistFromDock, -this.currentMaxDistFromDock), [-this.currentMaxTrailerAngle, this.currentMaxTrailerAngle], [-this.currentMaxCabinTrailerAngle, this.currentMaxCabinTrailerAngle]);    
     }
 
     private fixEmulator(fix: boolean) {
@@ -99,30 +99,24 @@ export class TrainTruckController {
         }
     }
 
-    public trainStep() {
+    public trainStep(): number {
         this.fixEmulator(true);
 
         let currentState = this.world.truck.getStateVector();
-        console.log("[TrainTruckCnotroller] Initial State: ", currentState.toString());
         let canContinue = true;
         let controllerSignals = [];
         let statesFromEmulator = [];
         let i = 0;
         while (canContinue) {
-            console.log("[TrainTruckController] Feeding " + currentState);
             let controllerSignal = this.controllerNet.forward(currentState);
-            console.log("[TRainTRuckController] " + controllerSignal)
             let stateWithSteering = currentState.getWithNewElement(controllerSignal.entries[0]);
-            console.log("[TrainTruckController] State with steering " + stateWithSteering);
             controllerSignals.push(controllerSignal);
 
             currentState = this.emulatorNet.forward(stateWithSteering);
-            console.log("Updated current state: " + currentState)
 
             statesFromEmulator.push(currentState);
 
             canContinue = this.world.nextTimeStep(controllerSignal.entries[0]);
-            console.log("State should: " + this.world.truck.getStateVector());
             if (i > this.maxSteps) {
                 break;
 //                throw Error("ugh")
@@ -130,21 +124,20 @@ export class TrainTruckController {
             i++;
         }
 
+        if (i == 0) { // we didn't do anything => no update!
+            return NaN;
+        }
         // we hit the end => calculate our error, backpropagate
         let finalState = this.world.truck.getStateVector();
         let dock = this.world.dock;
 
-        console.log("Angle: " + finalState.entries[5])
         let controllerDerivative = this.calculateErrorDerivative(finalState, dock);
-        console.log("Angle Derivative: " + controllerDerivative.entries[5]);
         let error = this.calculateError(finalState, dock);
-        console.log("[TruckController] Remaining Error: ", error);
         this.errors.push(error);
 
-        for (let i = statesFromEmulator.length; i >= 0; i--){ 
+        for (let i = statesFromEmulator.length - 1; i >= 0; i--){ 
             let emulatorDerivative = this.emulatorNet.backwardWithGradient(controllerDerivative, false);
             let steeringSignalDerivative = emulatorDerivative.entries[6]; // last entry
-            console.log("[SteeringSignalDerivative] " + steeringSignalDerivative)
             controllerDerivative = this.controllerNet.backwardWithGradient(new Vector([steeringSignalDerivative]), true);
         }
         this.controllerNet.updateWithAccumulatedWeights();
@@ -152,16 +145,17 @@ export class TrainTruckController {
         this.fixEmulator(false);
         this.performedTrainSteps++;
         this.updateLimitationParameters();
+        return error;
     }
 
     private updateLimitationParameters() {
         if (this.performedTrainSteps % this.increaseDifficultyEpisodeDiff == 0) {
             this.currentMaxDistFromDock = Math.min(this.currentMaxDistFromDock + 2, 50);
 
-            this.currentMaxAdditionalTrailerAngle = Math.min(2 * Math.PI, this.currentMaxAdditionalTrailerAngle + Math.PI / 36);// 5 degrees
+            this.currentMaxTrailerAngle = Math.min(Math.PI, this.currentMaxTrailerAngle + Math.PI / 36);
+ //           this.currentMaxCabinTrailerAngle = Math.min(Math.PI, this.currentMaxTrailerAngle + Math.PI / 36);// 5 degrees
 
             this.currentMaxCabinTrailerAngle = Math.min(Math.PI / 2, this.currentMaxCabinTrailerAngle + Math.PI / 36);
-            this.currentMaxDockAngle = Math.min(Math.PI / 2.5, this.currentMaxDockAngle + Math.PI / 36);
             this.maxSteps += 25;        
         }
     }

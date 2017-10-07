@@ -62,7 +62,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
     public randomizePosition() {
         let tep = new Point(12,12)
         let tep2 = new Point(58,-13)
-        this.state.world.truck.setTruckIntoRandomPosition([tep, tep2], [- Math.PI, Math.PI]);
+        this.state.world.randomize(); //truck.setTruckIntoRandomPosition([tep, tep2], [- Math.PI, Math.PI]);
         this.onFrame(true);
     }
     public prepTrainTruckPositon() {
@@ -113,7 +113,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
             console.log(this.emulatorTrainSteps + " of " + this.emulatorTrainStepsTarget);
             let epochs = 0;
             while (epochs < this.emulatedSteps && this.state.running) {
-                epochs += this.trainTruckEmulator.train(this.emulatedSteps);
+                epochs += this.trainTruckEmulator.train(this.emulatedSteps)[0];
                 this.state.world.randomize();
                 this.onFrame(true);
             }

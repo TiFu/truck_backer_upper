@@ -6,7 +6,7 @@ const implementations_1 = require("./neuralnet/implementations");
 const fs = require("fs");
 let world = new world_1.World();
 let trainTruckEmulator = new train_1.TrainTruckEmulator(world, implementations_1.emulatorNet);
-let savedWeights = fs.readFileSync("./savedWeights").toString();
+let savedWeights = fs.readFileSync("./emulator_weights").toString();
 let parsedWeights = JSON.parse(savedWeights);
 trainTruckEmulator.getEmulatorNet().loadWeights(parsedWeights);
 let steps = 10000001;
@@ -22,5 +22,5 @@ for (let i = 0; i < steps; i++) {
         errorSum = 0;
     }
 }
-fs.writeFileSync("./savedWeights", JSON.stringify(trainTruckEmulator.getEmulatorNet().getWeights()));
-//# sourceMappingURL=train.js.map
+fs.writeFileSync("./emulator_weights", JSON.stringify(trainTruckEmulator.getEmulatorNet().getWeights()));
+//# sourceMappingURL=trainEmulator.js.map

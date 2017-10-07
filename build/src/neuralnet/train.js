@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const math_1 = require("./math");
+const math_2 = require("../math");
 class TrainTruckEmulator {
     constructor(world, neuralNet) {
         this.world = world;
@@ -37,11 +38,10 @@ class TrainTruckEmulator {
             err += this.lastError;
             count++;
             if (!cont) {
-                return i;
+                return [i, err / count];
             }
         }
-        console.log(err / count);
-        return epochs;
+        return [epochs, err / count];
     }
 }
 exports.TrainTruckEmulator = TrainTruckEmulator;
@@ -54,30 +54,32 @@ class TrainTruckController {
         this.fixedEmulator = false;
         this.maxSteps = 100;
         this.performedTrainSteps = 0;
-        this.increaseDifficultyEpisodeDiff = 500;
+        this.increaseDifficultyEpisodeDiff = 300000;
         this.currentMaxDistFromDock = 10;
-        this.currentMinDistFromDock = 10;
-        this.currentMaxDockAngle = Math.PI / 6;
-        this.currentMaxAdditionalTrailerAngle = Math.PI / 36;
+        this.currentMinDistFromDock = 7;
+        this.currentMaxTrailerAngle = Math.PI / 36;
         this.currentMaxCabinTrailerAngle = Math.PI / 36;
     }
+    getControllerNet() {
+        return this.controllerNet;
+    }
     train(trials) {
+        let errorSum = 0;
         this.fixEmulator(true);
         for (let i = 0; i < trials; i++) {
-            this.trainStep();
+            let error = this.trainStep();
+            if (!isNaN(error)) {
+                errorSum += error;
+            }
         }
         this.fixEmulator(false);
+        return errorSum / trials;
     }
     getErrorCurve() {
         return this.errors;
     }
     prepareTruckPosition() {
-        let distFromDock = [this.currentMinDistFromDock, this.currentMaxDistFromDock];
-        let maxDockAngle = [-this.currentMaxDockAngle, this.currentMaxDockAngle];
-        let maxAdditionalTrailerAngle = [-this.currentMaxAdditionalTrailerAngle, this.currentMaxAdditionalTrailerAngle];
-        let maxCabinTrailerAngle = [-this.currentMaxCabinTrailerAngle, this.currentMaxCabinTrailerAngle];
-        this.world.randomizeMax();
-        console.log("[PrepareTruckPosition] " + this.world.truck.getStateVector());
+        this.world.randomizeMax(new math_2.Point(this.currentMinDistFromDock, this.currentMaxDistFromDock), new math_2.Point(this.currentMaxDistFromDock, -this.currentMaxDistFromDock), [-this.currentMaxTrailerAngle, this.currentMaxTrailerAngle], [-this.currentMaxCabinTrailerAngle, this.currentMaxCabinTrailerAngle]);
     }
     fixEmulator(fix) {
         if (this.fixedEmulator != fix) {
@@ -88,53 +90,46 @@ class TrainTruckController {
     trainStep() {
         this.fixEmulator(true);
         let currentState = this.world.truck.getStateVector();
-        console.log("[TrainTruckCnotroller] Initial State: ", currentState.toString());
         let canContinue = true;
         let controllerSignals = [];
         let statesFromEmulator = [];
         let i = 0;
         while (canContinue) {
-            console.log("[TrainTruckController] Feeding " + currentState);
             let controllerSignal = this.controllerNet.forward(currentState);
-            console.log("[TRainTRuckController] " + controllerSignal);
             let stateWithSteering = currentState.getWithNewElement(controllerSignal.entries[0]);
-            console.log("[TrainTruckController] State with steering " + stateWithSteering);
             controllerSignals.push(controllerSignal);
             currentState = this.emulatorNet.forward(stateWithSteering);
-            console.log("Updated current state: " + currentState);
             statesFromEmulator.push(currentState);
             canContinue = this.world.nextTimeStep(controllerSignal.entries[0]);
-            console.log("State should: " + this.world.truck.getStateVector());
             if (i > this.maxSteps) {
                 break;
             }
             i++;
         }
+        if (i == 0) {
+            return NaN;
+        }
         let finalState = this.world.truck.getStateVector();
         let dock = this.world.dock;
-        console.log("Angle: " + finalState.entries[5]);
         let controllerDerivative = this.calculateErrorDerivative(finalState, dock);
-        console.log("Angle Derivative: " + controllerDerivative.entries[5]);
         let error = this.calculateError(finalState, dock);
-        console.log("[TruckController] Remaining Error: ", error);
         this.errors.push(error);
-        for (let i = statesFromEmulator.length; i >= 0; i--) {
+        for (let i = statesFromEmulator.length - 1; i >= 0; i--) {
             let emulatorDerivative = this.emulatorNet.backwardWithGradient(controllerDerivative, false);
             let steeringSignalDerivative = emulatorDerivative.entries[6];
-            console.log("[SteeringSignalDerivative] " + steeringSignalDerivative);
             controllerDerivative = this.controllerNet.backwardWithGradient(new math_1.Vector([steeringSignalDerivative]), true);
         }
         this.controllerNet.updateWithAccumulatedWeights();
         this.fixEmulator(false);
         this.performedTrainSteps++;
         this.updateLimitationParameters();
+        return error;
     }
     updateLimitationParameters() {
         if (this.performedTrainSteps % this.increaseDifficultyEpisodeDiff == 0) {
             this.currentMaxDistFromDock = Math.min(this.currentMaxDistFromDock + 2, 50);
-            this.currentMaxAdditionalTrailerAngle = Math.min(2 * Math.PI, this.currentMaxAdditionalTrailerAngle + Math.PI / 36);
+            this.currentMaxTrailerAngle = Math.min(Math.PI, this.currentMaxTrailerAngle + Math.PI / 36);
             this.currentMaxCabinTrailerAngle = Math.min(Math.PI / 2, this.currentMaxCabinTrailerAngle + Math.PI / 36);
-            this.currentMaxDockAngle = Math.min(Math.PI / 2.5, this.currentMaxDockAngle + Math.PI / 36);
             this.maxSteps += 25;
         }
     }

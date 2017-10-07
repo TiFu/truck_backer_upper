@@ -55,11 +55,8 @@ class NeuralNet {
     }
     backwardWithGradient(gradient, accumulateWeigthUpdates) {
         let error = gradient;
-        console.log("End: " + error);
         for (let i = this.netConfig.layerConfigs.length - 1; i >= 0; i--) {
-            console.log("-------------------------");
             error = this.layers[i].backward(error, this.netConfig.learningRate, accumulateWeigthUpdates);
-            console.log("Layer " + i + ": " + error);
         }
         return error;
     }
