@@ -54,6 +54,26 @@ let LayerTest = class LayerTest {
         chai_1.expect(inputDerivative.entries[0]).to.equal(y_1);
         chai_1.expect(inputDerivative.entries[1]).to.equal(y_2);
     }
+    testBackwardGradientChecking() {
+        let result = this.layer.forward(new math_1.Vector([2, 3]));
+        let errorFunction = (result, should) => {
+            let a = result.entries[0] - should.entries[0];
+            let b = result.entries[1] - should.entries[1];
+            return 1 / 2 * (a * a + b * b);
+        };
+        let should = new math_1.Vector([-1, 1]);
+        let result01 = errorFunction(this.layer.forward(new math_1.Vector([2 + 10e-6, 3])), should);
+        let result02 = errorFunction(this.layer.forward(new math_1.Vector([2 - 10e-6, 3])), should);
+        let derivative1 = (result01 - result02) / (2 * 10e-6);
+        let result11 = errorFunction(this.layer.forward(new math_1.Vector([2, 3 + 10e-6])), should);
+        let result12 = errorFunction(this.layer.forward(new math_1.Vector([2, 3 - 10e-6])), should);
+        let derivative2 = (result11 - result12) / (2 * 10e-6);
+        result = this.layer.forward(new math_1.Vector([2, 3]));
+        let errorDerivative = new math_1.Vector([result.entries[0] - should.entries[0], result.entries[1] - should.entries[1]]);
+        let inputDerivative = this.layer.backward(errorDerivative, 0.01, false);
+        chai_1.expect(Math.abs(inputDerivative.entries[0] - derivative1) < 10e-6).to.be.true;
+        chai_1.expect(Math.abs(inputDerivative.entries[1] - derivative2) < 10e-6).to.be.true;
+    }
 };
 __decorate([
     mocha_typescript_1.test
@@ -61,6 +81,9 @@ __decorate([
 __decorate([
     mocha_typescript_1.test
 ], LayerTest.prototype, "testBackward", null);
+__decorate([
+    mocha_typescript_1.test
+], LayerTest.prototype, "testBackwardGradientChecking", null);
 LayerTest = __decorate([
     mocha_typescript_1.suite
 ], LayerTest);

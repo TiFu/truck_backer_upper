@@ -12,6 +12,15 @@ class Layer {
             this.units.push(this.unitConstructor(inputDim, activation));
         }
     }
+    setDebug(debug) {
+        this.debug = debug;
+        for (let unit of this.units) {
+            unit.setDebug(debug);
+        }
+        this.units[3].setDebug(true);
+        this.units[4].setDebug(true);
+        this.units[5].setDebug(true);
+    }
     getUnits() {
         return this.units;
     }

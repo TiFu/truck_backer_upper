@@ -10,15 +10,17 @@ export interface Unit {
     loadWeights(weights: Array<number>): void;
     setWeights(weights: Vector): void;
     getLastUpdate(): Vector;
+    setDebug(debug: boolean): void;
 }
 
 export class AdalineUnit implements Unit {
-    private lastSum: Scalar;
+    public lastSum: Scalar;
     private lastInput: Vector;
     private fixedWeights: boolean;
     private accumulatedWeights: Vector;
     private weights: Vector;
     private lastUpdate: Vector;
+    private debug: boolean;
 
     constructor(private inputDim: number, private activation: ActivationFunction) {
         this.fixedWeights = false;
@@ -26,6 +28,9 @@ export class AdalineUnit implements Unit {
         this.resetAccumulatedWeights();
     }
 
+    public setDebug(debug: boolean) {
+        this.debug = debug;
+    }
     public getLastUpdate(): Vector {
         return this.lastUpdate;
     }
@@ -67,6 +72,8 @@ export class AdalineUnit implements Unit {
         this.lastSum = this.weights.multiply(input); // last is bias
 
         if (Number.isNaN(this.lastSum)) {
+            console.log("[Unit] Input: " + input);
+            console.log("[Unit] Last Sum: " + this.lastSum)
             console.log("[Unit] Weights: ", this.weights.entries);
             console.log("[Unit] Sum: ", this.lastSum);
         }
@@ -86,15 +93,24 @@ export class AdalineUnit implements Unit {
         this.accumulatedWeights = new Vector(entries);
     }
     public updateWithAccumulatedWeights() {
+//       console.log("Accumulated Weights: " + this.accumulatedWeights);
         this.updateWeights(this.accumulatedWeights);
+        this.resetAccumulatedWeights();
     }
 
     // Returns derivative wrt to the inputs
     public backward(errorDerivative: Scalar, learningRate: Scalar, accumulateWeigthUpdates: boolean): Vector {
+  //      if (this.debug)
+   //         console.log("[Unit] Last Sum: " + this.lastSum)
         let activationDerivative = this.activation.applyDerivative(this.lastSum);
         let scalarFactor = errorDerivative * activationDerivative;
-
         let inputDerivative: Vector = this.weights.getScaled(scalarFactor);
+  /*      if (this.debug) {
+            console.log(this.weights)
+            console.log("Last Sum: " + this.lastSum)
+        }*/
+  //      if (this.debug)
+  //          console.log("[Unit] Error Derivative: " + errorDerivative, "Activation Derivative: " + activationDerivative, "result scalar: " + scalarFactor)
         if (!this.fixedWeights) {
             let weightDerivative: Vector = this.lastInput.getScaled(scalarFactor);
             let update = this.calculateWeightUpdate(learningRate, weightDerivative);
@@ -105,7 +121,9 @@ export class AdalineUnit implements Unit {
                 this.updateWeights(update);
             }
         }
-
+   /*     if (this.debug) {
+            console.log("Input Derivative: ", inputDerivative)
+        }*/
         return inputDerivative.getWithoutLastElement();
     }
 

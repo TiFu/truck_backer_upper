@@ -47,6 +47,43 @@ let UnitTest = class UnitTest {
         chai_1.expect(inputDerivative.entries[0]).to.equal(expectedDx * 3);
         chai_1.expect(inputDerivative.entries[1]).to.equal(expectedDx * 7);
     }
+    testBackwardGradientChecking() {
+        let vec = new math_1.Vector([0.1, 0.01]);
+        let forward = this.unitTanh.forward(vec);
+        console.log(this.unitTanh.getWeights());
+        chai_1.expect(forward).to.equal(Math.tanh(2.37));
+        let firstGradient = this.gradientCheckInputs(vec, 0, this.unitTanh);
+        let secondGradient = this.gradientCheckInputs(vec, 1, this.unitTanh);
+        let firstWeight = this.gradientCheckWeights(vec, 0, this.unitTanh);
+        let secondWeight = this.gradientCheckWeights(vec, 1, this.unitTanh);
+        let thirdWeight = this.gradientCheckWeights(vec, 2, this.unitTanh);
+        const learningRate = 0.01;
+        const inputDerivative = this.unitTanh.backward(1, learningRate, false);
+        chai_1.expect(Math.abs(firstGradient - inputDerivative.entries[0]) < 10e-4).to.be.true;
+        chai_1.expect(Math.abs(secondGradient - inputDerivative.entries[1]) < 10e-4).to.be.true;
+        let update = this.unitTanh.getLastUpdate();
+        chai_1.expect(Math.abs(firstWeight + 1 / learningRate * update.entries[0]) < 10e-4, "First Weight incorrect").to.be.true;
+        chai_1.expect(Math.abs(secondWeight + 1 / learningRate * update.entries[1]) < 10e-4, "First Weight incorrect").to.be.true;
+        chai_1.expect(Math.abs(thirdWeight + 1 / learningRate * update.entries[2]) < 10e-4, "First Weight incorrect").to.be.true;
+    }
+    gradientCheckWeights(vec, entry, unit) {
+        let newWeights = unit.getWeights();
+        console.log(newWeights);
+        console.log(vec);
+        newWeights[entry] += 10e-6;
+        let a = unit.forward(vec);
+        newWeights[entry] -= 2 * 10e-6;
+        let b = unit.forward(vec);
+        newWeights[entry] += 10e-6;
+        return (a - b) / (2 * 10e-6);
+    }
+    gradientCheckInputs(vec, entry, unit) {
+        let b = new math_1.Vector(vec.entries.slice());
+        b.entries[entry] += 10e-6;
+        let c = new math_1.Vector(vec.entries.slice());
+        c.entries[entry] -= 10e-6;
+        return (unit.forward(b) - unit.forward(c)) / (2 * 10e-6);
+    }
 };
 __decorate([
     mocha_typescript_1.test
@@ -57,6 +94,9 @@ __decorate([
 __decorate([
     mocha_typescript_1.test
 ], UnitTest.prototype, "testBackward", null);
+__decorate([
+    mocha_typescript_1.test
+], UnitTest.prototype, "testBackwardGradientChecking", null);
 UnitTest = __decorate([
     mocha_typescript_1.suite
 ], UnitTest);

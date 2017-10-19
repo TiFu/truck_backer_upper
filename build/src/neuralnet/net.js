@@ -5,6 +5,7 @@ class NeuralNet {
     constructor(netConfig) {
         this.netConfig = netConfig;
         this.errors = [];
+        this.debug = false;
         this.fixedWeights = false;
         this.layers = new Array(netConfig.layerConfigs.length);
         let input = netConfig.inputs;
@@ -18,6 +19,10 @@ class NeuralNet {
             input = output;
         }
         this.outputDim = lastNeuronCount;
+    }
+    setDebugMode(debug) {
+        this.debug = debug;
+        this.layers[0].setDebug(true);
     }
     getLayers() {
         return this.layers;

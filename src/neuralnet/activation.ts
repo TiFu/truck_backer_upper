@@ -37,6 +37,32 @@ export class Sigmoid implements ActivationFunction {
     }
 }
 
+export class ReLu implements ActivationFunction {
+    constructor(private epsilon: number) {
+
+    }
+
+    getName() {
+        return "relu";
+    }
+
+    apply(input: Scalar) {
+        if (input > 0) {
+            return input;
+        } else {
+            return this.epsilon * input;
+        }
+    }
+
+    applyDerivative(input: Scalar) {
+        if (input > 0) {
+            return 1;
+        } else {
+            return this.epsilon;
+        }
+    }
+}
+
 export class Linear implements ActivationFunction {
     getName() {
         return "linear";

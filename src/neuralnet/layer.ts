@@ -5,12 +5,23 @@ import {Unit, AdalineUnit} from './unit';
 
 export class Layer {
     private units: Unit[];
+    private debug: boolean;
 
     constructor(private inputDim: number, private outputDim: number, private activation: ActivationFunction, private unitConstructor: (inputDim: number, activation: ActivationFunction) => Unit) {
         this.units = [];
         for (let i = 0; i < outputDim; i++) {
             this.units.push(this.unitConstructor(inputDim, activation));
         }
+    }
+
+    public setDebug(debug: boolean) {
+        this.debug = debug;
+        for (let unit of this.units) {
+            unit.setDebug(debug);
+        }
+        this.units[3].setDebug(true)
+        this.units[4].setDebug(true)
+        this.units[5].setDebug(true)
     }
 
     public getUnits(): Unit[] {
@@ -37,10 +48,13 @@ export class Layer {
         if (input.length != this.inputDim) {
             throw new Error("Invalid Input Dimension! Expected " + this.inputDim + ", but got " + input.length);
         }
+//        console.log("-")
+//        console.log("Layer Input: ", input.entries)
         let outputs = new Array(this.outputDim);
         for (let i = 0; i < this.outputDim; i++) {
             outputs[i] = this.units[i].forward(input);
         }
+//        console.log("Layer output: ", outputs)
         return new Vector(outputs);
     }
 
@@ -61,6 +75,7 @@ export class Layer {
         }
         for (let i = 0; i < this.outputDim; i++) {
             let localError = this.units[i].backward(error.entries[i], learningRate, accumulateWeightUpdates);
+
             for (let j = 0; j < this.inputDim; j++) {
                 backpropError[j] += localError.entries[j];
             }

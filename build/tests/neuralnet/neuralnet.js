@@ -75,6 +75,19 @@ let NeuralNetTest = class NeuralNetTest {
         let result2 = this.net.forward(new math_1.Vector([1, 1]));
         chai_1.expect(result2.entries[0]).to.equal(0.4885796481617482);
     }
+    backwardGradientChecking() {
+        let mse = new error_1.MSE();
+        let result1 = mse.getError(this.net.forward(new math_1.Vector([1 + 10e-6, 1])), new math_1.Vector([1]));
+        let result2 = mse.getError(this.net.forward(new math_1.Vector([1 - 10e-6, 1])), new math_1.Vector([1]));
+        let der1 = (result1 - result2) / (2 * 10e-6);
+        let result3 = mse.getError(this.net.forward(new math_1.Vector([1, 1 + 10e-6])), new math_1.Vector([1]));
+        let result4 = mse.getError(this.net.forward(new math_1.Vector([1, 1 - 10e-6])), new math_1.Vector([1]));
+        let der2 = (result3 - result4) / (2 * 10e-6);
+        let result = this.net.forward(new math_1.Vector([1, 1]));
+        let inputDerivative = this.net.backward(result, new math_1.Vector([1]));
+        chai_1.expect(Math.abs(der1 - inputDerivative.entries[0]) < 10e-7).to.be.true;
+        chai_1.expect(Math.abs(der2 - inputDerivative.entries[1]) < 10e-7).to.be.true;
+    }
     xOR() {
         var hiddenLayer = {
             neuronCount: 2,
@@ -121,7 +134,7 @@ __decorate([
 ], NeuralNetTest.prototype, "testBackward", null);
 __decorate([
     mocha_typescript_1.test
-], NeuralNetTest.prototype, "xOR", null);
+], NeuralNetTest.prototype, "backwardGradientChecking", null);
 NeuralNetTest = __decorate([
     mocha_typescript_1.suite
 ], NeuralNetTest);

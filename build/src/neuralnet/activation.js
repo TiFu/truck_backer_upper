@@ -24,6 +24,31 @@ class Sigmoid {
     }
 }
 exports.Sigmoid = Sigmoid;
+class ReLu {
+    constructor(epsilon) {
+        this.epsilon = epsilon;
+    }
+    getName() {
+        return "relu";
+    }
+    apply(input) {
+        if (input > 0) {
+            return input;
+        }
+        else {
+            return this.epsilon * input;
+        }
+    }
+    applyDerivative(input) {
+        if (input > 0) {
+            return 1;
+        }
+        else {
+            return this.epsilon;
+        }
+    }
+}
+exports.ReLu = ReLu;
 class Linear {
     getName() {
         return "linear";

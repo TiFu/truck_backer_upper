@@ -57,17 +57,26 @@ export class TrainTruckController {
     public fixedEmulator = false;
     private maxSteps = 100;
     private performedTrainSteps = 0;
-    private increaseDifficultyEpisodeDiff = 300000;
+    private increaseDifficultyEpisodeDiff = 30000000;
 
+    public emulatorInputs: any = [];
     private currentMaxDistFromDock: number = 10;
+    private currentMaxYDistFromDock: number = 3;
     private currentMinDistFromDock: number = 7;
     private currentMaxTrailerAngle: Angle = Math.PI / 36; // start with 5 degrees
     private currentMaxCabinTrailerAngle: Angle = Math.PI / 36; // start with 5 degrees at most
+    private simple = false;
 
     public constructor(private world: World, private controllerNet: NeuralNet, private emulatorNet: NeuralNet) {
         // TODO: verify compatibility of emulator net and controller net
     }
 
+    public getEmulatorNet() {
+        return this.emulatorNet;
+    }
+    public setSimple(simple: boolean) {
+        this.simple = simple;
+    }
     public getControllerNet() {
         return this.controllerNet;
     }
@@ -89,7 +98,11 @@ export class TrainTruckController {
     }
     
     public prepareTruckPosition() {
-        this.world.randomizeMax(new Point(this.currentMinDistFromDock, this.currentMaxDistFromDock), new Point(this.currentMaxDistFromDock, -this.currentMaxDistFromDock), [-this.currentMaxTrailerAngle, this.currentMaxTrailerAngle], [-this.currentMaxCabinTrailerAngle, this.currentMaxCabinTrailerAngle]);    
+        this.world.randomizeMax(new Point(this.currentMinDistFromDock, this.currentMaxYDistFromDock), new Point(this.currentMaxDistFromDock, -this.currentMaxYDistFromDock), [-this.currentMaxTrailerAngle, this.currentMaxTrailerAngle], [-this.currentMaxCabinTrailerAngle, this.currentMaxCabinTrailerAngle]);    
+    }
+
+    public prepareTruckPositionSimple() {
+        this.world.randomizeMax(new Point(0, 3), new Point(0,this.currentMaxYDistFromDock), [0,0], [0,0])
     }
 
     private fixEmulator(fix: boolean) {
@@ -106,6 +119,7 @@ export class TrainTruckController {
         let canContinue = true;
         let controllerSignals = [];
         let statesFromEmulator = [];
+        this.emulatorInputs = [];
         let i = 0;
         while (canContinue) {
             let controllerSignal = this.controllerNet.forward(currentState);
@@ -113,10 +127,13 @@ export class TrainTruckController {
             controllerSignals.push(controllerSignal);
 
             currentState = this.emulatorNet.forward(stateWithSteering);
-
+            this.emulatorInputs.push(stateWithSteering);
             statesFromEmulator.push(currentState);
 
             canContinue = this.world.nextTimeStep(controllerSignal.entries[0]);
+            // use truck kinematics for sensing the error
+            // TODO: is this correct?
+            currentState = this.world.truck.getStateVector();
             if (i > this.maxSteps) {
                 break;
 //                throw Error("ugh")
@@ -131,17 +148,30 @@ export class TrainTruckController {
         let finalState = this.world.truck.getStateVector();
         let dock = this.world.dock;
 
+//        console.log("[Net] Final State: " + finalState)
+//        console.log("[Emulator State] " + statesFromEmulator[statesFromEmulator.length - 1])
         let controllerDerivative = this.calculateErrorDerivative(finalState, dock);
+//        console.log("[Net] Controller Derivative: " + controllerDerivative)
         let error = this.calculateError(finalState, dock);
         this.errors.push(error);
 
         for (let i = statesFromEmulator.length - 1; i >= 0; i--){ 
+//            console.log("----------------------------------------------------------------") 
+//            console.log("------------------------- Stack " + i + " --------------------------------") 
+//            console.log("----------------------------------------------------------------") 
+//            console.log("############# EMULATOR ##########")
             let emulatorDerivative = this.emulatorNet.backwardWithGradient(controllerDerivative, false);
+//            console.log("Emulator Derivative");
+//            console.log(emulatorDerivative.entries)
+////            return 0.0;
             let steeringSignalDerivative = emulatorDerivative.entries[6]; // last entry
+//            console.log("[Net] Steering Signal Derivative:" + steeringSignalDerivative);
+////            console.log("############# Controller ##########")
             controllerDerivative = this.controllerNet.backwardWithGradient(new Vector([steeringSignalDerivative]), true);
+//            console.log("[Net] Controller Derivative: " + controllerDerivative)
         }
         this.controllerNet.updateWithAccumulatedWeights();
-
+//        console.log("---------------------------------")
         this.fixEmulator(false);
         this.performedTrainSteps++;
         this.updateLimitationParameters();
@@ -150,17 +180,21 @@ export class TrainTruckController {
 
     private updateLimitationParameters() {
         if (this.performedTrainSteps % this.increaseDifficultyEpisodeDiff == 0) {
-            this.currentMaxDistFromDock = Math.min(this.currentMaxDistFromDock + 2, 50);
+            if (!this.simple) {
+                this.currentMaxDistFromDock = Math.min(this.currentMaxDistFromDock + 2, 50);
+                this.currentMaxYDistFromDock = Math.min(this.currentMaxYDistFromDock + 1, 50);
+                this.currentMaxTrailerAngle = Math.min(Math.PI, this.currentMaxTrailerAngle + Math.PI / 36);
+    //           this.currentMaxCabinTrailerAngle = Math.min(Math.PI, this.currentMaxTrailerAngle + Math.PI / 36);// 5 degrees
 
-            this.currentMaxTrailerAngle = Math.min(Math.PI, this.currentMaxTrailerAngle + Math.PI / 36);
- //           this.currentMaxCabinTrailerAngle = Math.min(Math.PI, this.currentMaxTrailerAngle + Math.PI / 36);// 5 degrees
-
-            this.currentMaxCabinTrailerAngle = Math.min(Math.PI / 2, this.currentMaxCabinTrailerAngle + Math.PI / 36);
-            this.maxSteps += 25;        
+                this.currentMaxCabinTrailerAngle = Math.min(Math.PI / 2, this.currentMaxCabinTrailerAngle + Math.PI / 36);
+                this.maxSteps += 25;        
+            } else {
+                this.currentMaxYDistFromDock += Math.min(this.currentMaxYDistFromDock + 2, 50);
+            }
         }
     }
 
-    private calculateError(finalState: Vector, dock: Dock): number {
+    public calculateError(finalState: Vector, dock: Dock): number {
         let xTrailer = finalState.entries[3];
         let yTrailer = finalState.entries[4];
         let thetaTrailer = finalState.entries[5];
@@ -169,7 +203,7 @@ export class TrainTruckController {
         let yDiff = yTrailer - dock.position.y
         let thetaDiff = thetaTrailer - 0
 
-        return xDiff * xDiff + yDiff * yDiff + thetaDiff * thetaDiff;
+        return 1/2 * (xDiff * xDiff + yDiff * yDiff + thetaDiff * thetaDiff);
     }
 
     private calculateErrorDerivative(finalState: Vector, dock: Dock): Vector {
@@ -181,7 +215,7 @@ export class TrainTruckController {
         // Derivative of SSE
         let xDiff = xTrailer - dock.position.x; 
         let yDiff = yTrailer - dock.position.y;
-        let thetaDiff = thetaTrailer
+        let thetaDiff = thetaTrailer - 0;
         
         // first 3 do not matter for the error
         return new Vector([0, 0, 0, xDiff, yDiff, thetaDiff]);

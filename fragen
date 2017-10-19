@@ -1,0 +1,6 @@
+Fragen
+
+- Steuersignal: in {-1, 0, 1} oder kontinuierlich in [-1, 1]?
+    - anderes Paper nutzt dies
+    - Paper von Nguyen/Widrow sagt steering signal between -1 and 1
+- Neuronen im Emulator sind gesättigt => entweder -1 oder 1. => niedrige Ableitung bei tanh => andere Aktivierungsfunktion?

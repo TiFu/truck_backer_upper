@@ -9,6 +9,9 @@ class AdalineUnit {
         this.weights = this.getRandomWeights(inputDim + 1);
         this.resetAccumulatedWeights();
     }
+    setDebug(debug) {
+        this.debug = debug;
+    }
     getLastUpdate() {
         return this.lastUpdate;
     }
@@ -42,6 +45,8 @@ class AdalineUnit {
         }
         this.lastSum = this.weights.multiply(input);
         if (Number.isNaN(this.lastSum)) {
+            console.log("[Unit] Input: " + input);
+            console.log("[Unit] Last Sum: " + this.lastSum);
             console.log("[Unit] Weights: ", this.weights.entries);
             console.log("[Unit] Sum: ", this.lastSum);
         }
@@ -60,6 +65,7 @@ class AdalineUnit {
     }
     updateWithAccumulatedWeights() {
         this.updateWeights(this.accumulatedWeights);
+        this.resetAccumulatedWeights();
     }
     backward(errorDerivative, learningRate, accumulateWeigthUpdates) {
         let activationDerivative = this.activation.applyDerivative(this.lastSum);

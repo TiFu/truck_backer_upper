@@ -90,6 +90,23 @@ class NeuralNetTest {
     }
 
     @test
+    public backwardGradientChecking() {
+        let mse = new MSE();
+        let result1 = mse.getError(this.net.forward(new Vector([1+10e-6, 1])), new Vector([1]));
+        let result2 = mse.getError(this.net.forward(new Vector([1 - 10e-6, 1])), new Vector([1]))
+        let der1 = (result1 - result2) / (2 * 10e-6);
+
+        let result3 = mse.getError(this.net.forward(new Vector([1, 1+10e-6])), new Vector([1]));
+        let result4 = mse.getError(this.net.forward(new Vector([1, 1 - 10e-6])), new Vector([1]));
+        let der2 = (result3 - result4) / (2 * 10e-6);
+
+        let result = this.net.forward(new Vector([1, 1]))
+        let inputDerivative = this.net.backward(result, new Vector([1]))
+        
+        expect(Math.abs(der1 - inputDerivative.entries[0]) < 10e-7).to.be.true;
+        expect(Math.abs(der2 - inputDerivative.entries[1]) < 10e-7).to.be.true;
+    }
+
     public xOR() {
         var hiddenLayer: LayerConfig = {
             neuronCount: 2,

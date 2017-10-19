@@ -22,6 +22,7 @@ export class NeuralNet {
     private inputDim: number;
     public errors: Array<number> = [];
     private fixedWeights: boolean;
+    private debug: boolean = false;
 
     constructor(private netConfig: NetConfig) {
         this.fixedWeights = false;
@@ -37,6 +38,11 @@ export class NeuralNet {
             input = output; // input of next layer is output of this layer
         }
         this.outputDim = lastNeuronCount;
+    }
+
+    public setDebugMode(debug: boolean) {
+        this.debug = debug;
+        this.layers[0].setDebug(true);
     }
 
     public getLayers(): Layer[] {
@@ -80,9 +86,15 @@ export class NeuralNet {
     }
 
     public backwardWithGradient(gradient: Vector, accumulateWeigthUpdates: boolean): Vector {
+/*        if (this.debug)
+            console.log("[Net] Gradient: " + gradient + ", accWeights: " + accumulateWeigthUpdates)*/
         let error = gradient;
         for (let i = this.netConfig.layerConfigs.length - 1; i >= 0; i--) {
             error = this.layers[i].backward(error, this.netConfig.learningRate, accumulateWeigthUpdates);
+/*           if (this.debug)
+               console.log("----------------------")
+               console.log("Layer " + i + " Error: " + error);
+               console.log("=============================")*/
         }
         return error;        
     }

@@ -5,7 +5,8 @@
   "main": "main.js",
   "scripts": {
     "test": "mocha --recursive build/tests",
-    "dev-test-watch": "mocha-typescript-watch -o mocha.opts build/tests/truckTest.js"
+    "test": "mocha build/tests/neuralnet/neuralnet.js",
+    "dev-test-watch": "mocha-typescript-watch -o mocha.opts build/tests/neuralnet/layer.js"
   },
   "author": "Tino Fuhrmann",
   "license": "GPL-3.0",
@@ -36,6 +37,7 @@
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "react-highcharts": "^12.0.0",
-    "react-konva": "^1.1.4"
+    "react-konva": "^1.1.4",
+    "winston": "^2.4.0"
   }
 }
