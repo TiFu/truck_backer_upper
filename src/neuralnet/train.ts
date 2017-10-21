@@ -110,7 +110,7 @@ export class TrainTruckController {
     }
 
     public prepareTruckPositionSimple() {
-        this.world.randomizeMax(new Point(0, 3), new Point(0,this.currentMaxYDistFromDock), [0,0], [0,0])
+        this.world.randomizeMax(new Point(this.currentMinDistFromDock, 0), new Point(this.currentMaxDistFromDock, 0), [0,0], [0,0])
     }
 
     private fixEmulator(fix: boolean) {

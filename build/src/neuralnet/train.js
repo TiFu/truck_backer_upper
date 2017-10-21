@@ -97,7 +97,7 @@ class TrainTruckController {
         this.world.randomizeMax(new math_2.Point(this.currentMinDistFromDock, this.currentMaxYDistFromDock), new math_2.Point(this.currentMaxDistFromDock, -this.currentMaxYDistFromDock), [-this.currentMaxTrailerAngle, this.currentMaxTrailerAngle], [-this.currentMaxCabinTrailerAngle, this.currentMaxCabinTrailerAngle]);
     }
     prepareTruckPositionSimple() {
-        this.world.randomizeMax(new math_2.Point(0, 3), new math_2.Point(0, this.currentMaxYDistFromDock), [0, 0], [0, 0]);
+        this.world.randomizeMax(new math_2.Point(this.currentMinDistFromDock, 0), new math_2.Point(this.currentMaxDistFromDock, 0), [0, 0], [0, 0]);
     }
     fixEmulator(fix) {
         if (this.fixedEmulator != fix) {
