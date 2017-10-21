@@ -12,6 +12,7 @@ exports.Dock = Dock;
 class World {
     constructor() {
         this.limits = [];
+        this.boundaryChecksEnabled = true;
         this.resetWorld();
         this.limits = [
             new math_1.StraightLine(new math_1.Point(0, 0), new math_1.Vector(0, 1)),
@@ -77,7 +78,7 @@ class World {
         }
     }
     nextTimeStep(steeringSignal) {
-        if (this.isTruckInValidPosition()) {
+        if (!this.boundaryChecksEnabled || this.isTruckInValidPosition()) {
             this.truck.nextTimeStep(steeringSignal);
             return this.isTruckInValidPosition();
         }

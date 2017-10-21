@@ -8,12 +8,10 @@ let sleep = require('sleep');
 let world = new world_1.World();
 let emulator_weights = fs.readFileSync("./emulator_weights").toString();
 let parsed_emulator_weights = JSON.parse(emulator_weights);
-let parsed_controller_weights = JSON.parse(fs.readFileSync("./controller_weights").toString());
 implementations_1.emulatorNet.setDebugMode(true);
 let trainTruckEmulator = new train_1.TrainTruckEmulator(world, implementations_1.emulatorNet);
 trainTruckEmulator.getEmulatorNet().loadWeights(parsed_emulator_weights);
 let trainTruckController = new train_1.TrainTruckController(world, implementations_1.controllerNet, implementations_1.emulatorNet);
-trainTruckController.getControllerNet().loadWeights(parsed_controller_weights);
 trainTruckController.setSimple(true);
 let steps = 10000001;
 let errorSTep = 1000;
@@ -26,6 +24,7 @@ for (let i = 0; i < steps; i++) {
         i--;
         continue;
     }
+    exit;
     console.log(lastError);
     errorSum += lastError;
     if (i % errorSTep == 0) {

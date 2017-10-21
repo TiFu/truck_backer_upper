@@ -10,14 +10,14 @@ let world = new World();
 
 let emulator_weights = fs.readFileSync("./emulator_weights").toString();
 let parsed_emulator_weights = JSON.parse(emulator_weights);
-let parsed_controller_weights = JSON.parse(fs.readFileSync("./controller_weights").toString());
+//let parsed_controller_weights = JSON.parse(fs.readFileSync("./controller_weights").toString());
 emulatorNet.setDebugMode(true);
 let trainTruckEmulator = new TrainTruckEmulator(world, emulatorNet);
 trainTruckEmulator.getEmulatorNet().loadWeights(parsed_emulator_weights);
 
 //let parsed_debug_emulator_weights = 
 let trainTruckController = new TrainTruckController(world, controllerNet , emulatorNet);
-trainTruckController.getControllerNet().loadWeights(parsed_controller_weights);
+//trainTruckController.getControllerNet().loadWeights(parsed_controller_weights);
 
 // train truck simple => only straight driving needed
 trainTruckController.setSimple(true);
@@ -26,6 +26,7 @@ let steps = 10000001
 let errorSTep = 1000;
 let errorSum = 0;
 let epochSteps = 1;
+
 for (let i = 0; i < steps; i++) {
     trainTruckController.prepareTruckPositionSimple();
     let lastError = trainTruckController.train(1);
@@ -33,7 +34,7 @@ for (let i = 0; i < steps; i++) {
         i--;
         continue;
     }
-
+    exit
     console.log(lastError)
     errorSum += lastError;
     //    sleep.sleep(5);

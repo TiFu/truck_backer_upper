@@ -102,7 +102,8 @@ export class NeuralNet {
 
     public backward(output: Vector, expected: Vector): Vector {
         let error = this.netConfig.errorFunction.getErrorDerivative(output, expected);
-        this.errors.push(this.netConfig.errorFunction.getError(output, expected));
+        let computedError = this.netConfig.errorFunction.getError(output, expected);
+        this.errors.push(computedError);
         return this.backwardWithGradient(error, false);
     }
 }

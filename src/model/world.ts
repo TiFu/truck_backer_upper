@@ -14,6 +14,7 @@ export class World {
     public dock: Dock;
     public truck: Truck;
     private limits: Array<StraightLine> = [];
+    public boundaryChecksEnabled = true;
 
     constructor() {      
         this.resetWorld(); // TODO: make rectangle for area instead of straight lines (but use lines to check for violation)
@@ -94,7 +95,7 @@ export class World {
     }
 
     public nextTimeStep(steeringSignal: number): boolean {
-        if (this.isTruckInValidPosition()) {
+        if (!this.boundaryChecksEnabled || this.isTruckInValidPosition()) {
             this.truck.nextTimeStep(steeringSignal);        
             return this.isTruckInValidPosition();
         } else {

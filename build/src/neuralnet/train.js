@@ -20,6 +20,8 @@ class TrainTruckEmulator {
         return this.neuralNet.errors;
     }
     trainStep(nextSteeringAngle) {
+        this.world.boundaryChecksEnabled = false;
+        let initialStateVector = this.world.truck.getStateVector();
         let stateVector = this.world.truck.getStateVector();
         stateVector.entries[0] = (stateVector.entries[0] - 35) / 35;
         stateVector.entries[1] = stateVector.entries[1] / 25;
@@ -33,6 +35,7 @@ class TrainTruckEmulator {
         let expectedVector = this.world.truck.getStateVector();
         let error = this.neuralNet.backward(result, expectedVector);
         this.lastError = this.neuralNet.errors[this.neuralNet.errors.length - 1];
+        this.world.boundaryChecksEnabled = true;
         return retVal && !result.isEntryNaN();
     }
     train(epochs) {
@@ -105,9 +108,19 @@ class TrainTruckController {
             this.fixedEmulator = fix;
         }
     }
+    scaleStateVector(stateVector) {
+        stateVector.entries[0] = (stateVector.entries[0] - 35) / 35;
+        stateVector.entries[1] = stateVector.entries[1] / 25;
+        stateVector.entries[2] /= Math.PI;
+        stateVector.entries[3] = (stateVector.entries[3] - 35) / 35;
+        stateVector.entries[4] = stateVector.entries[4] / 25;
+        stateVector.entries[5] /= Math.PI;
+        return stateVector;
+    }
     trainStep() {
         this.fixEmulator(true);
         let currentState = this.world.truck.getStateVector();
+        currentState = this.scaleStateVector(currentState);
         let canContinue = true;
         let controllerSignals = [];
         let statesFromEmulator = [];
@@ -118,10 +131,14 @@ class TrainTruckController {
             let stateWithSteering = currentState.getWithNewElement(controllerSignal.entries[0]);
             controllerSignals.push(controllerSignal);
             currentState = this.emulatorNet.forward(stateWithSteering);
+            console.log("Predicted: ");
+            console.log(currentState);
             this.emulatorInputs.push(stateWithSteering);
             statesFromEmulator.push(currentState);
             canContinue = this.world.nextTimeStep(controllerSignal.entries[0]);
-            currentState = this.world.truck.getStateVector();
+            currentState = this.scaleStateVector(this.world.truck.getStateVector());
+            console.log("Real: ");
+            console.log(currentState);
             if (i > this.maxSteps) {
                 break;
             }

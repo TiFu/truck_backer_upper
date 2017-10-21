@@ -5,7 +5,7 @@ import {ActivationFunction, Tanh, Sigmoid, Linear} from './activation'
 import {Vector} from './math'
 
 export var hiddenEmulatorLayer: LayerConfig = {
-    neuronCount: 45,
+    neuronCount: 45, // TODO: paper 45
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: number) => new AdalineUnit(weights, activation, initialWeightRange),
     activation: new Tanh()
 }

@@ -24,6 +24,8 @@ export class TrainTruckEmulator {
         return this.neuralNet.errors;
     }
     public trainStep(nextSteeringAngle: number): boolean {
+        this.world.boundaryChecksEnabled = false;
+        let initialStateVector = this.world.truck.getStateVector();
         let stateVector = this.world.truck.getStateVector();
 
         stateVector.entries[0] = (stateVector.entries[0] - 35) / 35; // [0,70] -> [-1, 1]
@@ -41,6 +43,14 @@ export class TrainTruckEmulator {
         let error = this.neuralNet.backward(result, expectedVector);
         this.lastError = this.neuralNet.errors[this.neuralNet.errors.length - 1]
 
+/*        if (this.lastError > 10) {
+            console.log(this.lastError)
+            console.log(initialStateVector.entries)
+            console.log(result.entries)
+            console.log(expectedVector.entries)
+            console.log("")
+        }*/
+        this.world.boundaryChecksEnabled = true;
         return retVal && !result.isEntryNaN();
     }
 
@@ -120,10 +130,20 @@ export class TrainTruckController {
         }
     }
 
+    private scaleStateVector(stateVector: Vector): Vector {
+        stateVector.entries[0] = (stateVector.entries[0] - 35) / 35; // [0,70] -> [-1, 1]
+        stateVector.entries[1] = stateVector.entries[1] / 25; // [-25, 25] -> [-1, 1]
+        stateVector.entries[2] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
+        stateVector.entries[3] = (stateVector.entries[3] - 35) / 35; // [0,70] -> [-1, 1]
+        stateVector.entries[4] = stateVector.entries[4] / 25; // [-25, 25] -> [-1, 1]
+        stateVector.entries[5] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
+        return stateVector;
+    }
     public trainStep(): number {
         this.fixEmulator(true);
 
         let currentState = this.world.truck.getStateVector();
+        currentState = this.scaleStateVector(currentState);
         let canContinue = true;
         let controllerSignals = [];
         let statesFromEmulator = [];
@@ -135,13 +155,17 @@ export class TrainTruckController {
             controllerSignals.push(controllerSignal);
 
             currentState = this.emulatorNet.forward(stateWithSteering);
+            console.log("Predicted: ")
+            console.log(currentState);
             this.emulatorInputs.push(stateWithSteering);
             statesFromEmulator.push(currentState);
 
             canContinue = this.world.nextTimeStep(controllerSignal.entries[0]);
             // use truck kinematics for sensing the error
             // TODO: is this correct?
-            currentState = this.world.truck.getStateVector();
+            currentState = this.scaleStateVector(this.world.truck.getStateVector());
+            console.log("Real: ")
+            console.log(currentState)
             if (i > this.maxSteps) {
                 break;
 //                throw Error("ugh")
