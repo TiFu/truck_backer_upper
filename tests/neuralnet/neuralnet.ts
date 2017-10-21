@@ -9,19 +9,20 @@ import {MSE} from '../../src/neuralnet/error'
 
 var hiddenLayer: LayerConfig = {
     neuronCount: 2,
-    unitConstructor: (input: number, activation: ActivationFunction) => new AdalineUnit(input, activation),
+    unitConstructor: (input: number, activation: ActivationFunction, initialWeightRange: number) => new AdalineUnit(input, activation, initialWeightRange),
     activation: new Sigmoid()
 }
 
 var outputLayer: LayerConfig = {
     neuronCount: 1,
-    unitConstructor: (inputDim: number, activation: ActivationFunction) => new AdalineUnit(inputDim, activation),
+    unitConstructor: (inputDim: number, activation: ActivationFunction, initialWeightRange: number) => new AdalineUnit(inputDim, activation, initialWeightRange),
     activation: new Sigmoid()
 }
 
 var netConfig: NetConfig = {
     inputs: 2,
     learningRate: 0.45,
+    weightInitRange: 0.6,
     errorFunction: new MSE(),
     layerConfigs: [
         hiddenLayer,
@@ -110,19 +111,20 @@ class NeuralNetTest {
     public xOR() {
         var hiddenLayer: LayerConfig = {
             neuronCount: 2,
-            unitConstructor: (input: number, activation: ActivationFunction) => new AdalineUnit(input, activation),
+            unitConstructor: (input: number, activation: ActivationFunction, initialWeightRange: number) => new AdalineUnit(input, activation, initialWeightRange),
             activation: new Sigmoid()
         }
         
         var outputLayer: LayerConfig = {
             neuronCount: 1,
-            unitConstructor: (inputDim: number, activation: ActivationFunction) => new AdalineUnit(inputDim, activation),
+            unitConstructor: (inputDim: number, activation: ActivationFunction, initialWeightRange: number) => new AdalineUnit(inputDim, activation, initialWeightRange),
             activation: new Sigmoid()
         }
         
         var netConfig: NetConfig = {
             inputs: 2,
             learningRate: 0.05,
+            weightInitRange: 0.6,            
             errorFunction: new MSE(),
             layerConfigs: [
                 hiddenLayer,

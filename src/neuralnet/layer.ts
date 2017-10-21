@@ -7,10 +7,10 @@ export class Layer {
     private units: Unit[];
     private debug: boolean;
 
-    constructor(private inputDim: number, private outputDim: number, private activation: ActivationFunction, private unitConstructor: (inputDim: number, activation: ActivationFunction) => Unit) {
+    constructor(private inputDim: number, private outputDim: number, private activation: ActivationFunction, private unitConstructor: (inputDim: number, activation: ActivationFunction, initialWeightRange: number) => Unit, initialWeightRange: number) {
         this.units = [];
         for (let i = 0; i < outputDim; i++) {
-            this.units.push(this.unitConstructor(inputDim, activation));
+            this.units.push(this.unitConstructor(inputDim, activation, initialWeightRange));
         }
     }
 

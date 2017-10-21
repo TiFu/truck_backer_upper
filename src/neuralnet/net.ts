@@ -7,12 +7,13 @@ export interface NetConfig {
     inputs: number,
     learningRate: number,
     errorFunction: ErrorFunction,
+    weightInitRange: number,
     layerConfigs: LayerConfig[];
 }
 
 export interface LayerConfig {
     neuronCount: number
-    unitConstructor: (inputDim: number, activation: ActivationFunction) => Unit
+    unitConstructor: (inputDim: number, activation: ActivationFunction, weightInitRange: number) => Unit
     activation: ActivationFunction
 }
 
@@ -34,7 +35,7 @@ export class NeuralNet {
             let layerConfig = netConfig.layerConfigs[i];
             let output = layerConfig.neuronCount;
             lastNeuronCount = output;
-            this.layers[i] = new Layer(input, output, layerConfig.activation, layerConfig.unitConstructor);
+            this.layers[i] = new Layer(input, output, layerConfig.activation, layerConfig.unitConstructor, netConfig.weightInitRange);
             input = output; // input of next layer is output of this layer
         }
         this.outputDim = lastNeuronCount;

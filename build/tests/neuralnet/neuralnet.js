@@ -15,17 +15,18 @@ const net_1 = require("../../src/neuralnet/net");
 const error_1 = require("../../src/neuralnet/error");
 var hiddenLayer = {
     neuronCount: 2,
-    unitConstructor: (input, activation) => new unit_1.AdalineUnit(input, activation),
+    unitConstructor: (input, activation, initialWeightRange) => new unit_1.AdalineUnit(input, activation, initialWeightRange),
     activation: new activation_1.Sigmoid()
 };
 var outputLayer = {
     neuronCount: 1,
-    unitConstructor: (inputDim, activation) => new unit_1.AdalineUnit(inputDim, activation),
+    unitConstructor: (inputDim, activation, initialWeightRange) => new unit_1.AdalineUnit(inputDim, activation, initialWeightRange),
     activation: new activation_1.Sigmoid()
 };
 var netConfig = {
     inputs: 2,
     learningRate: 0.45,
+    weightInitRange: 0.6,
     errorFunction: new error_1.MSE(),
     layerConfigs: [
         hiddenLayer,
@@ -91,17 +92,18 @@ let NeuralNetTest = class NeuralNetTest {
     xOR() {
         var hiddenLayer = {
             neuronCount: 2,
-            unitConstructor: (input, activation) => new unit_1.AdalineUnit(input, activation),
+            unitConstructor: (input, activation, initialWeightRange) => new unit_1.AdalineUnit(input, activation, initialWeightRange),
             activation: new activation_1.Sigmoid()
         };
         var outputLayer = {
             neuronCount: 1,
-            unitConstructor: (inputDim, activation) => new unit_1.AdalineUnit(inputDim, activation),
+            unitConstructor: (inputDim, activation, initialWeightRange) => new unit_1.AdalineUnit(inputDim, activation, initialWeightRange),
             activation: new activation_1.Sigmoid()
         };
         var netConfig = {
             inputs: 2,
             learningRate: 0.05,
+            weightInitRange: 0.6,
             errorFunction: new error_1.MSE(),
             layerConfigs: [
                 hiddenLayer,

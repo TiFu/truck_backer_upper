@@ -14,12 +14,13 @@ class NeuralNetTest {
     constructor() {
         let layer1 = {
             neuronCount: 1,
-            unitConstructor: (weights, activation) => new unit_1.AdalineUnit(weights, activation),
+            unitConstructor: (weights, activation, initialWeightRange) => new unit_1.AdalineUnit(weights, activation, initialWeightRange),
             activation: new activation_1.Tanh()
         };
         let netConfig = {
             inputs: 2,
             learningRate: 1,
+            weightInitRange: 0.6,
             errorFunction: new error_1.MSE(),
             layerConfigs: [
                 layer1,

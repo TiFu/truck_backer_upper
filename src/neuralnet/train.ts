@@ -25,8 +25,10 @@ export class TrainTruckEmulator {
     }
     public trainStep(nextSteeringAngle: number): boolean {
         let stateVector = this.world.truck.getStateVector();
+        stateVector = stateVector.scale(0.01); // divide state by 100
         stateVector = stateVector.getWithNewElement(nextSteeringAngle);
         let result = this.neuralNet.forward(stateVector);
+        result = result.scale(100); // undo scaling
 
         let retVal = this.world.nextTimeStep(nextSteeringAngle);
         let expectedVector = this.world.truck.getStateVector();

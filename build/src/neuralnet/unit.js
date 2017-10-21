@@ -2,11 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const math_1 = require("./math");
 class AdalineUnit {
-    constructor(inputDim, activation) {
+    constructor(inputDim, activation, initialWeightRange) {
         this.inputDim = inputDim;
         this.activation = activation;
         this.fixedWeights = false;
-        this.weights = this.getRandomWeights(inputDim + 1);
+        this.weights = this.getRandomWeights(inputDim + 1, initialWeightRange);
         this.resetAccumulatedWeights();
     }
     setDebug(debug) {
@@ -15,11 +15,12 @@ class AdalineUnit {
     getLastUpdate() {
         return this.lastUpdate;
     }
-    getRandomWeights(inputDim) {
+    getRandomWeights(inputDim, initialWeightRange) {
         let random = [];
         for (let i = 0; i < inputDim; i++) {
-            random.push(Math.random() * (0.6) - 0.3);
+            random.push(Math.random() * initialWeightRange - 0.5 * initialWeightRange);
         }
+        console.log("Initial Weights: " + random);
         return new math_1.Vector(random);
     }
     setWeights(weights) {

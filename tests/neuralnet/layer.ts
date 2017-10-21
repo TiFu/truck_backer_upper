@@ -9,7 +9,7 @@ import {Vector} from '../../src/neuralnet/math'
 class LayerTest {
     private layer: Layer;
     before() {
-        this.layer = new Layer(2, 2, new Tanh(), (inputDim, activation) => new AdalineUnit(inputDim, activation) )
+        this.layer = new Layer(2, 2, new Tanh(), (inputDim, activation, initialWeightRange) => new AdalineUnit(inputDim, activation, initialWeightRange),0.6)
         let units = this.layer.getUnits();
         units[0].setWeights(new Vector([-0.1, -0.2, -0.1]))
         units[1].setWeights(new Vector([0.2, 0.3, 0.2]))

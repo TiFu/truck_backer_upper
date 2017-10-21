@@ -2,14 +2,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const math_1 = require("./math");
 class Layer {
-    constructor(inputDim, outputDim, activation, unitConstructor) {
+    constructor(inputDim, outputDim, activation, unitConstructor, initialWeightRange) {
         this.inputDim = inputDim;
         this.outputDim = outputDim;
         this.activation = activation;
         this.unitConstructor = unitConstructor;
         this.units = [];
         for (let i = 0; i < outputDim; i++) {
-            this.units.push(this.unitConstructor(inputDim, activation));
+            this.units.push(this.unitConstructor(inputDim, activation, initialWeightRange));
         }
     }
     setDebug(debug) {

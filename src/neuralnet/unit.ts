@@ -22,9 +22,9 @@ export class AdalineUnit implements Unit {
     private lastUpdate: Vector;
     private debug: boolean;
 
-    constructor(private inputDim: number, private activation: ActivationFunction) {
+    constructor(private inputDim: number, private activation: ActivationFunction, initialWeightRange: number) {
         this.fixedWeights = false;
-        this.weights = this.getRandomWeights(inputDim + 1); // bias
+        this.weights = this.getRandomWeights(inputDim + 1, initialWeightRange); // bias
         this.resetAccumulatedWeights();
     }
 
@@ -35,11 +35,12 @@ export class AdalineUnit implements Unit {
         return this.lastUpdate;
     }
 
-    private getRandomWeights(inputDim: number): Vector { 
+    private getRandomWeights(inputDim: number, initialWeightRange: number): Vector { 
         let random = [];
         for (let i = 0; i < inputDim; i++) {
-            random.push(Math.random() * (0.6) - 0.3); // [-0.3, 0.3]
+            random.push(Math.random() * initialWeightRange - 0.5 * initialWeightRange); // [-0.3, 0.3]
         }
+        console.log("Initial Weights: " + random);
         return new Vector(random);
     }
 
@@ -70,7 +71,6 @@ export class AdalineUnit implements Unit {
         }
 
         this.lastSum = this.weights.multiply(input); // last is bias
-
         if (Number.isNaN(this.lastSum)) {
             console.log("[Unit] Input: " + input);
             console.log("[Unit] Last Sum: " + this.lastSum)
@@ -80,7 +80,8 @@ export class AdalineUnit implements Unit {
         let activated = this.activation.apply(this.lastSum);
         if (Number.isNaN(activated))
             console.log("[Unit] Activated: ", activated, "Last Sum: ", this.lastSum);
-            return activated;
+//        console.log("Activated: " + activated);
+        return activated;
     }
 
     public fixWeights(fixed: boolean) {
@@ -114,7 +115,7 @@ export class AdalineUnit implements Unit {
         if (!this.fixedWeights) {
             let weightDerivative: Vector = this.lastInput.getScaled(scalarFactor);
             let update = this.calculateWeightUpdate(learningRate, weightDerivative);
-
+//            console.log(update)
             if (accumulateWeigthUpdates) {
                 this.accumulatedWeights.add(update);
             } else {

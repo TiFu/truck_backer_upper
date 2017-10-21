@@ -13,9 +13,9 @@ const math_1 = require("../../src/neuralnet/math");
 const activation_1 = require("../../src/neuralnet/activation");
 let UnitTest = class UnitTest {
     before() {
-        this.unitLinear = new unit_1.AdalineUnit(2, new activation_1.Linear());
+        this.unitLinear = new unit_1.AdalineUnit(2, new activation_1.Linear(), 0.6);
         this.unitLinear.setWeights(new math_1.Vector([3, 7, 2]));
-        this.unitTanh = new unit_1.AdalineUnit(2, new activation_1.Tanh());
+        this.unitTanh = new unit_1.AdalineUnit(2, new activation_1.Tanh(), 0.6);
         this.unitTanh.setWeights(new math_1.Vector([3, 7, 2]));
     }
     testForwardLinear() {

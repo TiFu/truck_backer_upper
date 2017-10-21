@@ -15,7 +15,7 @@ class NeuralNet {
             let layerConfig = netConfig.layerConfigs[i];
             let output = layerConfig.neuronCount;
             lastNeuronCount = output;
-            this.layers[i] = new layer_1.Layer(input, output, layerConfig.activation, layerConfig.unitConstructor);
+            this.layers[i] = new layer_1.Layer(input, output, layerConfig.activation, layerConfig.unitConstructor, netConfig.weightInitRange);
             input = output;
         }
         this.outputDim = lastNeuronCount;

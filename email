@@ -1,0 +1,48 @@
+Hallo Herr Prof. Waibel,
+
+ich habe in den letzten Tagen nochmals die komplette NN-Implementierung angeschaut, und verifiziert, dass die Ableitungen korrekt berechnet werden.
+
+Im Folgenden beschreibe ich (stichwortartig) den Aufbau des Trainings, den ich implementiert habe. Eventuell fällt Ihnen dort auf, was für einen gravierenden Fehler ich gemacht habe.
+
+Emulators
+
+- Eingabe: 7 Variablen (x,y von Ende des Anhängers und Anhängerkupplung + Winkel mit Ausrichtung des Anhängers und Zugfahrzeugs und Steuersignal in [-1, 1])
+- Netz: 1 hidden Schicht mit 45 Perzeptrons und tanh-Aktivierungsfunktion
+- Ausgabe: 6 Perzeptrons mit linearer Aktivierungsfunktion
+- Fehlerfunktion: SSE
+
+Frage hierzu: 
+> "which in turn provides a steering signal s_k between -1 and 1"
+Ist damit gemeint, dass das Steuersignal im Intervall [-1, 1] liegt oder, dass nur -1, 0, 1 möglich sind? Ich hatte für das TBU-Problem schon beides gesehen, habe mich aber wegen der Formulierung im Paper dann für [-1, 1] entschieden.
+
+
+Emulator trainiert durch
+- Zufällige Position & Steuersignal wählen, dann ein forward Pass durch das Netz
+- anschließend einen backward-pass und update der Gewichte.
+
+Problem: Das Netz lernt nur sehr langsam und braucht mehrere Millionen Beispiele, um auf einen annehmbaren Fehler (~5 mit Ausreißern auf 25 bei SSE über 6 Variablen) zu kommen.
+
+Controller
+
+- Eingabe: 6 Zustände (wie oben nur ohne Steuersignal)
+- Netz: 1 hidden Schicht mit 26 Neuronen mit tanh-Aktivierungsfunktion
+- Ausgabe: 1 Neuron mit tanh-Aktivierungsfunktion
+- Fehler: SSE über die x, y Position des Ende des Anhängers und die Dock Position + Winkel des Anhängers
+
+Training des Controllers
+
+Hier habe ich einige Fragen:
+
+> For purposes of back-propagation of the error, the T-blocks are the truck emulator. But the actual truck kinematics are used when sensing the error e_k itself.
+Hier bin ich mir nicht ganz sicher, wie genau das gemeint ist. 
+Seien C der Controller, E der Truck-Emulator und T die tatsächlichen Truck-Kinematics.
+Meine Implementierung nutzt C um das Steuersignal zum aktuellen Zustand zu bestimmen. Dann wird T genutzt um den nächsten Zustand zu berechnen. (anschließend kommt der nächste Zustand in C und man erhält ein neues Steuersignal, usw.). Am Ende wird dann der Fehler berechnet (anhand der Endposition) und dieser backpropagiert. Dazu wird die Ableitung des Fehlers nach den Ausgabeneuronen von E bestimmt und dann durch E und C bis zum Anfang (abhängig davon wie viele Schritte berechnet wurden) propagiert. Die Ableitungen nach den Gewichten von C werden jeweils aufsummiert und am Ende ein Update durchgeführt. Die Gewichte von E bleiben dabei fest und werden nicht geändert.
+Ist diese Implementierung korrekt?
+
+
+Als letztes dann noch ein Problem, was ich beim Training des Controllers festgestellt habe:
+Die Ableitung des Fehlers am Ende nach dem letzten Steuersignal (d.h. man macht 1 Mal Backpropagation durch den Emulator) ist sehr klein (10^-17). Deshalb lernt der Controller nichts, da die Ableitungen des Controllers direkt von dieser Ableitung abhängen. Die Ableitung nach dem Steuersignal ist so klein, da die Neuronen in der hidden-Schicht des Emulators fast alle 1 bzw. -1 sind. Damit ist dort die Ableitung der tanh-Funktion (sehr) nahe 0. 
+Hätten Sie hier eine Idee, wie man dieses Problem lösen kann?
+
+Vielen Dank und viele Grüße
+Tino Fuhrmann

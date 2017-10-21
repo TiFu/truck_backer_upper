@@ -14,6 +14,7 @@ let outputWeights = [parsed_emulator_weights[1]];
 let emulatorOutputNetConfig = {
     inputs: 45,
     learningRate: 0.0001,
+    weightInitRange: 0.6,
     errorFunction: undefined,
     layerConfigs: [
         implementations_1.outputEmulatorLayer

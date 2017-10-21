@@ -14,15 +14,19 @@ trainTruckEmulator.getEmulatorNet().loadWeights(parsedWeights);
 let steps = 10000001
 let errorSTep = 10000;
 let errorSum = 0;
+let errorMax = 0;
 let epochSteps = 1;
 for (let i = 0; i < steps; i++) {
 //    console.log(i + " of " + steps);
     world.randomize();
     let lastError = trainTruckEmulator.train(epochSteps)[1];
     errorSum += lastError;
+    errorMax = Math.max(errorMax, lastError);
     if (i % errorSTep == 0) {
-        console.log(errorSum / errorSTep);
+        console.log(i + ": " + errorSum / errorSTep + " / " + errorMax);
+        fs.writeFileSync("./emulator_weights", JSON.stringify(trainTruckEmulator.getEmulatorNet().getWeights()));
         errorSum = 0;
+        errorMax = 0;
     }
 }
 

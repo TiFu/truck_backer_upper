@@ -14,7 +14,7 @@ const unit_1 = require("../../src/neuralnet/unit");
 const math_1 = require("../../src/neuralnet/math");
 let LayerTest = class LayerTest {
     before() {
-        this.layer = new layer_1.Layer(2, 2, new activation_1.Tanh(), (inputDim, activation) => new unit_1.AdalineUnit(inputDim, activation));
+        this.layer = new layer_1.Layer(2, 2, new activation_1.Tanh(), (inputDim, activation, initialWeightRange) => new unit_1.AdalineUnit(inputDim, activation, initialWeightRange), 0.6);
         let units = this.layer.getUnits();
         units[0].setWeights(new math_1.Vector([-0.1, -0.2, -0.1]));
         units[1].setWeights(new math_1.Vector([0.2, 0.3, 0.2]));

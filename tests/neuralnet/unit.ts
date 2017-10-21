@@ -11,9 +11,9 @@ class UnitTest {
     private unitTanh: AdalineUnit;
 
     before() {
-        this.unitLinear = new AdalineUnit(2, new Linear());
+        this.unitLinear = new AdalineUnit(2, new Linear(), 0.6);
         this.unitLinear.setWeights(new Vector([3,7,2]));
-        this.unitTanh = new AdalineUnit(2, new Tanh());
+        this.unitTanh = new AdalineUnit(2, new Tanh(), 0.6);
         this.unitTanh.setWeights(new Vector([3,7,2]));
     }
 
