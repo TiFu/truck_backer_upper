@@ -16,7 +16,7 @@ exports.outputEmulatorLayer = {
 };
 exports.emulatorNetConfig = {
     inputs: 7,
-    learningRate: 0.01,
+    learningRate: 0.001,
     errorFunction: new error_1.MSE(),
     weightInitRange: 0.01,
     layerConfigs: [
