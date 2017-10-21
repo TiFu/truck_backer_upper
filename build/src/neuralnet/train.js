@@ -21,14 +21,23 @@ class TrainTruckEmulator {
     }
     trainStep(nextSteeringAngle) {
         let stateVector = this.world.truck.getStateVector();
-        stateVector = stateVector.scale(0.01);
+        stateVector.entries[0] = (stateVector.entries[0] - 35) / 35;
+        stateVector.entries[1] = stateVector.entries[1] / 25;
+        stateVector.entries[2] /= Math.PI;
+        stateVector.entries[3] = (stateVector.entries[3] - 35) / 35;
+        stateVector.entries[4] = stateVector.entries[4] / 25;
+        stateVector.entries[5] /= Math.PI;
         stateVector = stateVector.getWithNewElement(nextSteeringAngle);
         let result = this.neuralNet.forward(stateVector);
-        result = result.scale(100);
         let retVal = this.world.nextTimeStep(nextSteeringAngle);
         let expectedVector = this.world.truck.getStateVector();
+        console.log("Expected: ");
+        console.log(expectedVector);
+        console.log("Predicted: ");
+        console.log(result);
         let error = this.neuralNet.backward(result, expectedVector);
         this.lastError = this.neuralNet.errors[this.neuralNet.errors.length - 1];
+        console.log("Last Error: " + this.lastError);
         return retVal && !result.isEntryNaN();
     }
     train(epochs) {

@@ -8,7 +8,6 @@ let trainTruckEmulator = new TrainTruckEmulator(world, emulatorNet);
 
 let savedWeights = fs.readFileSync("./emulator_weights").toString();
 let parsedWeights = JSON.parse(savedWeights);
-
 trainTruckEmulator.getEmulatorNet().loadWeights(parsedWeights);
 
 let steps = 10000001
