@@ -62,9 +62,9 @@ class TrainTruckController {
         this.performedTrainSteps = 0;
         this.increaseDifficultyEpisodeDiff = 30000000;
         this.emulatorInputs = [];
-        this.currentMaxDistFromDock = 10;
+        this.currentMaxDistFromDock = 3;
         this.currentMaxYDistFromDock = 3;
-        this.currentMinDistFromDock = 7;
+        this.currentMinDistFromDock = 3;
         this.currentMaxTrailerAngle = Math.PI / 36;
         this.currentMaxCabinTrailerAngle = Math.PI / 36;
         this.simple = false;
@@ -156,13 +156,13 @@ class TrainTruckController {
         if (this.performedTrainSteps % this.increaseDifficultyEpisodeDiff == 0) {
             if (!this.simple) {
                 this.currentMaxDistFromDock = Math.min(this.currentMaxDistFromDock + 2, 50);
-                this.currentMaxYDistFromDock = Math.min(this.currentMaxYDistFromDock + 1, 50);
+                this.currentMaxYDistFromDock = Math.min(this.currentMaxYDistFromDock + 1, 25);
                 this.currentMaxTrailerAngle = Math.min(Math.PI, this.currentMaxTrailerAngle + Math.PI / 36);
                 this.currentMaxCabinTrailerAngle = Math.min(Math.PI / 2, this.currentMaxCabinTrailerAngle + Math.PI / 36);
                 this.maxSteps += 25;
             }
             else {
-                this.currentMaxYDistFromDock += Math.min(this.currentMaxYDistFromDock + 2, 50);
+                this.currentMaxDistFromDock = Math.min(this.currentMaxDistFromDock + 1, 50);
             }
         }
     }
