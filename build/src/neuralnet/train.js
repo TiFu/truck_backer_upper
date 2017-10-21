@@ -31,13 +31,8 @@ class TrainTruckEmulator {
         let result = this.neuralNet.forward(stateVector);
         let retVal = this.world.nextTimeStep(nextSteeringAngle);
         let expectedVector = this.world.truck.getStateVector();
-        console.log("Expected: ");
-        console.log(expectedVector);
-        console.log("Predicted: ");
-        console.log(result);
         let error = this.neuralNet.backward(result, expectedVector);
         this.lastError = this.neuralNet.errors[this.neuralNet.errors.length - 1];
-        console.log("Last Error: " + this.lastError);
         return retVal && !result.isEntryNaN();
     }
     train(epochs) {
