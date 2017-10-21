@@ -58,16 +58,17 @@ class TrainTruckController {
         this.emulatorNet = emulatorNet;
         this.errors = [];
         this.fixedEmulator = false;
-        this.maxSteps = 100;
+        this.maxSteps = 25;
         this.performedTrainSteps = 0;
-        this.increaseDifficultyEpisodeDiff = 25000;
+        this.increaseDifficultyEpisodeDiff = 50000000;
         this.emulatorInputs = [];
         this.currentMaxDistFromDock = 9;
         this.currentMaxYDistFromDock = 3;
         this.currentMinDistFromDock = 7;
-        this.currentMaxTrailerAngle = Math.PI / 36;
-        this.currentMaxCabinTrailerAngle = Math.PI / 36;
+        this.currentMaxTrailerAngle = Math.PI / 72;
+        this.currentMaxCabinTrailerAngle = Math.PI / 72;
         this.simple = false;
+        this.limitationSteps = 0;
     }
     getEmulatorNet() {
         return this.emulatorNet;
@@ -97,7 +98,7 @@ class TrainTruckController {
         this.world.randomizeMax(new math_2.Point(this.currentMinDistFromDock, this.currentMaxYDistFromDock), new math_2.Point(this.currentMaxDistFromDock, -this.currentMaxYDistFromDock), [-this.currentMaxTrailerAngle, this.currentMaxTrailerAngle], [-this.currentMaxCabinTrailerAngle, this.currentMaxCabinTrailerAngle]);
     }
     prepareTruckPositionSimple() {
-        this.world.randomizeMax(new math_2.Point(this.currentMinDistFromDock, 0), new math_2.Point(this.currentMaxDistFromDock, 0), [0, 0], [0, 0]);
+        this.world.randomizeMax(new math_2.Point(this.currentMinDistFromDock, 0), new math_2.Point(this.currentMaxDistFromDock, 0), [-this.currentMaxTrailerAngle, this.currentMaxTrailerAngle], [0, 0]);
     }
     fixEmulator(fix) {
         if (this.fixedEmulator != fix) {
@@ -152,17 +153,24 @@ class TrainTruckController {
         this.updateLimitationParameters();
         return error;
     }
-    updateLimitationParameters() {
-        if (this.performedTrainSteps % this.increaseDifficultyEpisodeDiff == 0) {
+    updateLimitationParameters(force = false) {
+        if (force || this.performedTrainSteps % this.increaseDifficultyEpisodeDiff == 0) {
+            this.limitationSteps++;
             if (!this.simple) {
                 this.currentMaxDistFromDock = Math.min(this.currentMaxDistFromDock + 2, 50);
                 this.currentMaxYDistFromDock = Math.min(this.currentMaxYDistFromDock + 1, 25);
-                this.currentMaxTrailerAngle = Math.min(Math.PI, this.currentMaxTrailerAngle + Math.PI / 36);
-                this.currentMaxCabinTrailerAngle = Math.min(Math.PI / 2, this.currentMaxCabinTrailerAngle + Math.PI / 36);
+                this.currentMaxTrailerAngle = Math.min(Math.PI, this.currentMaxTrailerAngle + Math.PI / 72);
+                this.currentMaxCabinTrailerAngle = Math.min(Math.PI / 2, this.currentMaxCabinTrailerAngle + Math.PI / 72);
+                console.log("Updated Limitations: ");
+                console.log("Max Dist from dock: " + this.currentMaxDistFromDock);
+                console.log("Min Dist f rom dock: " + this.currentMinDistFromDock);
+                console.log("Max Y Dist from dock: " + this.currentMaxYDistFromDock);
+                console.log("Max Trailer Angle: " + this.currentMaxTrailerAngle);
+                console.log("Max Cabin Angle: " + this.currentMaxCabinTrailerAngle);
                 this.maxSteps += 25;
             }
             else {
-                this.currentMaxDistFromDock = Math.min(this.currentMaxDistFromDock + 1, 50);
+                this.currentMaxDistFromDock = Math.min(this.currentMaxDistFromDock + 4, 50);
                 console.log("Updated limitations:" + this.currentMaxDistFromDock);
             }
         }

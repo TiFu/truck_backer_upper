@@ -12,6 +12,7 @@ exports.Dock = Dock;
 class World {
     constructor() {
         this.limits = [];
+        this.limited = true;
         this.resetWorld();
         this.limits = [
             new math_1.StraightLine(new math_1.Point(0, 0), new math_1.Vector(0, 1)),
@@ -19,6 +20,9 @@ class World {
             new math_1.StraightLine(new math_1.Point(70, 25), new math_1.Vector(0, -1)),
             new math_1.StraightLine(new math_1.Point(70, -25), new math_1.Vector(-1, 0)),
         ];
+    }
+    isWorldLimited(limited) {
+        this.limited = limited;
     }
     getLimits() {
         return this.limits;
@@ -77,7 +81,7 @@ class World {
         }
     }
     nextTimeStep(steeringSignal) {
-        if (this.isTruckInValidPosition()) {
+        if (!this.limited || this.isTruckInValidPosition()) {
             this.truck.nextTimeStep(steeringSignal);
             return this.isTruckInValidPosition();
         }

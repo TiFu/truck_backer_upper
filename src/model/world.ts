@@ -14,6 +14,7 @@ export class World {
     public dock: Dock;
     public truck: Truck;
     private limits: Array<StraightLine> = [];
+    private limited = true;
 
     constructor() {      
         this.resetWorld(); // TODO: make rectangle for area instead of straight lines (but use lines to check for violation)
@@ -23,6 +24,10 @@ export class World {
             new StraightLine(new Point(70,25), new Vector(0, -1)), // left
             new StraightLine(new Point(70,-25), new Vector(-1, 0)), // left
         ]
+    }
+
+    public isWorldLimited(limited: boolean) {
+        this.limited = limited;
     }
 
     public getLimits(): Array<StraightLine> {
@@ -94,7 +99,7 @@ export class World {
     }
 
     public nextTimeStep(steeringSignal: number): boolean {
-        if (this.isTruckInValidPosition()) {
+        if (!this.limited || this.isTruckInValidPosition()) {
             this.truck.nextTimeStep(steeringSignal);        
             return this.isTruckInValidPosition();
         } else {

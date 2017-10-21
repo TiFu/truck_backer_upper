@@ -23,16 +23,21 @@ trainTruckController.getControllerNet().loadWeights(parsed_controller_weights);
 } catch(err) {
 
 }
+import * as process from 'process'
 
+let alreadyTrainedSteps = Number.parseInt(process.argv[2])
+for (let i = 0; i < alreadyTrainedSteps; i++) {
+    trainTruckController.updateLimitationParameters(true);
+}
 // train truck simple => only straight driving needed
-trainTruckController.setSimple(true);
+trainTruckController.setSimple(false);
 
 let steps = 10000001
 let errorSTep = 1000;
 let errorSum = 0;
 let epochSteps = 1;
 for (let i = 0; i < steps; i++) {
-    trainTruckController.prepareTruckPositionSimple();
+    trainTruckController.prepareTruckPosition();
     let lastError = trainTruckController.train(1);
     if (isNaN(lastError)) {
         i--;
@@ -44,6 +49,10 @@ for (let i = 0; i < steps; i++) {
     //    sleep.sleep(5);
     if (i > 0 && i % errorSTep == 0) {
         console.log(i + ": " + errorSum);
+        console.log(trainTruckController.limitationSteps);
+        if (i % 10000 == 0) {
+            trainTruckController.getControllerNet().decreaseLearningRate(-0.3);
+        }
         errorSum = 0;
     }
 
@@ -52,6 +61,5 @@ for (let i = 0; i < steps; i++) {
         fs.writeFileSync("./controller_weights", JSON.stringify(trainTruckController.getControllerNet().getWeights()));        
     }
 }
-
 //fs.writeFileSync("./controller_weights", JSON.stringify(trainTruckController.getControllerNet().getWeights()));
 //console.log(trainTruckEmulator.getEmulatorNet().getWeights())

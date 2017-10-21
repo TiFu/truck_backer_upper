@@ -20,6 +20,10 @@ class NeuralNet {
         }
         this.outputDim = lastNeuronCount;
     }
+    decreaseLearningRate(factor) {
+        this.netConfig.learningRate = Math.min(this.netConfig.learningRate, Math.max(this.netConfig.learningRate * Math.exp(-factor), 10e-8));
+        console.log("Decreased learning rate to " + this.netConfig.learningRate);
+    }
     setDebugMode(debug) {
         this.debug = debug;
         this.layers[0].setDebug(true);
