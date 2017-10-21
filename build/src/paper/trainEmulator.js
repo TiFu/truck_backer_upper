@@ -9,6 +9,10 @@ class EmulatorTrainer {
         this.world = world;
         this.tep1 = new math_2.Point(-10, 30);
         this.tep2 = new math_2.Point(80, -30);
+        this.printHighError = false;
+    }
+    setPrintHighError(print) {
+        this.printHighError = print;
     }
     train(epochs) {
         let errorSum = 0;
@@ -30,7 +34,7 @@ class EmulatorTrainer {
         let expected = this.getState(this.world.truck.getStateVector());
         let pass = this.emulatorNet.backward(result, expected);
         let error = this.emulatorNet.errors[this.emulatorNet.errors.length - 1];
-        if (error > 1) {
+        if (this.printHighError && error > 1) {
             console.log(error);
             console.log("Input state: " + startState);
             console.log("Target State: " + expected);
@@ -72,14 +76,12 @@ catch (err) {
 }
 const process = require("process");
 if (process.argv[2] == "validate") {
+    trainTruckEmulator.setPrintHighError(true);
     trainTruckEmulator.train(1000);
 }
 else {
     let startIteration = Number.parseInt(process.argv[2]);
     for (let i = startIteration; i < 100; i++) {
-        if (i >= 30 && i % 10 == 0) {
-            implementation_1.emulatorNet.decreaseLearningRate(0.1);
-        }
         let errorSum = trainTruckEmulator.train(10000);
         console.log(i * 1000 + ": " + errorSum);
         fs.writeFileSync("./emulator_weights", JSON.stringify(implementation_1.emulatorNet.getWeights()));

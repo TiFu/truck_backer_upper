@@ -6,9 +6,13 @@ import {Point} from '../math'
 export class EmulatorTrainer {
     private tep1 = new Point(-10, 30);
     private tep2 = new Point(80, -30);
-
+    private printHighError = false;
     public constructor(private emulatorNet: NeuralNet, private world: World) {
 
+    }
+
+    public setPrintHighError(print: boolean) {
+        this.printHighError = print;
     }
 
     public train(epochs: number): number {
@@ -36,7 +40,7 @@ export class EmulatorTrainer {
         let pass = this.emulatorNet.backward(result, expected);
         let error = this.emulatorNet.errors[this.emulatorNet.errors.length - 1];
 
-        if (error > 1) {
+        if (this.printHighError && error > 1) {
             console.log(error)
             console.log("Input state: " + startState);
             console.log("Target State: " + expected);
@@ -84,13 +88,11 @@ try {
 import * as process from 'process'
 
 if (process.argv[2] == "validate") {
+    trainTruckEmulator.setPrintHighError(true);
     trainTruckEmulator.train(1000);
 } else {
     let startIteration = Number.parseInt(process.argv[2]);
     for (let i = startIteration; i < 100; i++) {
-        if (i >= 30 && i % 10 == 0) {
-            emulatorNet.decreaseLearningRate(0.1);
-        } 
         let errorSum = trainTruckEmulator.train(10000);
         console.log(i * 1000 + ": " + errorSum);
         fs.writeFileSync("./emulator_weights", JSON.stringify(emulatorNet.getWeights()));

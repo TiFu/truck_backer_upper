@@ -18,7 +18,7 @@ export class Truck {
     public getStateVector(): nnMath.Vector {
         let cdp = this.getCouplingDevicePosition();
 
-        return new nnMath.Vector([cdp.x, cdp.y, this.fixAngle(this.cabinAngle), this.tep.x, this.tep.y, this.fixAngle(this.trailerAngle)])
+        return new nnMath.Vector([cdp.x, cdp.y, this.cabinAngle, this.tep.x, this.tep.y, this.trailerAngle])
     }
 
     private fixAngle(angle: Angle): Angle {
