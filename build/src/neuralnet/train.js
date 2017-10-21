@@ -115,6 +115,12 @@ class TrainTruckController {
         let i = 0;
         while (canContinue) {
             let controllerSignal = this.controllerNet.forward(currentState);
+            currentState.entries[0] = (currentState.entries[0] - 35) / 35;
+            currentState.entries[1] = currentState.entries[1] / 25;
+            currentState.entries[2] /= Math.PI;
+            currentState.entries[3] = (currentState.entries[3] - 35) / 35;
+            currentState.entries[4] = currentState.entries[4] / 25;
+            currentState.entries[5] /= Math.PI;
             let stateWithSteering = currentState.getWithNewElement(controllerSignal.entries[0]);
             controllerSignals.push(controllerSignal);
             currentState = this.emulatorNet.forward(stateWithSteering);

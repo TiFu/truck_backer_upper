@@ -1,4 +1,4 @@
-import {TrainTruckEmulator} from './neuralnet/train'
+import {TrainTruckEmulator, TrainTruckController} from './neuralnet/train'
 import {World} from './model/world'
 import {emulatorNet} from './neuralnet/implementations'
 import * as fs from 'fs';
@@ -11,7 +11,7 @@ let savedWeights = fs.readFileSync("./emulator_weights").toString();
 let parsedWeights = JSON.parse(savedWeights);
 trainTruckEmulator.getEmulatorNet().loadWeights(parsedWeights);
 } catch(err) {
-    
+
 }
 let steps = 10000001
 let errorSTep = 10000;

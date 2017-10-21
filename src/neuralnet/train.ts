@@ -131,6 +131,14 @@ export class TrainTruckController {
         let i = 0;
         while (canContinue) {
             let controllerSignal = this.controllerNet.forward(currentState);
+
+            currentState.entries[0] = (currentState.entries[0] - 35) / 35; // [0,70] -> [-1, 1]
+            currentState.entries[1] = currentState.entries[1] / 25; // [-25, 25] -> [-1, 1]
+            currentState.entries[2] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
+            currentState.entries[3] = (currentState.entries[3] - 35) / 35; // [0,70] -> [-1, 1]
+            currentState.entries[4] = currentState.entries[4] / 25; // [-25, 25] -> [-1, 1]
+            currentState.entries[5] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
+    
             let stateWithSteering = currentState.getWithNewElement(controllerSignal.entries[0]);
             controllerSignals.push(controllerSignal);
 
@@ -141,6 +149,7 @@ export class TrainTruckController {
             canContinue = this.world.nextTimeStep(controllerSignal.entries[0]);
             // use truck kinematics for sensing the error
             // TODO: is this correct?
+//            console.log("Emulator Prediction: " + )
             currentState = this.world.truck.getStateVector();
             if (i > this.maxSteps) {
                 break;
