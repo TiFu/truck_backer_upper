@@ -24,8 +24,6 @@ for (let i = 0; i < steps; i++) {
         i--;
         continue;
     }
-    exit;
-    console.log(lastError);
     errorSum += lastError;
     if (i % errorSTep == 0) {
         console.log(i + ": " + errorSum / errorSTep);

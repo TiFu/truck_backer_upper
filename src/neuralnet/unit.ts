@@ -80,7 +80,6 @@ export class AdalineUnit implements Unit {
         let activated = this.activation.apply(this.lastSum);
         if (Number.isNaN(activated))
             console.log("[Unit] Activated: ", activated, "Last Sum: ", this.lastSum);
-//        console.log("Activated: " + activated);
         return activated;
     }
 

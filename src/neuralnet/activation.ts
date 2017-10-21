@@ -39,7 +39,9 @@ export class Sigmoid implements ActivationFunction {
 
 export class ReLu implements ActivationFunction {
     constructor(private epsilon: number) {
-
+        if (epsilon > 1) {
+            throw new Error("ReLu needs an epsilon <= 1");
+        }
     }
 
     getName() {
@@ -47,11 +49,7 @@ export class ReLu implements ActivationFunction {
     }
 
     apply(input: Scalar) {
-        if (input > 0) {
-            return input;
-        } else {
-            return this.epsilon * input;
-        }
+        return Math.max(input, this.epsilon * input);
     }
 
     applyDerivative(input: Scalar) {

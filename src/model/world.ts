@@ -85,6 +85,11 @@ export class World {
         }
     }
 
+    public randomizeNoLimits() {
+        let tep = new Point(-10,35)
+        let tep2 = new Point(80, -35)
+        this.truck.setTruckIntoRandomPosition([tep, tep2], [-Math.PI, Math.PI], [-0.5 * Math.PI, 0.5 * Math.PI]);
+    }
     public randomize() {
         let tep = new Point(12,13)
         let tep2 = new Point(58, -13)

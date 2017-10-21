@@ -69,6 +69,11 @@ class World {
             this.truck.setTruckIntoRandomPosition([tep1, tep2], maxTrailerAngle, maxCabinAngle);
         }
     }
+    randomizeNoLimits() {
+        let tep = new math_1.Point(-10, 35);
+        let tep2 = new math_1.Point(80, -35);
+        this.truck.setTruckIntoRandomPosition([tep, tep2], [-Math.PI, Math.PI], [-0.5 * Math.PI, 0.5 * Math.PI]);
+    }
     randomize() {
         let tep = new math_1.Point(12, 13);
         let tep2 = new math_1.Point(58, -13);

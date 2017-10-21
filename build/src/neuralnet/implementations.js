@@ -5,7 +5,7 @@ const error_1 = require("./error");
 const unit_1 = require("./unit");
 const activation_1 = require("./activation");
 exports.hiddenEmulatorLayer = {
-    neuronCount: 45,
+    neuronCount: 200,
     unitConstructor: (weights, activation, initialWeightRange) => new unit_1.AdalineUnit(weights, activation, initialWeightRange),
     activation: new activation_1.Tanh()
 };
@@ -37,8 +37,8 @@ exports.outputControllerLayer = {
 };
 exports.controllerNetConfig = {
     inputs: 6,
-    learningRate: 0.05,
-    weightInitRange: 0.01,
+    learningRate: 0.001,
+    weightInitRange: 0.3,
     errorFunction: new error_1.MSE(),
     layerConfigs: [
         exports.hiddenControllerLayer,

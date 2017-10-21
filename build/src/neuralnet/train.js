@@ -24,7 +24,7 @@ class TrainTruckEmulator {
         let initialStateVector = this.world.truck.getStateVector();
         let stateVector = this.world.truck.getStateVector();
         stateVector.entries[0] = (stateVector.entries[0] - 35) / 35;
-        stateVector.entries[1] = stateVector.entries[1] / 25;
+        stateVector.entries[1] = stateVector.entries[1] / 35;
         stateVector.entries[2] /= Math.PI;
         stateVector.entries[3] = (stateVector.entries[3] - 35) / 35;
         stateVector.entries[4] = stateVector.entries[4] / 25;
@@ -63,11 +63,11 @@ class TrainTruckController {
         this.fixedEmulator = false;
         this.maxSteps = 100;
         this.performedTrainSteps = 0;
-        this.increaseDifficultyEpisodeDiff = 30000000;
+        this.increaseDifficultyEpisodeDiff = 100000;
         this.emulatorInputs = [];
-        this.currentMaxDistFromDock = 10;
-        this.currentMaxYDistFromDock = 3;
-        this.currentMinDistFromDock = 7;
+        this.currentMaxDistFromDock = 5;
+        this.currentMaxYDistFromDock = 1;
+        this.currentMinDistFromDock = 3;
         this.currentMaxTrailerAngle = Math.PI / 36;
         this.currentMaxCabinTrailerAngle = Math.PI / 36;
         this.simple = false;
@@ -100,7 +100,7 @@ class TrainTruckController {
         this.world.randomizeMax(new math_2.Point(this.currentMinDistFromDock, this.currentMaxYDistFromDock), new math_2.Point(this.currentMaxDistFromDock, -this.currentMaxYDistFromDock), [-this.currentMaxTrailerAngle, this.currentMaxTrailerAngle], [-this.currentMaxCabinTrailerAngle, this.currentMaxCabinTrailerAngle]);
     }
     prepareTruckPositionSimple() {
-        this.world.randomizeMax(new math_2.Point(0, 3), new math_2.Point(0, this.currentMaxYDistFromDock), [0, 0], [0, 0]);
+        this.world.randomizeMax(new math_2.Point(3, 0), new math_2.Point(this.currentMaxDistFromDock, 0), [0, 0], [0, 0]);
     }
     fixEmulator(fix) {
         if (this.fixedEmulator != fix) {
@@ -130,15 +130,12 @@ class TrainTruckController {
             let controllerSignal = this.controllerNet.forward(currentState);
             let stateWithSteering = currentState.getWithNewElement(controllerSignal.entries[0]);
             controllerSignals.push(controllerSignal);
+            console.log("Controller: " + controllerSignal);
             currentState = this.emulatorNet.forward(stateWithSteering);
-            console.log("Predicted: ");
-            console.log(currentState);
             this.emulatorInputs.push(stateWithSteering);
             statesFromEmulator.push(currentState);
             canContinue = this.world.nextTimeStep(controllerSignal.entries[0]);
             currentState = this.scaleStateVector(this.world.truck.getStateVector());
-            console.log("Real: ");
-            console.log(currentState);
             if (i > this.maxSteps) {
                 break;
             }
@@ -164,7 +161,7 @@ class TrainTruckController {
         return error;
     }
     updateLimitationParameters() {
-        if (this.performedTrainSteps % this.increaseDifficultyEpisodeDiff == 0) {
+        if (this.performedTrainSteps > 0 && this.performedTrainSteps % this.increaseDifficultyEpisodeDiff == 0) {
             if (!this.simple) {
                 this.currentMaxDistFromDock = Math.min(this.currentMaxDistFromDock + 2, 50);
                 this.currentMaxYDistFromDock = Math.min(this.currentMaxYDistFromDock + 1, 50);

@@ -27,17 +27,15 @@ exports.Sigmoid = Sigmoid;
 class ReLu {
     constructor(epsilon) {
         this.epsilon = epsilon;
+        if (epsilon > 1) {
+            throw new Error("ReLu needs an epsilon <= 1");
+        }
     }
     getName() {
         return "relu";
     }
     apply(input) {
-        if (input > 0) {
-            return input;
-        }
-        else {
-            return this.epsilon * input;
-        }
+        return Math.max(input, this.epsilon * input);
     }
     applyDerivative(input) {
         if (input > 0) {
