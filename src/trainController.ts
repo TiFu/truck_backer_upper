@@ -39,11 +39,11 @@ for (let i = 0; i < steps; i++) {
         continue;
     }
 
-    console.log(lastError)
+//    console.log(lastError)
     errorSum += lastError;
     //    sleep.sleep(5);
     if (i % errorSTep == 0) {
-        console.log(i + ": " + errorSum / errorSTep);
+        console.log(i + ": " + errorSum);
         errorSum = 0;
     }
 

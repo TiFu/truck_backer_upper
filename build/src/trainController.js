@@ -30,10 +30,9 @@ for (let i = 0; i < steps; i++) {
         i--;
         continue;
     }
-    console.log(lastError);
     errorSum += lastError;
     if (i % errorSTep == 0) {
-        console.log(i + ": " + errorSum / errorSTep);
+        console.log(i + ": " + errorSum);
         errorSum = 0;
     }
     if (i % 10000 == 0 && i > 0) {
