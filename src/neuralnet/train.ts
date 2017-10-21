@@ -65,12 +65,12 @@ export class TrainTruckController {
     public fixedEmulator = false;
     private maxSteps = 100;
     private performedTrainSteps = 0;
-    private increaseDifficultyEpisodeDiff = 30000000;
+    private increaseDifficultyEpisodeDiff = 100000;
 
     public emulatorInputs: any = [];
-    private currentMaxDistFromDock: number = 3;
+    private currentMaxDistFromDock: number = 8;
     private currentMaxYDistFromDock: number = 3;
-    private currentMinDistFromDock: number = 3;
+    private currentMinDistFromDock: number = 7;
     private currentMaxTrailerAngle: Angle = Math.PI / 36; // start with 5 degrees
     private currentMaxCabinTrailerAngle: Angle = Math.PI / 36; // start with 5 degrees at most
     private simple = false;
@@ -122,7 +122,6 @@ export class TrainTruckController {
 
     public trainStep(): number {
         this.fixEmulator(true);
-
         let currentState = this.world.truck.getStateVector();
         let canContinue = true;
         let controllerSignals = [];
@@ -163,6 +162,7 @@ export class TrainTruckController {
         }
         // we hit the end => calculate our error, backpropagate
         let finalState = this.world.truck.getStateVector();
+//        console.log(finalState.entries[3], finalState.entries[4], finalState.entries[5]);
         let dock = this.world.dock;
 
 //        console.log("[Net] Final State: " + finalState)
@@ -217,7 +217,7 @@ export class TrainTruckController {
         let yTrailer = finalState.entries[4];
         let thetaTrailer = finalState.entries[5];
         
-        let xDiff = xTrailer - dock.position.x
+        let xDiff = Math.max(xTrailer, 0) - dock.position.x
         let yDiff = yTrailer - dock.position.y
         let thetaDiff = thetaTrailer - 0
 
@@ -231,7 +231,7 @@ export class TrainTruckController {
         let thetaTrailer = finalState.entries[5];
 
         // Derivative of SSE
-        let xDiff = xTrailer - dock.position.x; 
+        let xDiff = Math.max(xTrailer,0) - dock.position.x; 
         let yDiff = yTrailer - dock.position.y;
         let thetaDiff = thetaTrailer - 0;
         

@@ -60,11 +60,11 @@ class TrainTruckController {
         this.fixedEmulator = false;
         this.maxSteps = 100;
         this.performedTrainSteps = 0;
-        this.increaseDifficultyEpisodeDiff = 30000000;
+        this.increaseDifficultyEpisodeDiff = 100000;
         this.emulatorInputs = [];
-        this.currentMaxDistFromDock = 3;
+        this.currentMaxDistFromDock = 8;
         this.currentMaxYDistFromDock = 3;
-        this.currentMinDistFromDock = 3;
+        this.currentMinDistFromDock = 7;
         this.currentMaxTrailerAngle = Math.PI / 36;
         this.currentMaxCabinTrailerAngle = Math.PI / 36;
         this.simple = false;
@@ -170,7 +170,7 @@ class TrainTruckController {
         let xTrailer = finalState.entries[3];
         let yTrailer = finalState.entries[4];
         let thetaTrailer = finalState.entries[5];
-        let xDiff = xTrailer - dock.position.x;
+        let xDiff = Math.max(xTrailer, 0) - dock.position.x;
         let yDiff = yTrailer - dock.position.y;
         let thetaDiff = thetaTrailer - 0;
         return 1 / 2 * (xDiff * xDiff + yDiff * yDiff + thetaDiff * thetaDiff);
@@ -179,7 +179,7 @@ class TrainTruckController {
         let xTrailer = finalState.entries[3];
         let yTrailer = finalState.entries[4];
         let thetaTrailer = finalState.entries[5];
-        let xDiff = xTrailer - dock.position.x;
+        let xDiff = Math.max(xTrailer, 0) - dock.position.x;
         let yDiff = yTrailer - dock.position.y;
         let thetaDiff = thetaTrailer - 0;
         return new math_1.Vector([0, 0, 0, xDiff, yDiff, thetaDiff]);
