@@ -65,10 +65,10 @@ export class TrainTruckController {
     public fixedEmulator = false;
     private maxSteps = 100;
     private performedTrainSteps = 0;
-    private increaseDifficultyEpisodeDiff = 100000;
+    private increaseDifficultyEpisodeDiff = 25000;
 
     public emulatorInputs: any = [];
-    private currentMaxDistFromDock: number = 8;
+    private currentMaxDistFromDock: number = 9;
     private currentMaxYDistFromDock: number = 3;
     private currentMinDistFromDock: number = 7;
     private currentMaxTrailerAngle: Angle = Math.PI / 36; // start with 5 degrees
@@ -208,6 +208,7 @@ export class TrainTruckController {
             } else {
 //                this.currentMaxYDistFromDock = Math.min(this.currentMaxYDistFromDock + 2, 25);
                 this.currentMaxDistFromDock = Math.min(this.currentMaxDistFromDock + 1, 50); 
+                console.log("Updated limitations:" + this.currentMaxDistFromDock);
             }
         }
     }

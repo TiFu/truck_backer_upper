@@ -60,9 +60,9 @@ class TrainTruckController {
         this.fixedEmulator = false;
         this.maxSteps = 100;
         this.performedTrainSteps = 0;
-        this.increaseDifficultyEpisodeDiff = 100000;
+        this.increaseDifficultyEpisodeDiff = 25000;
         this.emulatorInputs = [];
-        this.currentMaxDistFromDock = 8;
+        this.currentMaxDistFromDock = 9;
         this.currentMaxYDistFromDock = 3;
         this.currentMinDistFromDock = 7;
         this.currentMaxTrailerAngle = Math.PI / 36;
@@ -163,6 +163,7 @@ class TrainTruckController {
             }
             else {
                 this.currentMaxDistFromDock = Math.min(this.currentMaxDistFromDock + 1, 50);
+                console.log("Updated limitations:" + this.currentMaxDistFromDock);
             }
         }
     }
