@@ -6,10 +6,13 @@ import * as fs from 'fs';
 let world = new World();
 let trainTruckEmulator = new TrainTruckEmulator(world, emulatorNet);
 
+try {
 let savedWeights = fs.readFileSync("./emulator_weights").toString();
 let parsedWeights = JSON.parse(savedWeights);
 trainTruckEmulator.getEmulatorNet().loadWeights(parsedWeights);
-
+} catch(err) {
+    
+}
 let steps = 10000001
 let errorSTep = 10000;
 let errorSum = 0;
