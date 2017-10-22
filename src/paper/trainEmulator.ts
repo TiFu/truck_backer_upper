@@ -48,7 +48,7 @@ export class EmulatorTrainer {
         let pass = this.emulatorNet.backward(result, expected);
         let error = this.emulatorNet.errors[this.emulatorNet.errors.length - 1];
 
-        if (this.printHighError && error > 0.1) {
+        if (this.printHighError && error > 1) {
             console.log(error)
             console.log("Input state: " + startState);
             console.log("Target State: " + expected);
@@ -66,12 +66,14 @@ export class EmulatorTrainer {
     }
 
     private standardize(ret: Vector) {
-        ret.entries[0] /= Math.PI;
+/*        ret.entries[0] /= Math.PI;
         ret.entries[1] -= this.tep1.x
         ret.entries[1] /= this.tep2.x - this.tep1.x;
         ret.entries[2] -= this.tep1.y
         ret.entries[2] /= this.tep2.y - this.tep1.y;
-        ret.entries[3] /= Math.PI;
+        ret.entries[3] /= Math.PI;*/
+        ret.entries[0] *= 10;
+        ret.entries[3] *= 10;
     }
 
     private getState(state: Vector): Vector {

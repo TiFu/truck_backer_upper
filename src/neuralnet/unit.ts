@@ -11,6 +11,7 @@ export interface Unit {
     setWeights(weights: Vector): void;
     getLastUpdate(): Vector;
     setDebug(debug: boolean): void;
+    clearInputs(): void;
 }
 
 export class AdalineUnit implements Unit {
@@ -84,7 +85,7 @@ export class AdalineUnit implements Unit {
         let activated = this.activation.apply(this.lastSum);
         if (Number.isNaN(activated))
             console.log("[Unit] Activated: ", activated, "Last Sum: ", this.lastSum);
- //       console.log("Activated: " + activated);
+//        console.log("Activated: " + activated);
         return activated;
     }
 

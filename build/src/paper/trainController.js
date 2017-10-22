@@ -28,7 +28,7 @@ class ControllerTrainer {
             this.world.randomizeMax2(lesson.getTep1(), lesson.getTep2(), lesson.getMaxAngle(), lesson.getAngleType());
             this.trainStep(lesson.getMaxSteps());
             errorSum = 0;
-            if (i % 500 == 0) {
+            if (i % 100 == 0) {
                 for (let z = 0; z < 1000; z++) {
                     this.world.randomizeMax2(lesson.getTep1(), lesson.getTep2(), lesson.getMaxAngle(), lesson.getAngleType());
                     this.forwardPass(lesson.getMaxSteps());
@@ -41,7 +41,7 @@ class ControllerTrainer {
             }
         }
         errorSum = 0;
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 1000; i++) {
             this.world.randomizeMax2(lesson.getTep1(), lesson.getTep2(), lesson.getMaxAngle(), lesson.getAngleType());
             this.forwardPass(lesson.getMaxSteps());
             let finalState = this.getEmulatorState(this.world.truck.getStateVector());
@@ -52,12 +52,8 @@ class ControllerTrainer {
         return errorSum;
     }
     standardize(ret) {
-        ret.entries[0] /= Math.PI;
-        ret.entries[1] -= this.tep1.x;
-        ret.entries[1] /= this.tep2.x - this.tep1.x;
-        ret.entries[2] -= this.tep1.y;
-        ret.entries[2] /= this.tep2.y - this.tep1.y;
-        ret.entries[3] /= Math.PI;
+        ret.entries[0] *= 10;
+        ret.entries[3] *= 10;
         if (ret.length == 6) {
             ret.entries[4] -= this.tep1.x;
             ret.entries[4] /= this.tep2.x - this.tep1.x;
@@ -99,23 +95,15 @@ class ControllerTrainer {
         let errorDerivative = this.getErorrDerivative(finalState, this.world.dock);
         let error = this.getError(finalState, this.world.dock);
         while (i > 0) {
-            console.log("##################### I:" + i + " ###############");
-            console.log("------------ EMULATOR -----------");
             let emulatorDerivative = this.emulatorNet.backwardWithGradient(errorDerivative, false);
-            console.log("------ Emulator Derivative ---- ");
-            console.log(emulatorDerivative.entries);
             assert(emulatorDerivative.length == 5, "Incorrect emulator derivative length");
             let steeringSignalDerivative = emulatorDerivative.entries[4];
             let controllerBackwardInput = new math_2.Vector([steeringSignalDerivative]);
-            console.log("---------- Contrller ---------");
             let controllerDerivative = this.controllerNet.backwardWithGradient(controllerBackwardInput, true);
-            console.log("------------- Controller Derivative ------");
-            console.log(controllerDerivative.entries);
             assert(controllerDerivative.length == 4, "Incorrect Contrller Derivative length");
             errorDerivative = new math_2.Vector(controllerDerivative.entries.slice(0, 4));
             assert(errorDerivative.length == 4);
             i--;
-            console.log();
         }
         this.controllerNet.updateWithAccumulatedWeights();
         return error;
@@ -182,7 +170,7 @@ let degree20 = Math.PI / 9;
 let degree30 = Math.PI / 6;
 let degree40 = Math.PI / 4.5;
 let lessons = [];
-let lesson1 = new Lesson("1", new math_1.Point(0.4 * truckLength, 0), new math_1.Point(0.6 * truckLength, 0), [-degree30, degree30], 1, 20, world_1.AngleType.CAB);
+let lesson1 = new Lesson("1", new math_1.Point(0.4 * truckLength, 0), new math_1.Point(0.6 * truckLength, 0), [-degree30, degree30], 10000, 20, world_1.AngleType.CAB);
 lessons.push(lesson1);
 let controllerTrainer = new ControllerTrainer(implementation_1.emulatorNet, implementation_1.controllerNet, lessons, world);
 controllerTrainer.train();
