@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const math_1 = require("../math");
 const nnMath = require("../neuralnet/math");
+const world_1 = require("./world");
 class Truck {
     constructor(tep, trailerAngle, cabinAngle) {
         this.tep = tep;
@@ -32,6 +33,25 @@ class Truck {
     }
     getLastSteeringAngle() {
         return this.lastSteeringAngle;
+    }
+    setTruckIntoRandomPosition2(maxTep, maxAngle, type) {
+        let tepAngle = Math.random() * (maxAngle[1] - maxAngle[0]) + maxAngle[0];
+        switch (type) {
+            case world_1.AngleType.BOTH:
+                this.trailerAngle = tepAngle;
+                this.cabinAngle = tepAngle;
+                break;
+            case world_1.AngleType.CAB:
+                this.cabinAngle = tepAngle;
+                this.trailerAngle = 0;
+                break;
+            case world_1.AngleType.TRAILER:
+                this.trailerAngle = tepAngle;
+                this.cabinAngle = 0;
+                break;
+        }
+        this.tep.x = Math.random() * (maxTep[1].x - maxTep[0].x) + maxTep[0].x;
+        this.tep.y = Math.random() * (maxTep[1].y - maxTep[0].y) + maxTep[0].y;
     }
     setTruckIntoRandomPosition(maxTep, maxTrailerAngle, maxCabinAngle) {
         let tepAngle = Math.random() * (maxTrailerAngle[1] - maxTrailerAngle[0]) + maxTrailerAngle[0];

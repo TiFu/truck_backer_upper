@@ -43,6 +43,9 @@ export class Layer {
             unit.fixWeights(fixed);
         }
     }
+    public clearInputs() {
+        this.units.forEach(u => u.clearInputs());
+    }
 
     public forward(input: Vector): Vector {
         if (input.length != this.inputDim) {

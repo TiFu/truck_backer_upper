@@ -37,7 +37,7 @@ exports.outputControllerLayer = {
 };
 exports.controllerNetConfig = {
     inputs: 6,
-    learningRate: 0.0001,
+    learningRate: 0.00001,
     weightInitRange: 0.01,
     errorFunction: new error_1.MSE(),
     layerConfigs: [

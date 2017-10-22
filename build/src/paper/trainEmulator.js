@@ -57,7 +57,8 @@ class EmulatorTrainer {
         ret.entries[3] /= Math.PI;
     }
     getState(state) {
-        let ret = new math_1.Vector(state.entries.slice(2, state.entries.length));
+        let arr = state.entries.slice(2, state.entries.length);
+        let ret = new math_1.Vector(arr);
         return ret;
     }
 }

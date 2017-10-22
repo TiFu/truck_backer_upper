@@ -37,6 +37,9 @@ class Layer {
             unit.fixWeights(fixed);
         }
     }
+    clearInputs() {
+        this.units.forEach(u => u.clearInputs());
+    }
     forward(input) {
         if (input.length != this.inputDim) {
             throw new Error("Invalid Input Dimension! Expected " + this.inputDim + ", but got " + input.length);

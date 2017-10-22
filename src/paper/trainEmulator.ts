@@ -4,6 +4,7 @@ import {Vector} from '../neuralnet/math'
 import {Point} from '../math'
 
 export class EmulatorTrainer {
+    // NOTE: DO NOT CHANGE UNLESS ALSO CHANGED IN THE CONTROLLER (or move this to a parent class!)
     private tep1 = new Point(-10, 30);
     private tep2 = new Point(80, -30);
     private printHighError = false;
@@ -25,7 +26,7 @@ export class EmulatorTrainer {
         return errorSum;
     }
 
-    public trainStep(): number {
+    private trainStep(): number {
         let startState = this.getState(this.world.truck.getStateVector());
         let state = this.getState(this.world.truck.getStateVector());
         let nextSteeringSignal = this.getRandomSteeringSignal();
@@ -64,10 +65,11 @@ export class EmulatorTrainer {
         ret.entries[2] -= this.tep1.y
         ret.entries[2] /= this.tep2.y - this.tep1.y;
         ret.entries[3] /= Math.PI;
-
     }
+
     private getState(state: Vector): Vector {
-        let ret = new Vector(state.entries.slice(2, state.entries.length));
+        let arr = state.entries.slice(2, state.entries.length)
+        let ret = new Vector(arr);
         return ret;
     }
 

@@ -1,5 +1,6 @@
 import { Point, scale, minus, plus,  Vector, Angle, getAngle, calculateVector, rotate } from '../math'
 import * as nnMath from '../neuralnet/math' // TODO: union math libraries..
+import {AngleType} from './world'
 
 import {expect} from 'chai';
 
@@ -38,6 +39,29 @@ export class Truck {
     public getLastSteeringAngle() {
         return this.lastSteeringAngle;
     }
+
+    public setTruckIntoRandomPosition2(maxTep: Array<Point>, maxAngle: Angle[], type: AngleType) {
+        let tepAngle = Math.random() * (maxAngle[1] - maxAngle[0]) + maxAngle[0]
+        // same angle for cabin and truck
+        switch (type) {
+            case AngleType.BOTH:
+                this.trailerAngle = tepAngle
+                this.cabinAngle = tepAngle
+                break;
+            case AngleType.CAB:
+                this.cabinAngle = tepAngle     
+                this.trailerAngle = 0
+                break;
+            case AngleType.TRAILER:
+                this.trailerAngle = tepAngle
+                this.cabinAngle = 0
+                break;
+        }
+     
+        this.tep.x = Math.random() * (maxTep[1].x - maxTep[0].x) + maxTep[0].x
+        this.tep.y = Math.random() * (maxTep[1].y - maxTep[0].y) + maxTep[0].y
+    }
+
     /**
      * 
      * @param maxTep 

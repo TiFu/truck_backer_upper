@@ -6,8 +6,12 @@ class AdalineUnit {
         this.inputDim = inputDim;
         this.activation = activation;
         this.fixedWeights = false;
+        this.lastInput = [];
         this.weights = this.getRandomWeights(inputDim + 1, initialWeightRange);
         this.resetAccumulatedWeights();
+    }
+    clearInputs() {
+        this.lastInput = [];
     }
     setDebug(debug) {
         this.debug = debug;
@@ -40,7 +44,7 @@ class AdalineUnit {
     }
     forward(input) {
         input = input.getWithNewElement(1);
-        this.lastInput = input;
+        this.lastInput.push(input);
         if (input.length != this.weights.length) {
             throw new Error("Invalid Input Size: expected " + this.weights.length + ", but got " + input.length);
         }
@@ -73,7 +77,7 @@ class AdalineUnit {
         let scalarFactor = errorDerivative * activationDerivative;
         let inputDerivative = this.weights.getScaled(scalarFactor);
         if (!this.fixedWeights) {
-            let weightDerivative = this.lastInput.getScaled(scalarFactor);
+            let weightDerivative = this.lastInput.pop().getScaled(scalarFactor);
             let update = this.calculateWeightUpdate(learningRate, weightDerivative);
             if (accumulateWeigthUpdates) {
                 this.accumulatedWeights.add(update);

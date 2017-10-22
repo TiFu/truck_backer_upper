@@ -41,6 +41,9 @@ export class NeuralNet {
         this.outputDim = lastNeuronCount;
     }
 
+    public clearInputs() {
+        this.layers.forEach(l => l.clearInputs());
+    }
     public decreaseLearningRate(factor: number) {
         this.netConfig.learningRate = Math.min(this.netConfig.learningRate, Math.max(this.netConfig.learningRate * Math.exp(-factor), 10e-8));
         console.log("Decreased learning rate to " + this.netConfig.learningRate);

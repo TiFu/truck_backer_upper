@@ -43,7 +43,7 @@ export var outputControllerLayer: LayerConfig = {
 
 export var controllerNetConfig: NetConfig = {
     inputs: 6,
-    learningRate: 0.0001,
+    learningRate: 0.01,
     weightInitRange: 0.01,
     errorFunction: new MSE(), // ignored
     layerConfigs: [

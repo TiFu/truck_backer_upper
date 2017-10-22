@@ -9,6 +9,12 @@ class Dock {
     }
 }
 exports.Dock = Dock;
+var AngleType;
+(function (AngleType) {
+    AngleType[AngleType["CAB"] = 0] = "CAB";
+    AngleType[AngleType["TRAILER"] = 1] = "TRAILER";
+    AngleType[AngleType["BOTH"] = 2] = "BOTH";
+})(AngleType = exports.AngleType || (exports.AngleType = {}));
 class World {
     constructor() {
         this.limits = [];
@@ -55,6 +61,12 @@ class World {
     }
     radToDeg(arr) {
         return [arr[0] * 180 / Math.PI, arr[1] * 180 / Math.PI];
+    }
+    randomizeMax2(tep1, tep2, maxAngle, type) {
+        this.truck.setTruckIntoRandomPosition2([tep1, tep2], maxAngle, type);
+        while (!this.isTruckInValidPosition()) {
+            this.truck.setTruckIntoRandomPosition2([tep1, tep2], maxAngle, type);
+        }
     }
     randomizeMax(tep1, tep2, maxTrailerAngle, maxCabinAngle) {
         if (tep1 == undefined) {

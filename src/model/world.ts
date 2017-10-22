@@ -10,6 +10,12 @@ export class Dock {
 
 }
 
+export enum AngleType {
+    CAB,
+    TRAILER,
+    BOTH
+}
+
 export class World {
     public dock: Dock;
     public truck: Truck;
@@ -68,6 +74,14 @@ export class World {
     private radToDeg(arr: Array<Angle>) {
         return [arr[0] * 180 / Math.PI, arr[1] * 180 / Math.PI];
     }
+
+    public randomizeMax2(tep1: Point, tep2: Point, maxAngle: Angle[], type: AngleType) {
+        this.truck.setTruckIntoRandomPosition2([tep1, tep2], maxAngle, type);
+        while(!this.isTruckInValidPosition()) {
+            this.truck.setTruckIntoRandomPosition2([tep1, tep2], maxAngle, type);
+        }        
+    }
+
     public randomizeMax(tep1: Point, tep2: Point, maxTrailerAngle: Array<Angle>, maxCabinAngle: Array<Angle>) {
         if (tep1 == undefined) {
             tep1 = new Point(7,18)
