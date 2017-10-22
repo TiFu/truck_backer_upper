@@ -84,13 +84,12 @@ class ControllerTrainer {
             let controllerState = this.getControllerState(this.world.truck.getStateVector());
             this.standardize(controllerState);
             let emulatorState = this.getEmulatorState(this.world.truck.getStateVector());
-            console.log("Real State: " + emulatorState);
             this.standardize(emulatorState);
             let controllerNetOutput = this.controllerNet.forward(controllerState);
             let steeringSignal = controllerNetOutput.entries[0];
+            assert(controllerNetOutput.length == 1, "Controller Net should have only 1 output");
             emulatorState = emulatorState.getWithNewElement(steeringSignal);
             let nextEmulatorState = this.emulatorNet.forward(emulatorState);
-            console.log("Predicted state:" + nextEmulatorState);
             canContinue = this.world.nextTimeStep(steeringSignal);
             i++;
         }
@@ -105,10 +104,8 @@ class ControllerTrainer {
             let emulatorDerivative = this.emulatorNet.backwardWithGradient(errorDerivative, false);
             assert(emulatorDerivative.length == 5, "Incorrect emulator derivative length");
             let steeringSignalDerivative = emulatorDerivative.entries[4];
-            console.log("SteeringSignal:" + steeringSignalDerivative);
             let controllerBackwardInput = new math_2.Vector([steeringSignalDerivative]);
             let controllerDerivative = this.controllerNet.backwardWithGradient(controllerBackwardInput, true);
-            console.log("Controller: " + controllerDerivative.entries);
             assert(controllerDerivative.length == 6, "Incorrect Contrller Derivative length");
             errorDerivative = new math_2.Vector(controllerDerivative.entries.slice(0, 4));
             assert(errorDerivative.length == 4);
@@ -173,12 +170,13 @@ catch (err) {
 }
 let world = new world_1.World();
 let truckLength = world.truck.getTruckLength();
+let degree5 = Math.PI / 36;
 let degree10 = Math.PI / 18;
 let degree20 = Math.PI / 9;
 let degree30 = Math.PI / 6;
 let degree40 = Math.PI / 4.5;
 let lessons = [];
-let lesson1 = new Lesson("1", new math_1.Point(1 * truckLength, 0), new math_1.Point(1.25 * truckLength, 0), [-degree30, degree30], 1, 20, world_1.AngleType.CAB);
+let lesson1 = new Lesson("1", new math_1.Point(0.4 * truckLength, 0), new math_1.Point(0.6 * truckLength, 0), [-degree10, degree10], 5000, 20, world_1.AngleType.CAB);
 lessons.push(lesson1);
 let controllerTrainer = new ControllerTrainer(implementation_1.emulatorNet, implementation_1.controllerNet, lessons, world);
 controllerTrainer.train();

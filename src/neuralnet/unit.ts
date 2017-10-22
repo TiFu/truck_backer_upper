@@ -44,7 +44,7 @@ export class AdalineUnit implements Unit {
         for (let i = 0; i < inputDim; i++) {
             random.push(Math.random() * initialWeightRange - 0.5 * initialWeightRange); // [-0.3, 0.3]
         }
-        console.log("Initial Weights: " + random);
+//        console.log("Initial Weights: " + random);
         return new Vector(random);
     }
 
@@ -84,7 +84,7 @@ export class AdalineUnit implements Unit {
         let activated = this.activation.apply(this.lastSum);
         if (Number.isNaN(activated))
             console.log("[Unit] Activated: ", activated, "Last Sum: ", this.lastSum);
-//        console.log("Activated: " + activated);
+ //       console.log("Activated: " + activated);
         return activated;
     }
 
@@ -100,6 +100,7 @@ export class AdalineUnit implements Unit {
     public updateWithAccumulatedWeights() {
 //       console.log("Accumulated Weights: " + this.accumulatedWeights);
         this.updateWeights(this.accumulatedWeights);
+        console.log(this.accumulatedWeights)
         this.resetAccumulatedWeights();
     }
 

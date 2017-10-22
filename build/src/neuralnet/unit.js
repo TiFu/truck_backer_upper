@@ -24,7 +24,6 @@ class AdalineUnit {
         for (let i = 0; i < inputDim; i++) {
             random.push(Math.random() * initialWeightRange - 0.5 * initialWeightRange);
         }
-        console.log("Initial Weights: " + random);
         return new math_1.Vector(random);
     }
     setWeights(weights) {
@@ -70,6 +69,7 @@ class AdalineUnit {
     }
     updateWithAccumulatedWeights() {
         this.updateWeights(this.accumulatedWeights);
+        console.log(this.accumulatedWeights);
         this.resetAccumulatedWeights();
     }
     backward(errorDerivative, learningRate, accumulateWeigthUpdates) {

@@ -19,11 +19,18 @@ export class EmulatorTrainer {
     public train(epochs: number): number {
         let errorSum = 0;
         for (let i = 0; i < epochs; i++) {
+            let tep1 = new Point(0,0)
+            let tep2 = new Point(1.25,0)
             this.world.randomizeMax(this.tep1, this.tep2, [-Math.PI, Math.PI], [-0.5 * Math.PI, 0.5*Math.PI]);
             let error = this.trainStep();
             errorSum += error;
         }
         return errorSum;
+    }
+
+    public predict(inputState: Vector) {
+        this.standardize(inputState)
+        return this.emulatorNet.forward(inputState);
     }
 
     private trainStep(): number {
@@ -41,7 +48,7 @@ export class EmulatorTrainer {
         let pass = this.emulatorNet.backward(result, expected);
         let error = this.emulatorNet.errors[this.emulatorNet.errors.length - 1];
 
-        if (this.printHighError && error > 1) {
+        if (this.printHighError && error > 0.1) {
             console.log(error)
             console.log("Input state: " + startState);
             console.log("Target State: " + expected);
@@ -75,6 +82,10 @@ export class EmulatorTrainer {
 
 }
 
+function r(min: number, max: number): number {
+    return Math.random() * (max - min) + min;
+}
+
 import * as fs from 'fs';
 import {emulatorNet} from './implementation'
 let world = new World();
@@ -92,11 +103,15 @@ import * as process from 'process'
 if (process.argv[2] == "validate") {
     trainTruckEmulator.setPrintHighError(true);
     trainTruckEmulator.train(1000);
+} else if (process.argv[2] == "predict") {
+    let result = trainTruckEmulator.predict(new Vector(JSON.parse(process.argv[3])))
+    console.log(result);
 } else {
     let startIteration = Number.parseInt(process.argv[2]);
     for (let i = startIteration; i < 100; i++) {
         let errorSum = trainTruckEmulator.train(10000);
-        console.log(i * 1000 + ": " + errorSum);
+        console.log(i * 10000 + ": " + errorSum);
         fs.writeFileSync("./emulator_weights", JSON.stringify(emulatorNet.getWeights()));
     }
 }
+

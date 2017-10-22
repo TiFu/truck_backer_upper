@@ -1,11 +1,11 @@
 import {NeuralNet, LayerConfig, NetConfig} from '../neuralnet/net'
 import {MSE} from '../neuralnet/error'
 import {AdalineUnit} from '../neuralnet/unit'
-import {ActivationFunction, Tanh, Sigmoid, Linear} from '../neuralnet/activation'
+import {ActivationFunction, Tanh, Sigmoid, Linear, ReLu} from '../neuralnet/activation'
 import {Vector} from '../neuralnet/math'
 
 export var hiddenEmulatorLayer: LayerConfig = {
-    neuronCount: 25,
+    neuronCount: 45,
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: number) => new AdalineUnit(weights, activation, initialWeightRange),
     activation: new Tanh()
 }
@@ -18,7 +18,7 @@ export var outputEmulatorLayer: LayerConfig = {
 
 export var emulatorNetConfig: NetConfig = {
     inputs: 5,
-    learningRate: 0.0001,
+    learningRate: 0.001,
     errorFunction: new MSE(),
     weightInitRange: 0.1,
     layerConfigs: [
@@ -32,7 +32,7 @@ export var emulatorNet = new NeuralNet(emulatorNetConfig);
 export var hiddenControllerLayer: LayerConfig = {
     neuronCount: 25,
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: number) => new AdalineUnit(weights, activation, initialWeightRange),
-    activation: new Tanh()
+    activation: new ReLu(0.01)
 }
 
 export var outputControllerLayer: LayerConfig = {

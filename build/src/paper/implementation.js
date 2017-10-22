@@ -5,7 +5,7 @@ const error_1 = require("../neuralnet/error");
 const unit_1 = require("../neuralnet/unit");
 const activation_1 = require("../neuralnet/activation");
 exports.hiddenEmulatorLayer = {
-    neuronCount: 25,
+    neuronCount: 45,
     unitConstructor: (weights, activation, initialWeightRange) => new unit_1.AdalineUnit(weights, activation, initialWeightRange),
     activation: new activation_1.Tanh()
 };
@@ -16,7 +16,7 @@ exports.outputEmulatorLayer = {
 };
 exports.emulatorNetConfig = {
     inputs: 5,
-    learningRate: 0.0001,
+    learningRate: 0.001,
     errorFunction: new error_1.MSE(),
     weightInitRange: 0.1,
     layerConfigs: [
@@ -28,7 +28,7 @@ exports.emulatorNet = new net_1.NeuralNet(exports.emulatorNetConfig);
 exports.hiddenControllerLayer = {
     neuronCount: 25,
     unitConstructor: (weights, activation, initialWeightRange) => new unit_1.AdalineUnit(weights, activation, initialWeightRange),
-    activation: new activation_1.Tanh()
+    activation: new activation_1.ReLu(0.01)
 };
 exports.outputControllerLayer = {
     neuronCount: 1,
