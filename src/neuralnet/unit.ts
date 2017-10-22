@@ -100,7 +100,7 @@ export class AdalineUnit implements Unit {
     public updateWithAccumulatedWeights() {
 //       console.log("Accumulated Weights: " + this.accumulatedWeights);
         this.updateWeights(this.accumulatedWeights);
-        console.log(this.accumulatedWeights)
+ //       console.log(this.accumulatedWeights)
         this.resetAccumulatedWeights();
     }
 

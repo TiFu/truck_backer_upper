@@ -10,7 +10,7 @@ class ControllerTrainer {
     // Standardization parameters
     private tep1 = new Point(-10, 30);
     private tep2 = new Point(80, -30);
-
+    
     public constructor(private emulatorNet: NeuralNet, private controllerNet: NeuralNet, private lessons: Lesson[], private world: World) {
     }
 
@@ -47,7 +47,7 @@ class ControllerTrainer {
             this.world.randomizeMax2(lesson.getTep1(), lesson.getTep2(), lesson.getMaxAngle(), lesson.getAngleType());
             this.forwardPass(lesson.getMaxSteps());
             let finalState = this.getEmulatorState(this.world.truck.getStateVector());
-            //console.log(finalState)
+       //     console.log(finalState)
             errorSum += this.getError(finalState, this.world.dock)
             this.controllerNet.clearInputs();
             this.emulatorNet.clearInputs();
@@ -76,8 +76,6 @@ class ControllerTrainer {
 
     private getControllerState(state: Vector): Vector {
         let arr = state.entries.slice(2, state.entries.length)
-        arr.push(this.world.dock.position.x);
-        arr.push(this.world.dock.position.y);
         let ret = new Vector(arr);
         return ret;
     }
@@ -123,18 +121,24 @@ class ControllerTrainer {
         let errorDerivative = this.getErorrDerivative(finalState, this.world.dock);
         let error = this.getError(finalState, this.world.dock)
         while (i > 0) {
+            console.log("##################### I:" + i + " ###############")
+            console.log("------------ EMULATOR -----------");
             let emulatorDerivative = this.emulatorNet.backwardWithGradient(errorDerivative, false);
+            console.log("------ Emulator Derivative ---- ");
+            console.log(emulatorDerivative.entries)
             assert(emulatorDerivative.length == 5, "Incorrect emulator derivative length");
             let steeringSignalDerivative = emulatorDerivative.entries[4] // should be last entry
-//            console.log("SteeringSignal:" + steeringSignalDerivative)
             let controllerBackwardInput = new Vector([steeringSignalDerivative]);
+            console.log("---------- Contrller ---------")
             let controllerDerivative = this.controllerNet.backwardWithGradient(controllerBackwardInput, true);
-//            console.log("Controller: " + controllerDerivative.entries)
-            assert(controllerDerivative.length == 6, "Incorrect Contrller Derivative length")
+            console.log("------------- Controller Derivative ------")
+            console.log(controllerDerivative.entries)
+            assert(controllerDerivative.length == 4, "Incorrect Contrller Derivative length")
             
             errorDerivative = new Vector(controllerDerivative.entries.slice(0,4));
             assert(errorDerivative.length == 4);
             i--
+            console.log()
         }
 
 
@@ -215,7 +219,7 @@ let degree40 = Math.PI / 4.5;
 
 let lessons: Lesson[] = []
 
-let lesson1 = new Lesson("1", new Point(0.4 * truckLength, 0), new Point(0.6 * truckLength, 0) ,[- degree10, degree10], 5000, 20, AngleType.CAB);
+let lesson1 = new Lesson("1", new Point(0.4 * truckLength, 0), new Point(0.6 * truckLength, 0) ,[- degree30, degree30], 1, 20, AngleType.CAB);
 lessons.push(lesson1)
 /*let lesson2 = new Lesson("2", new Point(0.4 * truckLength, 0), new Point(0.6 * truckLength, 0), [-degree10, degree10], 5000, 20, AngleType.CAB);
 lessons.push(lesson2)

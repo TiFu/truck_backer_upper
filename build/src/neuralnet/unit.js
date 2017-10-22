@@ -69,7 +69,6 @@ class AdalineUnit {
     }
     updateWithAccumulatedWeights() {
         this.updateWeights(this.accumulatedWeights);
-        console.log(this.accumulatedWeights);
         this.resetAccumulatedWeights();
     }
     backward(errorDerivative, learningRate, accumulateWeigthUpdates) {

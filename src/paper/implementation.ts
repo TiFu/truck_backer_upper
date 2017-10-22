@@ -7,7 +7,7 @@ import {Vector} from '../neuralnet/math'
 export var hiddenEmulatorLayer: LayerConfig = {
     neuronCount: 45,
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: number) => new AdalineUnit(weights, activation, initialWeightRange),
-    activation: new Tanh()
+    activation: new ReLu(0.01)
 }
 
 export var outputEmulatorLayer: LayerConfig = {
@@ -32,7 +32,7 @@ export var emulatorNet = new NeuralNet(emulatorNetConfig);
 export var hiddenControllerLayer: LayerConfig = {
     neuronCount: 25,
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: number) => new AdalineUnit(weights, activation, initialWeightRange),
-    activation: new ReLu(0.01)
+    activation: new Tanh()
 }
 
 export var outputControllerLayer: LayerConfig = {
@@ -42,8 +42,8 @@ export var outputControllerLayer: LayerConfig = {
 }
 
 export var controllerNetConfig: NetConfig = {
-    inputs: 6,
-    learningRate: 0.01,
+    inputs: 4,
+    learningRate: 0.001,
     weightInitRange: 0.01,
     errorFunction: new MSE(), // ignored
     layerConfigs: [
