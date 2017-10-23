@@ -8,10 +8,10 @@ class Truck {
         this.tep = tep;
         this.trailerAngle = trailerAngle;
         this.cabinAngle = cabinAngle;
-        this.velocity = 1;
+        this.velocity = 3;
         this.maxSteeringAngle = Math.PI / 180 * 70;
-        this.trailerLength = 7;
-        this.cabinLength = 5;
+        this.trailerLength = 14;
+        this.cabinLength = 6;
         this.lastSteeringAngle = 0;
     }
     getStateVector() {

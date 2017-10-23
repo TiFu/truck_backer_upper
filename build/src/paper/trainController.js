@@ -88,7 +88,10 @@ class ControllerTrainer {
             assert(controllerNetOutput.length == 1, "Controller Net should have only 1 output");
             emulatorState = emulatorState.getWithNewElement(steeringSignal);
             let nextEmulatorState = this.emulatorNet.forward(emulatorState);
+            console.log("Predicted state:" + nextEmulatorState.entries);
             canContinue = this.world.nextTimeStep(steeringSignal);
+            console.log("Real: " + this.getEmulatorState(this.world.truck.getStateVector()).entries);
+            console.log("---");
             i++;
         }
         return i;
@@ -174,7 +177,7 @@ let degree20 = Math.PI / 9;
 let degree30 = Math.PI / 6;
 let degree40 = Math.PI / 4.5;
 let lessons = [];
-let lesson1 = new Lesson("1", new math_1.Point(0.4 * truckLength, 0), new math_1.Point(0.6 * truckLength, 0), [-degree30, degree30], 10000, 20, world_1.AngleType.CAB);
+let lesson1 = new Lesson("1", new math_1.Point(0.4 * truckLength, 0), new math_1.Point(0.6 * truckLength, 0), [-degree30, degree30], 1, 20, world_1.AngleType.CAB);
 lessons.push(lesson1);
 let controllerTrainer = new ControllerTrainer(implementation_1.emulatorNet, implementation_1.controllerNet, lessons, world);
 controllerTrainer.train();

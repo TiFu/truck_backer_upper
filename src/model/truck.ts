@@ -6,10 +6,10 @@ import {expect} from 'chai';
 
 
 export class Truck {
-    public velocity = 1; // m/sec
+    public velocity = 3; // m/sec
     public maxSteeringAngle = Math.PI / 180 * 70 // 70 degree
-    public trailerLength = 7;
-    public cabinLength = 5;
+    public trailerLength = 14;
+    public cabinLength = 6;
 
     private lastSteeringAngle: Angle = 0;
     public constructor(private tep: Point, private trailerAngle: Angle, private cabinAngle: Angle) {

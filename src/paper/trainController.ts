@@ -103,10 +103,11 @@ class ControllerTrainer {
 //                    console.log(steeringSignal)
                     //console.log("Emulator input: ", emulatorState.entries)
                     let nextEmulatorState = this.emulatorNet.forward(emulatorState);
-//                    console.log("Predicted state:" + nextEmulatorState.entries)
+                    console.log("Predicted state:" + nextEmulatorState.entries)
                     
                     canContinue = this.world.nextTimeStep(steeringSignal);
-//                    console.log("Real: " + this.getEmulatorState(this.world.truck.getStateVector()).entries)
+                    console.log("Real: " + this.getEmulatorState(this.world.truck.getStateVector()).entries)
+                    console.log("---")
                     i++;
                 }
         
@@ -219,7 +220,7 @@ let degree40 = Math.PI / 4.5;
 
 let lessons: Lesson[] = []
 
-let lesson1 = new Lesson("1", new Point(0.4 * truckLength, 0), new Point(0.6 * truckLength, 0) ,[- degree30, degree30], 10000, 20, AngleType.CAB);
+let lesson1 = new Lesson("1", new Point(0.4 * truckLength, 0), new Point(0.6 * truckLength, 0) ,[- degree30, degree30], 1, 20, AngleType.CAB);
 lessons.push(lesson1)
 /*let lesson2 = new Lesson("2", new Point(0.4 * truckLength, 0), new Point(0.6 * truckLength, 0), [-degree10, degree10], 5000, 20, AngleType.CAB);
 lessons.push(lesson2)
