@@ -32,7 +32,7 @@ export class World {
         ]
     }
 
-    public isWorldLimited(limited: boolean) {
+    public setWorldLimited(limited: boolean) {
         this.limited = limited;
     }
 

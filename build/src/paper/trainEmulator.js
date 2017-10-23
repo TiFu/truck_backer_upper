@@ -55,8 +55,12 @@ class EmulatorTrainer {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
     standardize(ret) {
-        ret.entries[0] *= 10;
-        ret.entries[3] *= 10;
+        ret.entries[0] /= Math.PI;
+        ret.entries[1] -= this.tep1.x;
+        ret.entries[1] /= this.tep2.x - this.tep1.x;
+        ret.entries[2] -= this.tep1.y;
+        ret.entries[2] /= this.tep2.y - this.tep1.y;
+        ret.entries[3] /= Math.PI;
     }
     getState(state) {
         let arr = state.entries.slice(2, state.entries.length);
@@ -71,6 +75,7 @@ function r(min, max) {
 const fs = require("fs");
 const implementation_1 = require("./implementation");
 let world = new world_1.World();
+world.setWorldLimited(false);
 let trainTruckEmulator = new EmulatorTrainer(implementation_1.emulatorNet, world);
 try {
     let savedWeights = fs.readFileSync("./emulator_weights").toString();

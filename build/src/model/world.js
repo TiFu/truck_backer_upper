@@ -27,7 +27,7 @@ class World {
             new math_1.StraightLine(new math_1.Point(70, -25), new math_1.Vector(-1, 0)),
         ];
     }
-    isWorldLimited(limited) {
+    setWorldLimited(limited) {
         this.limited = limited;
     }
     getLimits() {

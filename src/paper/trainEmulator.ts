@@ -66,14 +66,12 @@ export class EmulatorTrainer {
     }
 
     private standardize(ret: Vector) {
-/*        ret.entries[0] /= Math.PI;
+        ret.entries[0] /= Math.PI;
         ret.entries[1] -= this.tep1.x
         ret.entries[1] /= this.tep2.x - this.tep1.x;
         ret.entries[2] -= this.tep1.y
         ret.entries[2] /= this.tep2.y - this.tep1.y;
-        ret.entries[3] /= Math.PI;*/
-        ret.entries[0] *= 10;
-        ret.entries[3] *= 10;
+        ret.entries[3] /= Math.PI;
     }
 
     private getState(state: Vector): Vector {
@@ -91,6 +89,8 @@ function r(min: number, max: number): number {
 import * as fs from 'fs';
 import {emulatorNet} from './implementation'
 let world = new World();
+world.setWorldLimited(false);
+
 let trainTruckEmulator = new EmulatorTrainer(emulatorNet, world);
 
 try {
