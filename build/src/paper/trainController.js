@@ -52,8 +52,12 @@ class ControllerTrainer {
         return errorSum;
     }
     standardize(ret) {
-        ret.entries[0] *= 10;
-        ret.entries[3] *= 10;
+        ret.entries[0] /= Math.PI;
+        ret.entries[1] -= this.tep1.x;
+        ret.entries[1] /= this.tep2.x - this.tep1.x;
+        ret.entries[2] -= this.tep1.y;
+        ret.entries[2] /= this.tep2.y - this.tep1.y;
+        ret.entries[3] /= Math.PI;
         if (ret.length == 6) {
             ret.entries[4] -= this.tep1.x;
             ret.entries[4] /= this.tep2.x - this.tep1.x;

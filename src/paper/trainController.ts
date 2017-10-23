@@ -58,14 +58,12 @@ class ControllerTrainer {
 
     // TODO: put scaling somewhere elese maybe parent class of EmulatorTrainer and Controller Trainer
     private standardize(ret: Vector) {
-/*        ret.entries[0] /= Math.PI;
+        ret.entries[0] /= Math.PI;
         ret.entries[1] -= this.tep1.x
         ret.entries[1] /= this.tep2.x - this.tep1.x;
         ret.entries[2] -= this.tep1.y
         ret.entries[2] /= this.tep2.y - this.tep1.y;
-        ret.entries[3] /= Math.PI;*/
-        ret.entries[0] *= 10
-        ret.entries[3] *= 10
+        ret.entries[3] /= Math.PI;
 
         if (ret.length == 6) {
             // dock
