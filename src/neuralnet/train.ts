@@ -24,7 +24,6 @@ export class TrainTruckEmulator {
         return this.neuralNet.errors;
     }
     public trainStep(nextSteeringAngle: number): boolean {
-        this.world.boundaryChecksEnabled = false;
         let initialStateVector = this.world.truck.getStateVector();
         let stateVector = this.world.truck.getStateVector();
 
@@ -50,7 +49,6 @@ export class TrainTruckEmulator {
             console.log("Expected: ", expectedVector.entries)
             console.log("")
         }*/
-        this.world.boundaryChecksEnabled = true;
         return retVal && !result.isEntryNaN();
     }
 
