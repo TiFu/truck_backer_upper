@@ -1,5 +1,6 @@
 import { Point, Vector, isLeftOf, plus, StraightLine, Angle, rotate } from '../math'
 import { Truck } from './truck'
+import {Car} from './car'
 
 export class Dock {
     public dockDirection: Vector;
@@ -19,6 +20,7 @@ export enum AngleType {
 export class World {
     public dock: Dock;
     public truck: Truck;
+    public car: Car;
     private limits: Array<StraightLine> = [];
     private limited = true;
 
@@ -26,9 +28,9 @@ export class World {
         this.resetWorld(); // TODO: make rectangle for area instead of straight lines (but use lines to check for violation)
         this.limits = [
             new StraightLine(new Point(0,0), new Vector(0, 1)), // left
-            new StraightLine(new Point(0,25), new Vector(1, 0)), // top
-            new StraightLine(new Point(70,25), new Vector(0, -1)), // left
-            new StraightLine(new Point(70,-25), new Vector(-1, 0)), // left
+            new StraightLine(new Point(0,100), new Vector(1, 0)), // top
+            new StraightLine(new Point(200,100), new Vector(0, -1)), // left
+            new StraightLine(new Point(200,-100), new Vector(-1, 0)), // left
         ]
     }
 
@@ -69,6 +71,7 @@ export class World {
     public resetWorld() {
         this.dock = new Dock(new Point(0, 0));         
         this.truck = new Truck(new Point(55,0), 0, 0);
+        this.car = new Car(new Point(15,15), 0);
     }
 
     private radToDeg(arr: Array<Angle>) {
@@ -115,6 +118,7 @@ export class World {
     public nextTimeStep(steeringSignal: number): boolean {
         if (!this.limited || this.isTruckInValidPosition()) {
             this.truck.nextTimeStep(steeringSignal);        
+            this.car.nextTimeStep(steeringSignal);
             return this.isTruckInValidPosition();
         } else {
             return false;

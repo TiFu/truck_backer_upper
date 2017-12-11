@@ -62,7 +62,7 @@ export class EmulatorTrainer {
     private getRandomSteeringSignal() {
         const min = -1
         const max = 1;
-        return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
+        return Math.random() * (max - min + 1) + min; //The maximum is inclusive and the minimum is inclusive 
     }
 
     private standardize(ret: Vector) {

@@ -82,9 +82,11 @@ class ControllerTrainer {
             let controllerState = this.getControllerState(this.world.truck.getStateVector());
             this.standardize(controllerState);
             let emulatorState = this.getEmulatorState(this.world.truck.getStateVector());
+            console.log(emulatorState.entries);
             this.standardize(emulatorState);
             let controllerNetOutput = this.controllerNet.forward(controllerState);
             let steeringSignal = controllerNetOutput.entries[0];
+            console.log(steeringSignal);
             assert(controllerNetOutput.length == 1, "Controller Net should have only 1 output");
             emulatorState = emulatorState.getWithNewElement(steeringSignal);
             let nextEmulatorState = this.emulatorNet.forward(emulatorState);

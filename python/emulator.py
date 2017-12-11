@@ -28,7 +28,9 @@ class LossHistory(cb.Callback):
 
 
 model = Sequential()
-model.add(Dense(45, input_dim=5))
+model.add(Dense(25, input_dim=5))
+model.add(Activation("tanh"))
+model.add(Dense(15))
 model.add(Activation("tanh"))
 model.add(Dense(4))
 model.add(Activation("linear"))

@@ -52,7 +52,7 @@ class EmulatorTrainer {
     getRandomSteeringSignal() {
         const min = -1;
         const max = 1;
-        return Math.floor(Math.random() * (max - min + 1)) + min;
+        return Math.random() * (max - min + 1) + min;
     }
     standardize(ret) {
         ret.entries[0] /= Math.PI;
