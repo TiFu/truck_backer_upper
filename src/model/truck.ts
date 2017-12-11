@@ -1,14 +1,15 @@
 import { Point, scale, minus, plus,  Vector, Angle, getAngle, calculateVector, rotate } from '../math'
 import * as nnMath from '../neuralnet/math' // TODO: union math libraries..
+import {AngleType} from './world'
 
 import {expect} from 'chai';
 
 
 export class Truck {
-    public velocity = 1; // m/sec
+    public velocity = 3; // m/sec
     public maxSteeringAngle = Math.PI / 180 * 70 // 70 degree
-    public trailerLength = 7;
-    public cabinLength = 5;
+    public trailerLength = 14;
+    public cabinLength = 6;
 
     private lastSteeringAngle: Angle = 0;
     public constructor(private tep: Point, private trailerAngle: Angle, private cabinAngle: Angle) {
@@ -18,7 +19,7 @@ export class Truck {
     public getStateVector(): nnMath.Vector {
         let cdp = this.getCouplingDevicePosition();
 
-        return new nnMath.Vector([cdp.x, cdp.y, this.fixAngle(this.cabinAngle), this.tep.x, this.tep.y, this.fixAngle(this.trailerAngle)])
+        return new nnMath.Vector([cdp.x, cdp.y, this.cabinAngle, this.tep.x, this.tep.y, this.trailerAngle])
     }
 
     private fixAngle(angle: Angle): Angle {
@@ -38,6 +39,29 @@ export class Truck {
     public getLastSteeringAngle() {
         return this.lastSteeringAngle;
     }
+
+    public setTruckIntoRandomPosition2(maxTep: Array<Point>, maxAngle: Angle[], type: AngleType) {
+        let tepAngle = Math.random() * (maxAngle[1] - maxAngle[0]) + maxAngle[0]
+        // same angle for cabin and truck
+        switch (type) {
+            case AngleType.BOTH:
+                this.trailerAngle = tepAngle
+                this.cabinAngle = tepAngle
+                break;
+            case AngleType.CAB:
+                this.cabinAngle = tepAngle     
+                this.trailerAngle = 0
+                break;
+            case AngleType.TRAILER:
+                this.trailerAngle = tepAngle
+                this.cabinAngle = 0
+                break;
+        }
+     
+        this.tep.x = Math.random() * (maxTep[1].x - maxTep[0].x) + maxTep[0].x
+        this.tep.y = Math.random() * (maxTep[1].y - maxTep[0].y) + maxTep[0].y
+    }
+
     /**
      * 
      * @param maxTep 

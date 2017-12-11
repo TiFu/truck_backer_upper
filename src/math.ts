@@ -67,8 +67,8 @@ export function minus(a: Point, b: Vector | Point) {
     return new Point(a.x - b.x, a.y - b.y);
 }
 
-export function mapPoint(a: Point, scale: number) {
-    return new Point(a.x * scale, a.y * - scale);
+export function mapPoint(a: Point, scaleX: number, scaleY: number) {
+    return new Point(a.x * scaleX, a.y * - scaleY);
 }
 
 export function scale(a: Vector, scale: number) {

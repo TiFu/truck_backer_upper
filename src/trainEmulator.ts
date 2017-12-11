@@ -1,4 +1,4 @@
-import {TrainTruckEmulator} from './neuralnet/train'
+import {TrainTruckEmulator, TrainTruckController} from './neuralnet/train'
 import {World} from './model/world'
 import {emulatorNet} from './neuralnet/implementations'
 import * as fs from 'fs';
@@ -29,10 +29,14 @@ for (let i = 0; i < steps; i++) {
     }
     errorSum += lastError;
     errorMax = Math.max(errorMax, lastError);
-    if (i % errorSTep == 0) {
-        console.log(i + ": " + errorSum / errorSTep + " / " + errorMax + " / " + highErrors);
+    if (lastError > 1) {
+        highErrors++;
+    }
+    if (i > 0 && i % errorSTep == 0) {
+        console.log(i + ": " + errorSum + " / " + errorMax + " / " + highErrors);
         fs.writeFileSync("./emulator_weights", JSON.stringify(trainTruckEmulator.getEmulatorNet().getWeights()));
         errorSum = 0;
+        highErrors = 0;
         errorMax = 0;
         highErrors = 0;
     }

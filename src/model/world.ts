@@ -1,5 +1,6 @@
 import { Point, Vector, isLeftOf, plus, StraightLine, Angle, rotate } from '../math'
 import { Truck } from './truck'
+import {Car} from './car'
 
 export class Dock {
     public dockDirection: Vector;
@@ -10,20 +11,31 @@ export class Dock {
 
 }
 
+export enum AngleType {
+    CAB,
+    TRAILER,
+    BOTH
+}
+
 export class World {
     public dock: Dock;
     public truck: Truck;
+    public car: Car;
     private limits: Array<StraightLine> = [];
-    public boundaryChecksEnabled = true;
+    private limited = true;
 
     constructor() {      
         this.resetWorld(); // TODO: make rectangle for area instead of straight lines (but use lines to check for violation)
         this.limits = [
             new StraightLine(new Point(0,0), new Vector(0, 1)), // left
-            new StraightLine(new Point(0,25), new Vector(1, 0)), // top
-            new StraightLine(new Point(70,25), new Vector(0, -1)), // left
-            new StraightLine(new Point(70,-25), new Vector(-1, 0)), // left
+            new StraightLine(new Point(0,100), new Vector(1, 0)), // top
+            new StraightLine(new Point(200,100), new Vector(0, -1)), // left
+            new StraightLine(new Point(200,-100), new Vector(-1, 0)), // left
         ]
+    }
+
+    public setWorldLimited(limited: boolean) {
+        this.limited = limited;
     }
 
     public getLimits(): Array<StraightLine> {
@@ -59,11 +71,20 @@ export class World {
     public resetWorld() {
         this.dock = new Dock(new Point(0, 0));         
         this.truck = new Truck(new Point(55,0), 0, 0);
+        this.car = new Car(new Point(15,15), 0);
     }
 
     private radToDeg(arr: Array<Angle>) {
         return [arr[0] * 180 / Math.PI, arr[1] * 180 / Math.PI];
     }
+
+    public randomizeMax2(tep1: Point, tep2: Point, maxAngle: Angle[], type: AngleType) {
+        this.truck.setTruckIntoRandomPosition2([tep1, tep2], maxAngle, type);
+        while(!this.isTruckInValidPosition()) {
+            this.truck.setTruckIntoRandomPosition2([tep1, tep2], maxAngle, type);
+        }        
+    }
+
     public randomizeMax(tep1: Point, tep2: Point, maxTrailerAngle: Array<Angle>, maxCabinAngle: Array<Angle>) {
         if (tep1 == undefined) {
             tep1 = new Point(7,18)
@@ -100,8 +121,9 @@ export class World {
     }
 
     public nextTimeStep(steeringSignal: number): boolean {
-        if (!this.boundaryChecksEnabled || this.isTruckInValidPosition()) {
+        if (!this.limited || this.isTruckInValidPosition()) {
             this.truck.nextTimeStep(steeringSignal);        
+            this.car.nextTimeStep(steeringSignal);
             return this.isTruckInValidPosition();
         } else {
             return false;

@@ -73,17 +73,19 @@ export class TrainTruckEmulator {
 export class TrainTruckController {
     public errors: Array<number> = [];
     public fixedEmulator = false;
-    private maxSteps = 100;
+    private maxSteps = 25;
     private performedTrainSteps = 0;
-    private increaseDifficultyEpisodeDiff = 100000;
+    private increaseDifficultyEpisodeDiff = 50000000;
 
     public emulatorInputs: any = [];
-    private currentMaxDistFromDock: number = 5;
-    private currentMaxYDistFromDock: number = 1;
-    private currentMinDistFromDock: number = 3;
-    private currentMaxTrailerAngle: Angle = Math.PI / 36; // start with 5 degrees
-    private currentMaxCabinTrailerAngle: Angle = Math.PI / 36; // start with 5 degrees at most
+    private currentMaxDistFromDock: number = 9;
+    private currentMaxYDistFromDock: number = 3;
+    private currentMinDistFromDock: number = 7;
+    private currentMaxTrailerAngle: Angle = Math.PI / 72; // start with 5 degrees
+    private currentMaxCabinTrailerAngle: Angle = Math.PI / 72; // start with 5 degrees at most
     private simple = false;
+
+    public limitationSteps = 0;
 
     public constructor(private world: World, private controllerNet: NeuralNet, private emulatorNet: NeuralNet) {
         // TODO: verify compatibility of emulator net and controller net
@@ -120,7 +122,7 @@ export class TrainTruckController {
     }
 
     public prepareTruckPositionSimple() {
-        this.world.randomizeMax(new Point(3, 0), new Point(this.currentMaxDistFromDock,0), [0,0], [0,0])
+        this.world.randomizeMax(new Point(this.currentMinDistFromDock, 0), new Point(this.currentMaxDistFromDock, 0), [- this.currentMaxTrailerAngle, this.currentMaxTrailerAngle], [0,0])
     }
 
     private fixEmulator(fix: boolean) {
@@ -141,7 +143,6 @@ export class TrainTruckController {
     }
     public trainStep(): number {
         this.fixEmulator(true);
-
         let currentState = this.world.truck.getStateVector();
         currentState = this.scaleStateVector(currentState);
         let canContinue = true;
@@ -152,6 +153,14 @@ export class TrainTruckController {
         while (canContinue) {
 //            console.log("Input: " + this.world.truck.getStateVector());
             let controllerSignal = this.controllerNet.forward(currentState);
+
+            currentState.entries[0] = (currentState.entries[0] - 35) / 35; // [0,70] -> [-1, 1]
+            currentState.entries[1] = currentState.entries[1] / 25; // [-25, 25] -> [-1, 1]
+            currentState.entries[2] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
+            currentState.entries[3] = (currentState.entries[3] - 35) / 35; // [0,70] -> [-1, 1]
+            currentState.entries[4] = currentState.entries[4] / 25; // [-25, 25] -> [-1, 1]
+            currentState.entries[5] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
+    
             let stateWithSteering = currentState.getWithNewElement(controllerSignal.entries[0]);
             controllerSignals.push(controllerSignal);
             console.log("Controller: " + controllerSignal)
@@ -164,9 +173,8 @@ export class TrainTruckController {
             canContinue = this.world.nextTimeStep(controllerSignal.entries[0]);
             // use truck kinematics for sensing the error
             // TODO: is this correct?
-            currentState = this.scaleStateVector(this.world.truck.getStateVector());
-//            console.log("Real: ")
-//            console.log(currentState)
+//            console.log("Emulator Prediction: " + )
+            currentState = this.world.truck.getStateVector();
             if (i > this.maxSteps) {
                 break;
 //                throw Error("ugh")
@@ -179,6 +187,7 @@ export class TrainTruckController {
         }
         // we hit the end => calculate our error, backpropagate
         let finalState = this.world.truck.getStateVector();
+
         let dock = this.world.dock;
 
 //        console.log("[Net] Final State: " + finalState)
@@ -211,18 +220,27 @@ export class TrainTruckController {
         return error;
     }
 
-    private updateLimitationParameters() {
-        if (this.performedTrainSteps > 0 && this.performedTrainSteps % this.increaseDifficultyEpisodeDiff == 0) {
+    public updateLimitationParameters(force: boolean = false) {
+        if (force || this.performedTrainSteps % this.increaseDifficultyEpisodeDiff == 0) {
+            this.limitationSteps++;
             if (!this.simple) {
                 this.currentMaxDistFromDock = Math.min(this.currentMaxDistFromDock + 2, 50);
-                this.currentMaxYDistFromDock = Math.min(this.currentMaxYDistFromDock + 1, 50);
-                this.currentMaxTrailerAngle = Math.min(Math.PI, this.currentMaxTrailerAngle + Math.PI / 36);
-    //           this.currentMaxCabinTrailerAngle = Math.min(Math.PI, this.currentMaxTrailerAngle + Math.PI / 36);// 5 degrees
+                this.currentMaxYDistFromDock = Math.min(this.currentMaxYDistFromDock + 1, 25);
+                this.currentMaxTrailerAngle = Math.min(Math.PI, this.currentMaxTrailerAngle + Math.PI / 72);
+//                this.currentMaxCabinTrailerAngle = Math.min(Math.PI, this.currentMaxTrailerAngle + Math.PI / 36);// 5 degrees
 
-                this.currentMaxCabinTrailerAngle = Math.min(Math.PI / 2, this.currentMaxCabinTrailerAngle + Math.PI / 36);
+                this.currentMaxCabinTrailerAngle = Math.min(Math.PI / 2, this.currentMaxCabinTrailerAngle + Math.PI / 72);
+                console.log("Updated Limitations: ")
+                console.log("Max Dist from dock: " + this.currentMaxDistFromDock);
+                console.log("Min Dist f rom dock: " + this.currentMinDistFromDock);
+                console.log("Max Y Dist from dock: " + this.currentMaxYDistFromDock);
+                console.log("Max Trailer Angle: " + this.currentMaxTrailerAngle);
+                console.log("Max Cabin Angle: " + this.currentMaxCabinTrailerAngle)
                 this.maxSteps += 25;        
             } else {
-                this.currentMaxYDistFromDock += Math.min(this.currentMaxYDistFromDock + 2, 50);
+//                this.currentMaxYDistFromDock = Math.min(this.currentMaxYDistFromDock + 2, 25);
+                this.currentMaxDistFromDock = Math.min(this.currentMaxDistFromDock + 4, 50); 
+                console.log("Updated limitations:" + this.currentMaxDistFromDock);
             }
         }
     }
@@ -232,7 +250,7 @@ export class TrainTruckController {
         let yTrailer = finalState.entries[4];
         let thetaTrailer = finalState.entries[5];
         
-        let xDiff = xTrailer - dock.position.x
+        let xDiff = Math.max(xTrailer, 0) - dock.position.x
         let yDiff = yTrailer - dock.position.y
         let thetaDiff = thetaTrailer - 0
 
@@ -246,7 +264,7 @@ export class TrainTruckController {
         let thetaTrailer = finalState.entries[5];
 
         // Derivative of SSE
-        let xDiff = xTrailer - dock.position.x; 
+        let xDiff = Math.max(xTrailer,0) - dock.position.x; 
         let yDiff = yTrailer - dock.position.y;
         let thetaDiff = thetaTrailer - 0;
         
