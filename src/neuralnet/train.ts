@@ -24,15 +24,17 @@ export class TrainTruckEmulator {
         return this.neuralNet.errors;
     }
     public trainStep(nextSteeringAngle: number): boolean {
+        // TODO: turn off boundary checks for this train step
         let initialStateVector = this.world.truck.getStateVector();
         let stateVector = this.world.truck.getStateVector();
 
-        stateVector.entries[0] = (stateVector.entries[0] - 35) / 35; // [0,70] -> [-1, 1]
-        stateVector.entries[1] = stateVector.entries[1] / 35; // [-25, 25] -> [-1, 1]
+        // TODO: adapt to same implementation as in keras
+        stateVector.entries[0] = (stateVector.entries[0] - 100) / 100; // [0,70] -> [-1, 1]
+        stateVector.entries[1] = stateVector.entries[1] / 100; // [-25, 25] -> [-1, 1]
         stateVector.entries[2] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
-        stateVector.entries[3] = (stateVector.entries[3] - 35) / 35; // [0,70] -> [-1, 1]
-        stateVector.entries[4] = stateVector.entries[4] / 25; // [-25, 25] -> [-1, 1]
-        stateVector.entries[5] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
+        stateVector.entries[3] = (stateVector.entries[3] - 100) / 100; // [0,70] -> [-1, 1]
+        stateVector.entries[4] = stateVector.entries[4] / 100; // [-25, 25] -> [-1, 1]
+        stateVector.entries[5] /= 0.5 * Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
 
         stateVector = stateVector.getWithNewElement(nextSteeringAngle);
         let result = this.neuralNet.forward(stateVector);
@@ -68,6 +70,7 @@ export class TrainTruckEmulator {
     }
 }
 
+// let's not use this for now
 export class TrainTruckController {
     public errors: Array<number> = [];
     public fixedEmulator = false;
@@ -116,11 +119,11 @@ export class TrainTruckController {
     }
     
     public prepareTruckPosition() {
-        this.world.randomizeMax(new Point(this.currentMinDistFromDock, this.currentMaxYDistFromDock), new Point(this.currentMaxDistFromDock, -this.currentMaxYDistFromDock), [-this.currentMaxTrailerAngle, this.currentMaxTrailerAngle], [-this.currentMaxCabinTrailerAngle, this.currentMaxCabinTrailerAngle]);    
+//        this.world.randomizeMax(new Point(this.currentMinDistFromDock, this.currentMaxYDistFromDock), new Point(this.currentMaxDistFromDock, -this.currentMaxYDistFromDock), [-this.currentMaxTrailerAngle, this.currentMaxTrailerAngle], [-this.currentMaxCabinTrailerAngle, this.currentMaxCabinTrailerAngle]);    
     }
 
     public prepareTruckPositionSimple() {
-        this.world.randomizeMax(new Point(this.currentMinDistFromDock, 0), new Point(this.currentMaxDistFromDock, 0), [- this.currentMaxTrailerAngle, this.currentMaxTrailerAngle], [0,0])
+ //       this.world.randomizeMax(new Point(this.currentMinDistFromDock, 0), new Point(this.currentMaxDistFromDock, 0), [- this.currentMaxTrailerAngle, this.currentMaxTrailerAngle], [0,0])
     }
 
     private fixEmulator(fix: boolean) {

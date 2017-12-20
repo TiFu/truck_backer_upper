@@ -41,6 +41,7 @@ export class World {
     public getLimits(): Array<StraightLine> {
         return this.limits;
     }
+
     // TODO: add check that truck is not too far away from area
     private isTruckNotAtDock() {
         let truckCorners = this.truck.getTruckCorners();
@@ -78,14 +79,33 @@ export class World {
         return [arr[0] * 180 / Math.PI, arr[1] * 180 / Math.PI];
     }
 
-    public randomizeMax2(tep1: Point, tep2: Point, maxAngle: Angle[], type: AngleType) {
-        this.truck.setTruckIntoRandomPosition2([tep1, tep2], maxAngle, type);
+    /**
+     * 
+     * @param tep1 left bottom corner
+     * @param tep2 top right corner
+     * @param maxAngleTrailer 
+     * @param maxAngleCabin relative to trailer
+     */
+    public randomizeTruckPosition(tep1: Point, tep2: Point, maxAngleTrailer: Angle[], maxAngleCabin: Angle[]) {
+        let tep = this.getRandomTEP(tep1, tep2);
+        let trailerAngle = this.getRandomTrailerAngle(maxAngleTrailer);
+        let cabinAngle = this.getRandomCabinAngle(maxAngleCabin, trailerAngle)
+        this.truck.setTruckPosition(tep, trailerAngle, cabinAngle);
         while(!this.isTruckInValidPosition()) {
-            this.truck.setTruckIntoRandomPosition2([tep1, tep2], maxAngle, type);
+            this.truck.setTruckPosition(tep, trailerAngle, cabinAngle);
         }        
     }
 
-    public randomizeMax(tep1: Point, tep2: Point, maxTrailerAngle: Array<Angle>, maxCabinAngle: Array<Angle>) {
+    private getRandomTrailerAngle(maxAngleTrailer: Angle[]): Angle {
+        let trailerAngle = Math.random() * (maxAngleTrailer[1] - maxAngleTrailer[0]) + maxAngleTrailer[0];
+        return trailerAngle;        
+    }
+
+    private getRandomCabinAngle(maxAngleCabin: Angle[], trailerAngle: Angle): Angle {
+        let cabinAngle = trailerAngle + Math.random() * (maxAngleCabin[1] - maxAngleCabin[0]) + maxAngleCabin[0];
+        return cabinAngle;        
+    }
+/*    public randomizeMax(tep1: Point, tep2: Point, maxTrailerAngle: Array<Angle>, maxCabinAngle: Array<Angle>) {
         if (tep1 == undefined) {
             tep1 = new Point(7,18)
         }
@@ -104,21 +124,32 @@ export class World {
         while(!this.isTruckInValidPosition()) {
             this.truck.setTruckIntoRandomPosition([tep1, tep2], maxTrailerAngle, maxCabinAngle);
         }
+    }*/
+    private getRandomTEP(tep1: Point, tep2: Point): Point {
+        let x = Math.random() * (tep2.x - tep1.x) + tep1.x; 
+        let y = Math.random() * (tep2.y - tep1.y) + tep1.y;
+        let tep = new Point(x, y);
+        return tep;
+    }
+    public randomizeNoLimits() {
+        let tep1 = new Point(0,-100);
+        let tep2 = new Point(200, 100);
+        let tep = this.getRandomTEP(tep1, tep2);
+        let maxCabinAngle = [- this.truck.getMaxCabinAngle(), this.truck.getMaxCabinAngle()];
+        let maxTrailerAngle =  [- this.truck.getMaxTrailerAngle() , this.truck.getMaxTrailerAngle()];
+        let trailerAngle = this.getRandomTrailerAngle(maxCabinAngle);
+        let cabinAngle = this.getRandomCabinAngle(maxCabinAngle, trailerAngle);
+        this.truck.setTruckPosition(tep, trailerAngle, cabinAngle);
     }
 
-    public randomizeNoLimits() {
-        let tep = new Point(-10,35)
-        let tep2 = new Point(80, -35)
-        this.truck.setTruckIntoRandomPosition([tep, tep2], [-Math.PI, Math.PI], [-0.5 * Math.PI, 0.5 * Math.PI]);
-    }
-    public randomize() {
+/*    public randomize() {
         let tep = new Point(12,13)
         let tep2 = new Point(58, -13)
-        this.truck.setTruckIntoRandomPosition([tep, tep2], [-Math.PI, Math.PI], [-0.5 * Math.PI, 0.5 * Math.PI]);
+        this.truck.setTruckPosition([tep, tep2], [-Math.PI, Math.PI], [-0.5 * Math.PI, 0.5 * Math.PI]);
         while(!this.isTruckInValidPosition()) {// TODO: better max implementation
             this.truck.setTruckIntoRandomPosition([tep, tep2], [-Math.PI, Math.PI], [-0.5 * Math.PI, 0.5 * Math.PI] );
         }
-    }
+    }*/
 
     public nextTimeStep(steeringSignal: number): boolean {
         if (!this.limited || this.isTruckInValidPosition()) {

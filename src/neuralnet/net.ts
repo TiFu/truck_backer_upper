@@ -51,7 +51,6 @@ export class NeuralNet {
 
     public setDebugMode(debug: boolean) {
         this.debug = debug;
-        this.layers[0].setDebug(true);
     }
 
     public getLayers(): Layer[] {
@@ -66,6 +65,7 @@ export class NeuralNet {
             this.layers[i].loadWeights(weights[i]);
         }
     }
+
     public getOutputDim(): number {
         return this.outputDim;
     }
@@ -95,15 +95,9 @@ export class NeuralNet {
     }
 
     public backwardWithGradient(gradient: Vector, accumulateWeigthUpdates: boolean): Vector {
-/*        if (this.debug)
-            console.log("[Net] Gradient: " + gradient + ", accWeights: " + accumulateWeigthUpdates)*/
         let error = gradient;
         for (let i = this.netConfig.layerConfigs.length - 1; i >= 0; i--) {
             error = this.layers[i].backward(error, this.netConfig.learningRate, accumulateWeigthUpdates);
-/*           if (this.debug)
-               console.log("----------------------")
-               console.log("Layer " + i + " Error: " + error);
-               console.log("=============================")*/
         }
         return error;        
     }
@@ -112,6 +106,7 @@ export class NeuralNet {
         let error = this.netConfig.errorFunction.getErrorDerivative(output, expected);
         let computedError = this.netConfig.errorFunction.getError(output, expected);
         this.errors.push(computedError);
+    //    console.log("Computed Error: " + computedError)
         return this.backwardWithGradient(error, false);
     }
 }

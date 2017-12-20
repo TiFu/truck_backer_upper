@@ -9,7 +9,10 @@ export class Car {
     private lastSteeringAngle = 0;
 
     public constructor(private axle: Point, private angle: Angle) {
+    }
 
+    public getStateVector(): nnMath.Vector {
+        return new nnMath.Vector([this.axle.x, this.axle.y, this.angle]);
     }
 
     public getFront(): Point {

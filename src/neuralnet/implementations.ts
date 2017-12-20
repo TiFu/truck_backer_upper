@@ -5,7 +5,7 @@ import {ActivationFunction, Tanh, Sigmoid, Linear, ReLu} from './activation'
 import {Vector} from './math'
 
 export var hiddenEmulatorLayer: LayerConfig = {
-    neuronCount: 200, // TODO: paper 45
+    neuronCount: 45,
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: number) => new AdalineUnit(weights, activation, initialWeightRange),
     activation: new Tanh()
 }
@@ -18,9 +18,9 @@ export var outputEmulatorLayer: LayerConfig = {
 
 export var emulatorNetConfig: NetConfig = {
     inputs: 7,
-    learningRate: 0.001,
+    learningRate: 0.01,
     errorFunction: new MSE(),
-    weightInitRange: 0.01,
+    weightInitRange: 0.3,
     layerConfigs: [
         hiddenEmulatorLayer,
         outputEmulatorLayer

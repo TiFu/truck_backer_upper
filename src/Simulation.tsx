@@ -4,7 +4,7 @@ import WorldVisualization from "./WorldVisualization"
 import {World} from './model/world'
 import {TrainTruckEmulator, TrainTruckController} from './neuralnet/train'
 import {emulatorNet, controllerNet} from './neuralnet/implementations'
-import {Point, Vector} from './math'
+import {Point, Vector, scalarProduct} from './math'
 const HighCharts = require("react-highcharts");
 
 interface SimulationState {
@@ -22,7 +22,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
     private emulatorTrainSteps = 0;
     private emulatorTrainStepsTarget = 0;
     private emulatorTrainStepsPerFrame = 1;
-    private emulatedSteps = 5;
+    private emulatedSteps = 1;
     private worldIsSet = false;
     private controllerTrainStepsTarget = 0;
     private controllerTrainSteps = 0;
@@ -36,7 +36,6 @@ export default class Simulation extends React.Component<{}, SimulationState> {
         this.state = {world: new World(), steeringSignal: 0, running: false, emulatorWeights: undefined};
         this.trainTruckEmulator = new TrainTruckEmulator(this.state.world, emulatorNet);
         this.trainTruckController = new TrainTruckController(this.state.world, controllerNet, emulatorNet);
-        TrainTruckController
     }
 
     public steeringSignalChanged(evt: any) {
@@ -55,14 +54,12 @@ export default class Simulation extends React.Component<{}, SimulationState> {
     public nextControllerTrainStep() {
         this.controllerTrainStepsTarget += 1;
         this.setState({running: true})
-        this.lastTimestamp = this.lastTimestamp = performance.now();
+        this.lastTimestamp = performance.now();
         window.requestAnimationFrame(this.controllerAniFrameCallback);
     }
 
     public randomizePosition() {
-        let tep = new Point(12,12)
-        let tep2 = new Point(58,-13)
-        this.state.world.randomize(); //truck.setTruckIntoRandomPosition([tep, tep2], [- Math.PI, Math.PI]);
+        this.state.world.randomizeNoLimits();
         this.onFrame(true);
     }
     public prepTrainTruckPositon() {
@@ -114,7 +111,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
             let epochs = 0;
             while (epochs < this.emulatedSteps && this.state.running) {
                 epochs += this.trainTruckEmulator.train(this.emulatedSteps)[0];
-                this.state.world.randomize();
+                this.state.world.randomizeNoLimits();
                 this.onFrame(true);
             }
         }
@@ -132,6 +129,19 @@ export default class Simulation extends React.Component<{}, SimulationState> {
         
     }
 
+    private compressErrorCurve(errors: number[]): number[] {
+        let compressedErrors = [];
+        let sum = 0;
+        for (let i = 0; i < errors.length; i++) {
+            sum += errors[i];
+            if (i > 0 && (i+1) % 100 == 0) {
+                compressedErrors.push(sum / 100);
+                sum = 0;
+            }
+        }
+        return compressedErrors;
+    }
+
     public getEmulatorErrorConfig() {
         return {
             "chart": {
@@ -146,7 +156,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
             series: [
                 {
                     name: "Emulator Error",
-                    data: this.trainTruckEmulator.getErrorCurve()
+                    data: this.compressErrorCurve(this.trainTruckEmulator.getErrorCurve())
                 }
             ]
         }

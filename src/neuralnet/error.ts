@@ -13,7 +13,7 @@ export class MSE implements ErrorFunction {
             let d =  is.entries[i] - should.entries[i];
             diff += d * d;
         }
-        return 0.5 * diff;
+        return 0.5 * diff / is.length;
     }
 
     public getErrorDerivative(is: Vector, should: Vector): Vector {

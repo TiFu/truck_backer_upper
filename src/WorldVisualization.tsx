@@ -32,7 +32,7 @@ export default class WorldVisualization extends React.Component<{ world: World},
     }
 
     public render() {
-        let cst = new CoordinateSystemTransformation(15, 15, new Vector(this.canvasWidth * 1 / 4.0, this.canvasHeight / 2.0));
+        let cst = new CoordinateSystemTransformation(3.95, 3.95, new Vector(this.canvasWidth * 1 / 4.0, this.canvasHeight / 2.0));
         let limitVis = [];
         let limits = this.props.world.getLimits();
         for (let i = 0; i < limits.length; i++) {

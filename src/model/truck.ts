@@ -10,15 +10,15 @@ export class Truck {
     public maxSteeringAngle = Math.PI / 180 * 70 // 70 degree
     public trailerLength = 14;
     public cabinLength = 6;
-
     private lastSteeringAngle: Angle = 0;
-    public constructor(private tep: Point, private trailerAngle: Angle, private cabinAngle: Angle) {
 
+    public constructor(private tep: Point, private trailerAngle: Angle, private cabinAngle: Angle) {
+        this.cabinAngle = this.fixAngle(cabinAngle)
+        this.trailerAngle = this.fixAngle(trailerAngle)
     }
 
     public getStateVector(): nnMath.Vector {
         let cdp = this.getCouplingDevicePosition();
-
         return new nnMath.Vector([cdp.x, cdp.y, this.cabinAngle, this.tep.x, this.tep.y, this.trailerAngle])
     }
 
@@ -32,6 +32,20 @@ export class Truck {
         }
         return angle;
     }
+
+    /**
+     * Relative to x-Axis
+     */
+    public getMaxTrailerAngle(): Angle {
+        return Math.PI;
+    }
+
+    /**
+     * Relative to trailer
+     */
+    public getMaxCabinAngle(): Angle {
+        return 0.5 * Math.PI
+    }
     public getTruckLength(): number {
         return this.cabinLength
     }
@@ -40,42 +54,10 @@ export class Truck {
         return this.lastSteeringAngle;
     }
 
-    public setTruckIntoRandomPosition2(maxTep: Array<Point>, maxAngle: Angle[], type: AngleType) {
-        let tepAngle = Math.random() * (maxAngle[1] - maxAngle[0]) + maxAngle[0]
-        // same angle for cabin and truck
-        switch (type) {
-            case AngleType.BOTH:
-                this.trailerAngle = tepAngle
-                this.cabinAngle = tepAngle
-                break;
-            case AngleType.CAB:
-                this.cabinAngle = tepAngle     
-                this.trailerAngle = 0
-                break;
-            case AngleType.TRAILER:
-                this.trailerAngle = tepAngle
-                this.cabinAngle = 0
-                break;
-        }
-     
-        this.tep.x = Math.random() * (maxTep[1].x - maxTep[0].x) + maxTep[0].x
-        this.tep.y = Math.random() * (maxTep[1].y - maxTep[0].y) + maxTep[0].y
-    }
-
-    /**
-     * 
-     * @param maxTep 
-     * @param maxTrailerAngle 
-     */
-    public setTruckIntoRandomPosition(maxTep: Array<Point>, maxTrailerAngle: Array<Angle>, maxCabinAngle: Array<Angle>) {
-        let tepAngle = Math.random() * (maxTrailerAngle[1] - maxTrailerAngle[0]) + maxTrailerAngle[0];
-        this.trailerAngle = tepAngle
-        this.tep.x = Math.random() * (maxTep[1].x - maxTep[0].x) + maxTep[0].x
-        this.tep.y = Math.random() * (maxTep[1].y - maxTep[0].y) + maxTep[0].y
-
-        let cabAng = Math.random() * (maxCabinAngle[1] - maxCabinAngle[0]) + maxCabinAngle[0]// Math.PI - 0.5 * Math.PI;
-        let cabinAngle = tepAngle + cabAng;
-        this.cabinAngle = cabinAngle;
+    public setTruckPosition(tep: Point, trailerAngle: Angle, cabinAngle: Angle) {
+        this.tep = tep;
+        this.trailerAngle = this.fixAngle(trailerAngle)
+        this.cabinAngle = this.fixAngle(cabinAngle)
     }
     
     public getTrailerLength(): number {
@@ -87,6 +69,7 @@ export class Truck {
     public getTruckAngle() {
         return this.cabinAngle
     }
+
     public getTruckCorners() {
         let cabinDirection = rotate(new Vector(1, 0), this.cabinAngle);
         let orthogonal = cabinDirection.getOrthogonalVector();
@@ -141,6 +124,7 @@ export class Truck {
        let cabinDirection = rotate(new Vector(1, 0), this.cabinAngle);
        return plus(this.getCouplingDevicePosition(), cabinDirection.scale(2 / cabinDirection.getLength()));
     }
+
     public getCabTrailerAngle(): Angle {
         return Math.abs(this.trailerAngle - this.cabinAngle);
     }
