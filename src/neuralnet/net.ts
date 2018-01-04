@@ -106,7 +106,7 @@ export class NeuralNet {
         let error = this.netConfig.errorFunction.getErrorDerivative(output, expected);
         let computedError = this.netConfig.errorFunction.getError(output, expected);
         this.errors.push(computedError);
-    //    console.log("Computed Error: " + computedError)
+        console.log("Computed Error: " + computedError)
         return this.backwardWithGradient(error, false);
     }
 }
