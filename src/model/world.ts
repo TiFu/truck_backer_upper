@@ -67,7 +67,7 @@ export class World {
     }
 
     private isTruckInValidPosition(): boolean {
-        return this.isTruckNotAtDock() && this.isTruckInArea();
+        return !this.limited || (this.isTruckNotAtDock() && this.isTruckInArea());
     }
     public resetWorld() {
         this.dock = new Dock(new Point(0, 0));         

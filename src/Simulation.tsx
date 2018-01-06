@@ -105,6 +105,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
 			console.warn(`only ${(1000 / delta).toFixed(1)} fps`);
             delta = 1000 / 5;            
         }
+        this.state.world.setWorldLimited(false);
         for (let i = 0; i < this.emulatorTrainStepsPerFrame && this.emulatorTrainSteps < this.emulatorTrainStepsTarget && this.state.running; i++) {
             this.emulatorTrainSteps++;
             console.log(this.emulatorTrainSteps + " of " + this.emulatorTrainStepsTarget);
@@ -115,6 +116,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
                 this.onFrame(true);
             }
         }
+        this.state.world.setWorldLimited(true);
         if (this.emulatorTrainSteps < this.emulatorTrainStepsTarget && this.state.running) {
             this.onFrame(false);
             window.requestAnimationFrame(this.emulatorAniFrameCallback);

@@ -23,24 +23,29 @@ export class TrainTruckEmulator {
     public getErrorCurve(): Array<number> {
         return this.neuralNet.errors;
     }
-    public trainStep(nextSteeringAngle: number): boolean {
-        // TODO: turn off boundary checks for this train step
-        let initialStateVector = this.world.truck.getStateVector();
-        let stateVector = this.world.truck.getStateVector();
-
-        // TODO: adapt to same implementation as in keras
+    private normalize(stateVector: Vector): void {
         stateVector.entries[0] = (stateVector.entries[0] - 100) / 100; // [0,70] -> [-1, 1]
         stateVector.entries[1] = stateVector.entries[1] / 100; // [-25, 25] -> [-1, 1]
         stateVector.entries[2] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
         stateVector.entries[3] = (stateVector.entries[3] - 100) / 100; // [0,70] -> [-1, 1]
         stateVector.entries[4] = stateVector.entries[4] / 100; // [-25, 25] -> [-1, 1]
         stateVector.entries[5] /= 0.5 * Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
+    }
 
+    public trainStep(nextSteeringAngle: number): boolean {
+        // TODO: turn off boundary checks for this train step
+        let initialStateVector = this.world.truck.getStateVector();
+        let stateVector = this.world.truck.getStateVector();
+
+        // TODO: adapt to same implementation as in keras
+        this.normalize(stateVector);
         stateVector = stateVector.getWithNewElement(nextSteeringAngle);
         let result = this.neuralNet.forward(stateVector);
 
         let retVal = this.world.nextTimeStep(nextSteeringAngle);
         let expectedVector = this.world.truck.getStateVector();
+        this.normalize(expectedVector);
+        
         let error = this.neuralNet.backward(result, expectedVector);
         this.lastError = this.neuralNet.errors[this.neuralNet.errors.length - 1]
 
