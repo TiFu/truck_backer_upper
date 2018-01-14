@@ -25,8 +25,6 @@ export class TruckVisualization extends React.Component<TruckVisualizationProps,
     public render() {
         let eot = this.props.truck.getEndOfTruck();
         let cfp = this.props.truck.getCabinFrontPosition();
-        console.log("Truck Position: " + eot.x + " / " + eot.y) 
-        console.log("TRuck Front Posd " + cfp.x + " / " + cfp.y)
         let mappedEOT = this.map(eot);
         let mappedCFP = this.map(cfp);
         return <Group>

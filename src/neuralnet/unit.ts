@@ -99,8 +99,12 @@ export class AdalineUnit implements Unit {
     }
     public updateWithAccumulatedWeights() {
 //       console.log("Accumulated Weights: " + this.accumulatedWeights);
+        for (let i = 0; i < this.accumulatedWeights.length; i++) {
+            if (isNaN(this.accumulatedWeights.entries[i])) {
+                alert("Found NaN in a weight update");
+            }
+        }
         this.updateWeights(this.accumulatedWeights);
- //       console.log(this.accumulatedWeights)
         this.resetAccumulatedWeights();
     }
 

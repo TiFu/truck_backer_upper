@@ -52,7 +52,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
     }
 
     public nextControllerTrainStep() {
-        this.controllerTrainStepsTarget += 1;
+        this.controllerTrainStepsTarget += 1000;
         this.setState({running: true})
         this.lastTimestamp = performance.now();
         window.requestAnimationFrame(this.controllerAniFrameCallback);
@@ -178,7 +178,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
             series: [
                 {
                     name: "Controller Error",
-                    data: this.trainTruckController.getErrorCurve()
+                    data: this.compressErrorCurve(this.trainTruckController.getErrorCurve())
                 }
             ]
         }
@@ -204,7 +204,6 @@ export default class Simulation extends React.Component<{}, SimulationState> {
     }
 
     public render() {
-        console.log("Text Area Content: ", JSON.stringify(this.state.emulatorWeights))
         return <div>
             <WorldVisualization world={this.state.world} />
             SteeringSignal: 
@@ -216,7 +215,10 @@ export default class Simulation extends React.Component<{}, SimulationState> {
             <input type="button" disabled={this.state.running} onClick={this.nextControllerTrainStep.bind(this)} value="Train Controller" />
             <input type="button" disabled={this.state.running} onClick={this.prepTrainTruckPositon.bind(this)} value="Prep Position" />
             <input type="button" onClick={this.stopTraining.bind(this)} value="Stop" />
+            <input type="button" onClick={this.prepTrainTruckPositon.bind(this)} value="Controller Prep Position" />            
             <input type="button" onClick={this.randomizePosition.bind(this)} value="Randomize Pos" />
+            Max x: {this.trainTruckController.maxX} and Max Steps: {this.trainTruckController.maxSteps}<br />
+           
             <HighCharts config={this.getEmulatorErrorConfig()} />
             <HighCharts config={this.getControllerErrorConfig()} />
             Emulator Weights: 
