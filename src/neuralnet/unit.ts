@@ -125,7 +125,6 @@ export class AdalineUnit implements Unit {
             let weightDerivative: Vector = this.lastInput.pop().getScaled(scalarFactor);
             let update = this.calculateWeightUpdate(learningRate, weightDerivative);
             if (accumulateWeigthUpdates) {
- //               console.log(update)
                 this.accumulatedWeights.add(update);
             } else {
                 this.updateWeights(update);
@@ -142,6 +141,7 @@ export class AdalineUnit implements Unit {
     }
     private updateWeights( update: Vector) {
         this.lastUpdate = update;
+ //       console.log(update.entries)
         this.weights.add(update)
     }
 }

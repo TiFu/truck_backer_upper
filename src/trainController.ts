@@ -25,7 +25,7 @@ trainTruckController.getControllerNet().loadWeights(parsed_controller_weights);
 import * as process from 'process'
 
 let alreadyTrainedSteps = Number.parseInt(process.argv[2])
-for (let i = 0; i < alreadyTrainedSteps; i++) {
+/*for (let i = 0; i < alreadyTrainedSteps; i++) {
     trainTruckController.updateLimitationParameters(true);
 }
 // train truck simple => only straight driving needed
@@ -63,3 +63,4 @@ for (let i = 0; i < steps; i++) {
 }
 //fs.writeFileSync("./controller_weights", JSON.stringify(trainTruckController.getControllerNet().getWeights()));
 //console.log(trainTruckEmulator.getEmulatorNet().getWeights())
+*/

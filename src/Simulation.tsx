@@ -6,6 +6,8 @@ import {TrainTruckEmulator, TrainTruckController} from './neuralnet/train'
 import {emulatorNet, controllerNet} from './neuralnet/implementations'
 import {Point, Vector, scalarProduct} from './math'
 const HighCharts = require("react-highcharts");
+import {LessonView} from './LessonView'
+import {lessons} from './neuralnet/lesson'
 
 interface SimulationState {
      world: World;
@@ -28,6 +30,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
     private controllerTrainSteps = 0;
 
     private lastTimestamp: number;
+    private currentLessonIndex = 0;
 
     public constructor(props: {}) {
         super(props)
@@ -36,6 +39,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
         this.state = {world: new World(), steeringSignal: 0, running: false, emulatorWeights: undefined};
         this.trainTruckEmulator = new TrainTruckEmulator(this.state.world, emulatorNet);
         this.trainTruckController = new TrainTruckController(this.state.world, controllerNet, emulatorNet);
+        this.trainTruckController.setLesson(lessons[this.currentLessonIndex]);
     }
 
     public steeringSignalChanged(evt: any) {
@@ -62,10 +66,6 @@ export default class Simulation extends React.Component<{}, SimulationState> {
         this.state.world.randomizeNoLimits();
         this.onFrame(true);
     }
-    public prepTrainTruckPositon() {
-        this.trainTruckController.prepareTruckPosition();
-        this.onFrame(true);
-    }
 
     public controllerAniFrameCallback = this.controllerAnimationStep.bind(this);
     public controllerAnimationStep(timestamp: number) {
@@ -77,15 +77,21 @@ export default class Simulation extends React.Component<{}, SimulationState> {
             delta = 1000 / 5;            
         }
         this.controllerTrainSteps++;
-        console.log(this.controllerTrainSteps + " of " + this.controllerTrainStepsTarget);
-        this.trainTruckController.prepareTruckPosition();
-        this.trainTruckController.trainStep();
-        console.log("End of train truck controller");
-        if (this.controllerTrainSteps < this.controllerTrainStepsTarget && this.state.running) {
-                this.onFrame(true);
-                window.requestAnimationFrame(this.controllerAniFrameCallback);
+        this.trainTruckController.trainSingleStep();
+        if (this.trainTruckController.hasNextStep() && this.state.running) {
+            this.onFrame(true);
+            window.requestAnimationFrame(this.controllerAniFrameCallback);
         } else {
-                this.setState({running: false});
+            if (!this.trainTruckController.hasNextStep()) {
+                this.currentLessonIndex++;
+                console.log("Next Lesson: " + this.currentLessonIndex);
+                if (this.currentLessonIndex < lessons.length) {
+                    this.trainTruckController.setLesson(lessons[this.currentLessonIndex]);
+                    if (this.state.running)
+                        window.requestAnimationFrame(this.controllerAniFrameCallback);                        
+                    return;
+                }
+            }
         }
     }
 
@@ -101,7 +107,6 @@ export default class Simulation extends React.Component<{}, SimulationState> {
         let delta = timestamp - this.lastTimestamp;
         this.lastTimestamp = timestamp;
         if (delta > 1000 / 5) {
-            console.log(delta)
 			console.warn(`only ${(1000 / delta).toFixed(1)} fps`);
             delta = 1000 / 5;            
         }
@@ -179,6 +184,18 @@ export default class Simulation extends React.Component<{}, SimulationState> {
                 {
                     name: "Controller Error",
                     data: this.compressErrorCurve(this.trainTruckController.getErrorCurve())
+                },
+                {
+                    name: "Steering Signal",
+                    data: this.compressErrorCurve(this.trainTruckController.steeringSignals)
+                },
+                {
+                    name: "Angle Error",
+                    data: this.compressErrorCurve(this.trainTruckController.angleError)                    
+                },
+                {
+                    name: "Y Error",
+                    data: this.compressErrorCurve(this.trainTruckController.yError)                    
                 }
             ]
         }
@@ -213,12 +230,8 @@ export default class Simulation extends React.Component<{}, SimulationState> {
             <input type="button" disabled={this.state.running} onClick={this.saveEmulatorWeights.bind(this)} value="Save Emulator Weights" />
             <input type="button" disabled={this.state.running} onClick={this.loadEmulatorWeights.bind(this)} value="Load Emulator Weights" />
             <input type="button" disabled={this.state.running} onClick={this.nextControllerTrainStep.bind(this)} value="Train Controller" />
-            <input type="button" disabled={this.state.running} onClick={this.prepTrainTruckPositon.bind(this)} value="Prep Position" />
             <input type="button" onClick={this.stopTraining.bind(this)} value="Stop" />
-            <input type="button" onClick={this.prepTrainTruckPositon.bind(this)} value="Controller Prep Position" />            
-            <input type="button" onClick={this.randomizePosition.bind(this)} value="Randomize Pos" />
-            Max x: {this.trainTruckController.maxX} and Max Steps: {this.trainTruckController.maxSteps}<br />
-           
+            <LessonView lesson={this.trainTruckController.getCurrentLesson()} performedTrainSteps={this.trainTruckController.getPerformedTrainSteps()} />           
             <HighCharts config={this.getEmulatorErrorConfig()} />
             <HighCharts config={this.getControllerErrorConfig()} />
             Emulator Weights: 
