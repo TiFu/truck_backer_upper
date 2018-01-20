@@ -79,6 +79,7 @@ export class TrainTruckController {
 
     public fixedEmulator = false;
     private performedTrainSteps = 0;
+    public maxStepErrors = 0;
 
     public emulatorInputs: any = [];
     private currentLesson: Lesson = null;
@@ -97,6 +98,7 @@ export class TrainTruckController {
     public setLesson(lesson: Lesson): void {
         this.currentLesson = lesson;
         this.performedTrainSteps = 0;
+        this.maxStepErrors = 0;
     }
 
     public getPerformedTrainSteps(): number {
@@ -170,7 +172,7 @@ export class TrainTruckController {
             let controllerSignal = this.controllerNet.forward(currentState);
             let steeringSignal = controllerSignal.entries[0];
             summedSteeringSignal +=  steeringSignal;
-
+            
             let stateWithSteering = currentState.getWithNewElement(controllerSignal.entries[0]);
             controllerSignals.push(controllerSignal);
 
@@ -181,6 +183,7 @@ export class TrainTruckController {
 
             canContinue = this.world.nextTimeStep(steeringSignal);
             if (i > this.currentLesson.maxSteps) {
+                this.maxStepErrors++;
                 break;
             }
             i++;
