@@ -184,6 +184,18 @@ export default class Simulation extends React.Component<{}, SimulationState> {
                 {
                     name: "Controller Error",
                     data: this.compressErrorCurve(this.trainTruckController.getErrorCurve())
+                },
+                {
+                    name: "Steering Signal",
+                    data: this.compressErrorCurve(this.trainTruckController.steeringSignals)
+                },
+                {
+                    name: "Angle Error",
+                    data: this.compressErrorCurve(this.trainTruckController.angleError)                    
+                },
+                {
+                    name: "Y Error",
+                    data: this.compressErrorCurve(this.trainTruckController.yError)                    
                 }
             ]
         }
