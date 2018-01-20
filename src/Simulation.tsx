@@ -231,7 +231,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
             <input type="button" disabled={this.state.running} onClick={this.loadEmulatorWeights.bind(this)} value="Load Emulator Weights" />
             <input type="button" disabled={this.state.running} onClick={this.nextControllerTrainStep.bind(this)} value="Train Controller" />
             <input type="button" onClick={this.stopTraining.bind(this)} value="Stop" />
-            <LessonView lesson={this.trainTruckController.getCurrentLesson()} performedTrainSteps={this.trainTruckController.getPerformedTrainSteps()} />           
+            <LessonView lesson={this.trainTruckController.getCurrentLesson()} performedTrainSteps={this.trainTruckController.getPerformedTrainSteps()} maxStepViolations={this.trainTruckController.maxStepErrors} />           
             <HighCharts config={this.getEmulatorErrorConfig()} />
             <HighCharts config={this.getControllerErrorConfig()} />
             Emulator Weights: 

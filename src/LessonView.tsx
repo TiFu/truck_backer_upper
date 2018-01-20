@@ -4,8 +4,9 @@ import {Grid, Row, Col} from 'react-bootstrap'
 interface LessonViewProps {
     lesson: Lesson;
     performedTrainSteps: number;
-
+    maxStepViolations: number;
 }
+
 export class LessonView extends React.Component<LessonViewProps, {}> {
 
     public constructor(props: LessonViewProps) {
@@ -28,6 +29,10 @@ export class LessonView extends React.Component<LessonViewProps, {}> {
                     <Row>
                         <Col xs={6} >Performed Train Steps</Col>
                         <Col xs={6} >{this.props.performedTrainSteps} / {this.props.lesson.samples}</Col>
+                    </Row>
+                    <Row>
+                        <Col xs={6}>Max Step Violations</Col>
+                        <Col xs={6}>{this.props.maxStepViolations}</Col>
                     </Row>
                     <Row>
                         <Col xs={6} >Max Steps</Col>
