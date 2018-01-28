@@ -8,6 +8,13 @@ import { ENGINE_METHOD_ALL } from 'constants';
 export class TrainTruckEmulator {
 
     private lastError: number;
+    public cabAngleError: number[] = [];
+    public xCabError: number[] = []
+    public yCabError: number[] = []
+    public trailerAngleError: number[] = []
+    public xTrailerError: number[] = []
+    public yTrailerError: number[] = []
+
     public constructor(private world: World, private neuralNet: NeuralNet) { 
         if (neuralNet.getInputDim() != 6 + 1) {
             throw new Error("Invalid Input Dim! Expected 7 but got " + neuralNet.getInputDim());
@@ -47,7 +54,15 @@ export class TrainTruckEmulator {
         let retVal = this.world.nextTimeStep(nextSteeringAngle);
         let expectedVector = this.world.truck.getStateVector();
         this.normalize(expectedVector);
-        
+        //[cdp.x, cdp.y, this.cabinAngle, this.tep.x, this.tep.y, this.trailerAngle]
+        // Record errors
+        this.xCabError.push(Math.abs(expectedVector.entries[0] - result.entries[0]) * 100);
+        this.yCabError.push(Math.abs(expectedVector.entries[1] - result.entries[1]) * 100);
+        this.cabAngleError.push(Math.abs(expectedVector.entries[2] - result.entries[2]) * 180);// * Math.PI * 180 / Math.PI
+        this.xTrailerError.push(Math.abs(expectedVector.entries[3] - result.entries[3]) * 100);
+        this.yTrailerError.push(Math.abs(expectedVector.entries[4] - result.entries[4]) * 100);
+        this.trailerAngleError.push(Math.abs(expectedVector.entries[5] - result.entries[5]) * 180);
+
         let error = this.neuralNet.backward(result, expectedVector);
         this.lastError = this.neuralNet.errors[this.neuralNet.errors.length - 1]
 

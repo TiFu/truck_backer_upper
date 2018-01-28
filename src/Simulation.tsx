@@ -169,6 +169,63 @@ export default class Simulation extends React.Component<{}, SimulationState> {
         }
     }
 
+    public getCoordinatesError() {
+        return {
+            "chart": {
+                "type": "line"
+            },
+            xAxis: {
+
+            },
+            yAxis: {
+
+            },
+            series: [
+                {
+                    name: "Cabin X Error",
+                    data: this.compressErrorCurve(this.trainTruckEmulator.xCabError)
+                },
+                {
+                    name: "Cabin Y Error",
+                    data: this.compressErrorCurve(this.trainTruckEmulator.yCabError)                    
+                },
+                {
+                    name: "Trailer X Error",
+                    data: this.compressErrorCurve(this.trainTruckEmulator.xTrailerError)
+                },
+                {
+                    name: "Trailer Y Error",
+                    data: this.compressErrorCurve(this.trainTruckEmulator.yTrailerError)                    
+                }
+
+            ]
+        }
+    }
+
+    public getAngleError() {
+        return {
+            "chart": {
+                "type": "line"
+            },
+            xAxis: {
+
+            },
+            yAxis: {
+
+            },
+            series: [
+                {
+                    name: "Cab Angle Error",
+                    data: this.compressErrorCurve(this.trainTruckEmulator.cabAngleError)
+                },
+                {
+                    name: "Trailer Angle Error",
+                    data: this.compressErrorCurve(this.trainTruckEmulator.trailerAngleError)                    
+                }
+            ]
+        }
+    }
+
     public getControllerErrorConfig() {
         return {
             "chart": {
@@ -234,6 +291,8 @@ export default class Simulation extends React.Component<{}, SimulationState> {
             <LessonView lesson={this.trainTruckController.getCurrentLesson()} performedTrainSteps={this.trainTruckController.getPerformedTrainSteps()} maxStepViolations={this.trainTruckController.maxStepErrors} />           
             <HighCharts config={this.getEmulatorErrorConfig()} />
             <HighCharts config={this.getControllerErrorConfig()} />
+            <HighCharts config={this.getAngleError()} />
+            <HighCharts config={this.getCoordinatesError()} />
             Emulator Weights: 
             <textarea ref={(input) => this.emulatorNetTextArea = input} value={JSON.stringify(this.state.emulatorWeights)}></textarea>
         </div>

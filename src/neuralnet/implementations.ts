@@ -18,7 +18,7 @@ export var outputEmulatorLayer: LayerConfig = {
 
 export var emulatorNetConfig: NetConfig = {
     inputs: 7,
-    learningRate: 0.01,
+    learningRate: 0.005,
     errorFunction: new MSE(),
     weightInitRange: 0.3,
     layerConfigs: [
