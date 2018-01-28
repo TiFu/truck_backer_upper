@@ -31,7 +31,7 @@ export class TrainTruckEmulator {
         stateVector.entries[2] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
         stateVector.entries[3] = (stateVector.entries[3] - 100) / 100; // [0,70] -> [-1, 1]
         stateVector.entries[4] = stateVector.entries[4] / 100; // [-25, 25] -> [-1, 1]
-        stateVector.entries[5] /= 0.5 * Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
+        stateVector.entries[5] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
     }
 
     public trainStep(nextSteeringAngle: number): boolean {
@@ -148,7 +148,7 @@ export class TrainTruckController {
         stateVector.entries[2] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
         stateVector.entries[3] = (stateVector.entries[3] - 100) / 100; // [0,70] -> [-1, 1]
         stateVector.entries[4] = stateVector.entries[4] / 100; // [-25, 25] -> [-1, 1]
-        stateVector.entries[5] /= 0.5 * Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
+        stateVector.entries[5] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
     }
 
     private normalizeDock(d: Dock) {

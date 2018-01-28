@@ -6,7 +6,7 @@ import {expect} from 'chai';
 
 
 export class Truck {
-    public velocity = 3; // m/sec
+    public velocity = 0.2; // m/sec
     public maxSteeringAngle = Math.PI / 180 * 70 // 70 degree
     public trailerLength = 14;
     public cabinLength = 6;
