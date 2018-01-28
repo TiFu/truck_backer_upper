@@ -131,9 +131,10 @@ export class World {
         let tep = new Point(x, y);
         return tep;
     }
+
     public randomizeNoLimits() {
-        let tep1 = new Point(0,-100);
-        let tep2 = new Point(200, 100);
+        let tep1 = new Point(0,-50);
+        let tep2 = new Point(100, 50);
         let tep = this.getRandomTEP(tep1, tep2);
         let maxCabinAngle = [- this.truck.getMaxCabinAngle(), this.truck.getMaxCabinAngle()];
         let maxTrailerAngle =  [- this.truck.getMaxTrailerAngle() , this.truck.getMaxTrailerAngle()];

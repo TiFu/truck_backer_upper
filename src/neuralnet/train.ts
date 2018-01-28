@@ -33,11 +33,11 @@ export class TrainTruckEmulator {
         return this.neuralNet.errors;
     }
     private normalize(stateVector: Vector): void {
-        stateVector.entries[0] = (stateVector.entries[0] - 100) / 100; // [0,70] -> [-1, 1]
-        stateVector.entries[1] = stateVector.entries[1] / 100; // [-25, 25] -> [-1, 1]
+        stateVector.entries[0] = (stateVector.entries[0] - 50) / 50; // [0,70] -> [-1, 1]
+        stateVector.entries[1] = stateVector.entries[1] / 50; // [-25, 25] -> [-1, 1]
         stateVector.entries[2] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
-        stateVector.entries[3] = (stateVector.entries[3] - 100) / 100; // [0,70] -> [-1, 1]
-        stateVector.entries[4] = stateVector.entries[4] / 100; // [-25, 25] -> [-1, 1]
+        stateVector.entries[3] = (stateVector.entries[3] - 50) / 50; // [0,70] -> [-1, 1]
+        stateVector.entries[4] = stateVector.entries[4] / 50; // [-25, 25] -> [-1, 1]
         stateVector.entries[5] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
     }
 
@@ -56,11 +56,11 @@ export class TrainTruckEmulator {
         this.normalize(expectedVector);
         //[cdp.x, cdp.y, this.cabinAngle, this.tep.x, this.tep.y, this.trailerAngle]
         // Record errors
-        this.xCabError.push(Math.abs(expectedVector.entries[0] - result.entries[0]) * 100);
-        this.yCabError.push(Math.abs(expectedVector.entries[1] - result.entries[1]) * 100);
+        this.xCabError.push(Math.abs(expectedVector.entries[0] - result.entries[0]) * 50);
+        this.yCabError.push(Math.abs(expectedVector.entries[1] - result.entries[1]) * 50);
         this.cabAngleError.push(Math.abs(expectedVector.entries[2] - result.entries[2]) * 180);// * Math.PI * 180 / Math.PI
-        this.xTrailerError.push(Math.abs(expectedVector.entries[3] - result.entries[3]) * 100);
-        this.yTrailerError.push(Math.abs(expectedVector.entries[4] - result.entries[4]) * 100);
+        this.xTrailerError.push(Math.abs(expectedVector.entries[3] - result.entries[3]) * 50);
+        this.yTrailerError.push(Math.abs(expectedVector.entries[4] - result.entries[4]) * 50);
         this.trailerAngleError.push(Math.abs(expectedVector.entries[5] - result.entries[5]) * 180);
 
         let error = this.neuralNet.backward(result, expectedVector);
@@ -158,17 +158,17 @@ export class TrainTruckController {
     }
 
     private normalize(stateVector: Vector): void {
-        stateVector.entries[0] = (stateVector.entries[0] - 100) / 100; // [0,70] -> [-1, 1]
-        stateVector.entries[1] = stateVector.entries[1] / 100; // [-25, 25] -> [-1, 1]
+        stateVector.entries[0] = (stateVector.entries[0] - 50) / 50; // [0,70] -> [-1, 1]
+        stateVector.entries[1] = stateVector.entries[1] / 50; // [-25, 25] -> [-1, 1]
         stateVector.entries[2] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
-        stateVector.entries[3] = (stateVector.entries[3] - 100) / 100; // [0,70] -> [-1, 1]
-        stateVector.entries[4] = stateVector.entries[4] / 100; // [-25, 25] -> [-1, 1]
+        stateVector.entries[3] = (stateVector.entries[3] - 50) / 50; // [0,70] -> [-1, 1]
+        stateVector.entries[4] = stateVector.entries[4] / 50; // [-25, 25] -> [-1, 1]
         stateVector.entries[5] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
     }
 
     private normalizeDock(d: Dock) {
-        let normX = (d.position.x - 100) / 100
-        let normY = (d.position.y) / 100;
+        let normX = (d.position.x - 50) / 50
+        let normY = (d.position.y) / 50;
         return new Point(normX, normY);
     }
 
