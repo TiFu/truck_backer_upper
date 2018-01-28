@@ -1492,8 +1492,11 @@ let weights = [
 ];
 emulatorNet.loadWeights(weights);
 
-let output = emulatorNet.forward(new Vector([1,1,1,1,1,1,1]))
-let expected = new Vector([1,1,1,1,1,1]);
+console.log("A");
+let input = new Vector([1,1,1,1,1,1,1]);
+console.log("Input: " + input.length);
+let output = emulatorNet.forward(input)
+let expected = new Vector([1,2,3,4,5,6]);
 emulatorNet.backward(output, expected);
 
 let newWeights = emulatorNet.getWeights();

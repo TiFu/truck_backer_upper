@@ -4,9 +4,15 @@ export type Scalar = number;
 
 export class Vector {
     length: number;
+    public entries: number[];
 
-    constructor(public entries: number[]) {
+    constructor(entries: number[]) {
         this.length = entries.length;
+        this.entries = new Array(entries.length);
+        // create a copy of the input array
+        for (let i = 0; i < entries.length; i++){ 
+            this.entries[i] = entries[i];
+        }
     }
 
     public isEntryNaN() {
@@ -16,6 +22,13 @@ export class Vector {
             }
         }
         return false;
+    }
+
+    public multiplyElementWise(other: Vector): Vector {
+        for (let i = 0; i < this.entries.length; i++) {
+            this.entries[i] *= other.entries[i];
+        }
+        return this;
     }
     public multiply(other: Vector): Scalar {
         let sum = 0.0;
@@ -40,7 +53,9 @@ export class Vector {
     }
 
     public getWithNewElement(element: Scalar): Vector {
+        console.log("Entries: " + this.entries.length)
         let newArr = this.entries.slice(0);
+        console.log(newArr.length);
         newArr.push(element);
         return new Vector(newArr);
     }

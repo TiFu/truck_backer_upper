@@ -9,7 +9,9 @@ model.add(Dense(45, input_dim = 7, activation="tanh", kernel_initializer=init, b
 model.add(Dense(6, activation="linear", kernel_initializer=init, bias_initializer=init))
 
 sgd = optimizers.SGD(lr=0.01)
-model.compile(loss="mean_squared_error", optimizer=sgd)
+rmsprop = optimizers.rmsprop(lr=0.001, rho=0.9, epsilon=1e-8);
+
+model.compile(loss="mean_squared_error", optimizer=rmsprop)
 
 weights = [np.array([[  2.35241987e-02,   1.67233832e-02,  -2.88175941e-02,
           1.12838261e-02,   2.90105231e-02,  -2.75806915e-02,
@@ -216,7 +218,7 @@ weights = [np.array([[  2.35241987e-02,   1.67233832e-02,  -2.88175941e-02,
         0.01212273], dtype="float32")]
 
 model.set_weights(weights)
-model.fit(np.array([[1,1,1,1,1,1,1]]), np.array([[1,1,1,1,1,1]]), epochs=1, batch_size=1)
+model.fit(np.array([[1,2,3,4,5,6,7]]), np.array([[1,2,3,4,5,6]]), epochs=1, batch_size=1)
 np.set_printoptions(suppress=True)
 diff = np.array(model.get_weights()) - np.array(weights);
 print(diff)

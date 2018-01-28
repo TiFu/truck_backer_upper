@@ -1,5 +1,5 @@
 import {NeuralNet, LayerConfig, NetConfig} from './net'
-import {MSE} from './error'
+import {MSE, WeightedMSE} from './error'
 import {AdalineUnit} from './unit'
 import {ActivationFunction, Tanh, Sigmoid, Linear, ReLu} from './activation'
 import {Vector} from './math'
@@ -18,8 +18,8 @@ export var outputEmulatorLayer: LayerConfig = {
 
 export var emulatorNetConfig: NetConfig = {
     inputs: 7,
-    learningRate: 0.005,
-    errorFunction: new MSE(),
+    learningRate: 0.001,
+    errorFunction: new WeightedMSE(new Vector([100, 100, Math.PI, 100, 100, Math.PI])),
     weightInitRange: 0.3,
     layerConfigs: [
         hiddenEmulatorLayer,
