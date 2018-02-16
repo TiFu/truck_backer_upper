@@ -30,7 +30,7 @@ export class SGDNesterovMomentum implements Optimizer {
         }
         
         // calculate velocity as moments * momentum - lr * g;
-        let scaledMoments = this.moments.getScaled(this.momentum);
+        let scaledMoments = this.moments.scale(this.momentum);
         // note -1 scaling
         let scaledWeightDerivative = weightDerivative.getScaled(this.learningRate).scale(-1);
         let velocity = scaledMoments.add(scaledWeightDerivative);
