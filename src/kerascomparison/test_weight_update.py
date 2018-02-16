@@ -217,10 +217,11 @@ weights = [np.array([[  2.35241987e-02,   1.67233832e-02,  -2.88175941e-02,
           3.64741422e-02,   1.56294145e-02,  -1.06322654e-02]], dtype="float32"), np.array([ 0.04282563, -0.0462016 ,  0.01536529,  0.04563082, -0.01416836,
         0.01212273], dtype="float32")]
 
+from convert_keras_weights import convert, printConverted
 model.set_weights(weights)
 model.fit(np.array([
       [1,2,3,4,5,6,7],
-     [1,2,3,4,5,5,7],
+   #  [1,2,3,4,5,5,7],
    #  [1,2,3,4,5,4,7], 
    #   [1,2,3,4,5,3,7], 
    #   [1,2,3,4,5,2,7], 
@@ -230,6 +231,35 @@ model.fit(np.array([
   ]),
   np.array([
         [1,2,3,4,5,6],
+    #    [1,2,3,4,5,6], 
+     #   [1,2,3,4,5,6], 
+       # [1,2,3,4,5,6], 
+      #  [1,2,3,4,5,6], 
+     #   [1,2,3,4,5,6], 
+     #   [1,2,3,4,5,6], 
+     #   [1,2,3,4,5,6]
+        ]), epochs=1, batch_size=1)
+
+np.set_printoptions(suppress=True)
+diff = np.array(model.get_weights()) - np.array(weights);
+printConverted(convert(diff))
+
+print("--------------------------------")
+print("--------------------------------")
+print("--------------------------------")
+
+model.fit(np.array([
+    #  [1,2,3,4,5,6,7],
+     [1,2,3,4,5,5,7],
+   #  [1,2,3,4,5,4,7], 
+   #   [1,2,3,4,5,3,7], 
+   #   [1,2,3,4,5,2,7], 
+   #   [1,2,3,4,5,1,7], 
+   #   [1,2,3,4,5,6,7], 
+   #   [1,2,3,4,5,6,7]
+  ]),
+  np.array([
+      #  [1,2,3,4,5,6],
         [1,2,3,4,5,6], 
      #   [1,2,3,4,5,6], 
        # [1,2,3,4,5,6], 
@@ -241,8 +271,4 @@ model.fit(np.array([
 
 np.set_printoptions(suppress=True)
 diff = np.array(model.get_weights()) - np.array(weights);
-print(diff)
-print(len(weights))
-print(diff.shape)
-
-
+printConverted(convert(diff))

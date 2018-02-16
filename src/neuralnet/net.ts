@@ -103,7 +103,7 @@ export class NeuralNet {
     public backward(output: Vector, expected: Vector, accumulateWeigthUpdates: boolean = false): Vector {
         let error = this.netConfig.errorFunction.getErrorDerivative(output, expected);
         let computedError = this.netConfig.errorFunction.getError(output, expected);
-  //      console.log("Error: ", computedError);
+        console.log("Error: ", computedError);
    //     console.log("ErrorDerivative: ", error);
         this.errors.push(computedError);
     //    console.log("Computed Error: " + computedError)
