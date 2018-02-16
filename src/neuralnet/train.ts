@@ -15,7 +15,9 @@ export class TrainTruckEmulator {
     public xTrailerError: number[] = []
     public yTrailerError: number[] = []
 
-    public constructor(private world: World, private neuralNet: NeuralNet) { 
+    private trainedSteps = 0;
+    
+    public constructor(private world: World, private neuralNet: NeuralNet, private batchSize: number = 1) { 
         if (neuralNet.getInputDim() != 6 + 1) {
             throw new Error("Invalid Input Dim! Expected 7 but got " + neuralNet.getInputDim());
         }
@@ -41,6 +43,15 @@ export class TrainTruckEmulator {
         stateVector.entries[5] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
     }
 
+    private normalizeOutput(stateVector: Vector) {
+        stateVector.entries[0] = (stateVector.entries[0] - 50) / 25; // [0,70] -> [-1, 1]
+        stateVector.entries[1] = stateVector.entries[1] / 25; // [-25, 25] -> [-1, 1]
+        stateVector.entries[2] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
+        stateVector.entries[3] = (stateVector.entries[3] - 50) / 25; // [0,70] -> [-1, 1]
+        stateVector.entries[4] = stateVector.entries[4] / 25; // [-25, 25] -> [-1, 1]
+        stateVector.entries[5] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]        
+    }
+
     public trainStep(nextSteeringAngle: number): boolean {
         // TODO: turn off boundary checks for this train step
         let initialStateVector = this.world.truck.getStateVector();
@@ -53,7 +64,7 @@ export class TrainTruckEmulator {
 
         let retVal = this.world.nextTimeStep(nextSteeringAngle);
         let expectedVector = this.world.truck.getStateVector();
-        this.normalize(expectedVector);
+        this.normalizeOutput(expectedVector);
         //[cdp.x, cdp.y, this.cabinAngle, this.tep.x, this.tep.y, this.trailerAngle]
         // Record errors
         this.xCabError.push(Math.abs(expectedVector.entries[0] - result.entries[0]) * 50);
@@ -63,8 +74,14 @@ export class TrainTruckEmulator {
         this.yTrailerError.push(Math.abs(expectedVector.entries[4] - result.entries[4]) * 50);
         this.trailerAngleError.push(Math.abs(expectedVector.entries[5] - result.entries[5]) * 180);
 
-        let error = this.neuralNet.backward(result, expectedVector);
+        let error = this.neuralNet.backward(result, expectedVector, true); // batch update
         this.lastError = this.neuralNet.errors[this.neuralNet.errors.length - 1]
+
+        this.trainedSteps++;
+        if (this.trainedSteps % this.batchSize == 0) {
+            console.log("Batch Update " + this.trainedSteps);
+            this.neuralNet.updateWithAccumulatedWeights();
+        }
 
         return retVal && !result.isEntryNaN();
     }
@@ -222,6 +239,10 @@ export class TrainTruckController {
             let emulatorDerivative = this.emulatorNet.backwardWithGradient(controllerDerivative, false);
             let steeringSignalDerivative = emulatorDerivative.entries[6]; // last entry
             controllerDerivative = this.controllerNet.backwardWithGradient(new Vector([steeringSignalDerivative]), true);
+
+            // get the error from the emulator and add it to the input error for the controller
+            let errorFromEmulator = new Vector(emulatorDerivative.entries.slice(0, 6));
+            controllerDerivative.add(errorFromEmulator);
         }
         this.controllerNet.updateWithAccumulatedWeights();
         this.fixEmulator(false);

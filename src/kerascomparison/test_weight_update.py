@@ -8,10 +8,10 @@ model = Sequential()
 model.add(Dense(45, input_dim = 7, activation="tanh", kernel_initializer=init, bias_initializer=init))
 model.add(Dense(6, activation="linear", kernel_initializer=init, bias_initializer=init))
 
-sgd = optimizers.SGD(lr=0.01)
+sgd = optimizers.SGD(lr=0.1,momentum=0.9, decay=0, nesterov=True)
 rmsprop = optimizers.rmsprop(lr=0.001, rho=0.9, epsilon=1e-8);
 
-model.compile(loss="mean_squared_error", optimizer=rmsprop)
+model.compile(loss="mean_squared_error", optimizer=sgd)
 
 weights = [np.array([[  2.35241987e-02,   1.67233832e-02,  -2.88175941e-02,
           1.12838261e-02,   2.90105231e-02,  -2.75806915e-02,

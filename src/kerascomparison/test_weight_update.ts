@@ -1493,7 +1493,7 @@ let weights = [
 emulatorNet.loadWeights(weights);
 
 console.log("A");
-let input = new Vector([1,1,1,1,1,1,1]);
+let input = new Vector([1,2,3,4,5,6,7]);
 console.log("Input: " + input.length);
 let output = emulatorNet.forward(input)
 let expected = new Vector([1,2,3,4,5,6]);

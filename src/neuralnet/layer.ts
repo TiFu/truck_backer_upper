@@ -2,15 +2,16 @@ import {Vector, Scalar} from './math'
 
 import {ActivationFunction} from './activation';
 import {Unit, AdalineUnit} from './unit';
+import {Optimizer} from './optimizers';
 
 export class Layer {
     private units: Unit[];
     private debug: boolean;
 
-    constructor(private inputDim: number, private outputDim: number, private activation: ActivationFunction, private unitConstructor: (inputDim: number, activation: ActivationFunction, initialWeightRange: number) => Unit, initialWeightRange: number) {
+    constructor(private inputDim: number, private outputDim: number, private activation: ActivationFunction, private optimizerConstructor: () => Optimizer, private unitConstructor: (inputDim: number, activation: ActivationFunction, initialWeightRange: number, optimizer: Optimizer) => Unit, initialWeightRange: number) {
         this.units = [];
         for (let i = 0; i < outputDim; i++) {
-            this.units.push(this.unitConstructor(inputDim, activation, initialWeightRange));
+            this.units.push(this.unitConstructor(inputDim, activation, initialWeightRange, this.optimizerConstructor()));
         }
     }
 
@@ -19,9 +20,6 @@ export class Layer {
         for (let unit of this.units) {
             unit.setDebug(debug);
         }
-        this.units[3].setDebug(true)
-        this.units[4].setDebug(true)
-        this.units[5].setDebug(true)
     }
 
     public getUnits(): Unit[] {
@@ -71,13 +69,13 @@ export class Layer {
      * @param error error from the downstream layer
      * @param learningRate 
      */
-    public backward(error: Vector, learningRate: Scalar, accumulateWeightUpdates: boolean): Vector {
+    public backward(error: Vector, accumulateWeightUpdates: boolean): Vector {
         let backpropError = new Array(this.inputDim);
         for (let i = 0; i < this.inputDim; i++) {
             backpropError[i] = 0;
         }
         for (let i = 0; i < this.outputDim; i++) {
-            let localError = this.units[i].backward(error.entries[i], learningRate, accumulateWeightUpdates);
+            let localError = this.units[i].backward(error.entries[i], accumulateWeightUpdates);
 
             for (let j = 0; j < this.inputDim; j++) {
                 backpropError[j] += localError.entries[j];

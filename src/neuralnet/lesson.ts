@@ -42,9 +42,9 @@ for (let i = 0; i < lessonCount; i++) {
     let trailerR = rangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCount);
     let cabR = rangeForStep(minCabAngle, maxCabAngle, i, lessonCount);
     let samples = i < 12 ? 500 : 2000;
-    lessons.push(new Lesson(i, samples, xR, yR, trailerR, cabR, 30));
+    lessons.push(new Lesson(i, samples, xR, yR, trailerR, cabR, xR.max * 5 * 20 + 100));
     if (i == lessonCount - 1) {
-        lessons.push(new Lesson(i, 10000, xR, yR, trailerR, cabR, 30));
+        lessons.push(new Lesson(i, 10000, xR, yR, trailerR, cabR, xR.max * 5 * 20 + 30));
     }
 }
 

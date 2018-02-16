@@ -37,7 +37,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
         if (Simulation.instance) throw Error("Already instantiated")
         else Simulation.instance = this;
         this.state = {world: new World(), steeringSignal: 0, running: false, emulatorWeights: undefined};
-        this.trainTruckEmulator = new TrainTruckEmulator(this.state.world, emulatorNet);
+        this.trainTruckEmulator = new TrainTruckEmulator(this.state.world, emulatorNet, 16); // 16 batch size
         this.trainTruckController = new TrainTruckController(this.state.world, controllerNet, emulatorNet);
         this.trainTruckController.setLesson(lessons[this.currentLessonIndex]);
     }

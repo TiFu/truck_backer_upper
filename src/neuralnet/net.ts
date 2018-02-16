@@ -3,17 +3,19 @@ import {Layer} from './layer'
 import {ActivationFunction} from './activation';
 import {Unit} from './unit'
 import {ErrorFunction} from './error'
+import {Optimizer} from './optimizers';
+
 export interface NetConfig {
     inputs: number,
-    learningRate: number,
     errorFunction: ErrorFunction,
     weightInitRange: number,
+    optimizer: () => Optimizer,
     layerConfigs: LayerConfig[];
 }
 
 export interface LayerConfig {
     neuronCount: number
-    unitConstructor: (inputDim: number, activation: ActivationFunction, weightInitRange: number) => Unit
+    unitConstructor: (inputDim: number, activation: ActivationFunction, weightInitRange: number, optimizer: Optimizer) => Unit
     activation: ActivationFunction
 }
 
@@ -35,7 +37,7 @@ export class NeuralNet {
             let layerConfig = netConfig.layerConfigs[i];
             let output = layerConfig.neuronCount;
             lastNeuronCount = output;
-            this.layers[i] = new Layer(input, output, layerConfig.activation, layerConfig.unitConstructor, netConfig.weightInitRange);
+            this.layers[i] = new Layer(input, output, layerConfig.activation, netConfig.optimizer, layerConfig.unitConstructor, netConfig.weightInitRange);
             input = output; // input of next layer is output of this layer
         }
         this.outputDim = lastNeuronCount;
@@ -43,10 +45,6 @@ export class NeuralNet {
 
     public clearInputs() {
         this.layers.forEach(l => l.clearInputs());
-    }
-    public decreaseLearningRate(factor: number) {
-        this.netConfig.learningRate = Math.min(this.netConfig.learningRate, Math.max(this.netConfig.learningRate * Math.exp(-factor), 10e-8));
-        console.log("Decreased learning rate to " + this.netConfig.learningRate);
     }
 
     public setDebugMode(debug: boolean) {
@@ -97,18 +95,18 @@ export class NeuralNet {
     public backwardWithGradient(gradient: Vector, accumulateWeigthUpdates: boolean): Vector {
         let error = gradient;
         for (let i = this.netConfig.layerConfigs.length - 1; i >= 0; i--) {
-            error = this.layers[i].backward(error, this.netConfig.learningRate, accumulateWeigthUpdates);
+            error = this.layers[i].backward(error, accumulateWeigthUpdates);
         }
         return error;        
     }
 
-    public backward(output: Vector, expected: Vector): Vector {
+    public backward(output: Vector, expected: Vector, accumulateWeigthUpdates: boolean = false): Vector {
         let error = this.netConfig.errorFunction.getErrorDerivative(output, expected);
         let computedError = this.netConfig.errorFunction.getError(output, expected);
         console.log("Error: ", computedError);
         console.log("ErrorDerivative: ", error);
         this.errors.push(computedError);
         console.log("Computed Error: " + computedError)
-        return this.backwardWithGradient(error, false);
+        return this.backwardWithGradient(error, accumulateWeigthUpdates);
     }
 }

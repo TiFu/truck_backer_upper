@@ -1,9 +1,10 @@
 import {Vector, Scalar} from './math';
 import {ActivationFunction} from './activation';
+import {Optimizer} from './optimizers';
 
 export interface Unit {
     forward(input: Vector): Scalar;
-    backward(error: Scalar, learningRate: Scalar, accumulatedWeightUpdates: boolean): Vector;
+    backward(error: Scalar, accumulatedWeightUpdates: boolean): Vector;
     updateWithAccumulatedWeights(): void;
     fixWeights(fixed: boolean): void;
     getWeights(): Array<number>;
@@ -22,16 +23,11 @@ export class AdalineUnit implements Unit {
     private weights: Vector;
     private lastUpdate: Vector;
     private debug: boolean;
-    private learningRate: number = 0;
-    private movingAverage: Vector;
 
-    constructor(private inputDim: number, private activation: ActivationFunction, initialWeightRange: number) {
+    constructor(private inputDim: number, private activation: ActivationFunction, initialWeightRange: number, private optimizer: Optimizer) {
         this.fixedWeights = false;
         this.lastInput = []
         this.weights = this.getRandomWeights(inputDim + 1, initialWeightRange); // bias
-        let mvgAvg = new Array(inputDim + 1);
-        mvgAvg.fill(0);
-        this.movingAverage = new Vector(mvgAvg);
         this.resetAccumulatedWeights();
         console.log("inputDim: ", inputDim, "weights:", this.weights.length);
     }
@@ -115,56 +111,26 @@ export class AdalineUnit implements Unit {
     }
 
     // Returns derivative wrt to the inputs
-    public backward(errorDerivative: Scalar, learningRate: Scalar, accumulateWeigthUpdates: boolean): Vector {
-        this.learningRate = learningRate;
-  //      if (this.debug)
-   //         console.log("[Unit] Last Sum: " + this.lastSum)
+    public backward(errorDerivative: Scalar, accumulateWeigthUpdates: boolean): Vector {
         let activationDerivative = this.activation.applyDerivative(this.lastSum);
-        console.log("Activation Derivative: ", activationDerivative);
         let scalarFactor = errorDerivative * activationDerivative;
-        console.log("Weights Factor: ", scalarFactor);
         let inputDerivative: Vector = this.weights.getScaled(scalarFactor);
-        console.log("Input Derivative: ", inputDerivative);
-  /*      if (this.debug) {
-            console.log(this.weights)
-            console.log("Last Sum: " + this.lastSum)
-        }*/
-  //      if (this.debug)
-  //          console.log("[Unit] Error Derivative: " + errorDerivative, "Activation Derivative: " + activationDerivative, "result scalar: " + scalarFactor)
+
         if (!this.fixedWeights) {
             let weightDerivative: Vector = this.lastInput.pop().getScaled(scalarFactor);
-            let update = weightDerivative;
-            console.log("Weight Derivative:", weightDerivative);
+            let update = this.optimizer.calculateUpdate(weightDerivative);
             if (accumulateWeigthUpdates) {
                 this.accumulatedWeights.add(update);
             } else {
                 this.updateWeights(update);
             }
         }
-   /*     if (this.debug) {
-            console.log("Input Derivative: ", inputDerivative)
-        }*/
+
         return inputDerivative.getWithoutLastElement();
     }
 
-    private calculateWeightUpdate(learningRate: Scalar, weightDerivative: Vector): Vector {
-        let scaledDerivative = new Vector(weightDerivative.entries).multiplyElementWise(weightDerivative).scale(0.1);
-        let scaledAverage = this.movingAverage.scale(0.9)
-        this.movingAverage = scaledAverage.add(scaledDerivative);
-        console.log("New moving average: ", this.movingAverage);
-        let copy = new Vector(weightDerivative.entries);
-        let elementWiseScaleFactor = [];
-        for (let i = 0; i < copy.entries.length; i++){ 
-            elementWiseScaleFactor.push(- learningRate / Math.sqrt(this.movingAverage.entries[i] + 10e-8));
-        }
-
-        return copy.multiplyElementWise(new Vector(elementWiseScaleFactor));
-    }
-
     private updateWeights( update: Vector) {
-        let scaled = this.calculateWeightUpdate(this.learningRate, update);
-        this.lastUpdate = scaled;
- //       console.log(update.entries)
-        this.weights.add(scaled);
+        this.lastUpdate = update;
+        this.weights.add(update);
     }
 }
