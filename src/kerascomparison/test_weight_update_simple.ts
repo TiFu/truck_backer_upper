@@ -4,19 +4,27 @@ import {NeuralNet, NetConfig, LayerConfig} from '../neuralnet/net';
 import {MSE} from '../neuralnet/error';
 import {AdalineUnit} from '../neuralnet/unit';
 import {ActivationFunction, Linear, Tanh} from '../neuralnet/activation';
+import { SGD, Optimizer } from '../neuralnet/optimizers';
 
-export var layer: LayerConfig = {
-    neuronCount: 1,
-    unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: number) => new AdalineUnit(weights, activation, initialWeightRange),
+export var layer1: LayerConfig = {
+    neuronCount: 2,
+    unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: number, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
+    activation: new Tanh()
+}
+
+export var layer2: LayerConfig = {
+    neuronCount: 2,
+    unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: number, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Tanh()
 }
 export var netConfig: NetConfig = {
     inputs: 2,
-    learningRate: 0.001,
+    optimizer: () => new SGD(0.05),
     errorFunction: new MSE(),
     weightInitRange: 0.3,
     layerConfigs: [
-        layer
+        layer1,
+        layer2
     ]
 }
 
@@ -24,12 +32,31 @@ let emulatorNet = new NeuralNet(netConfig);
 let oldWeights = [
     [
         [
-            0.023342039436101913,
-            0.0045457, 
-            -0.004192470107227564, 
+            0.01649947091937065, 
+            -0.0020694099366664886, 
+            -0.03818223997950554
+        ], 
+        [
+            -0.019388370215892792, 
+            0.012062420137226582, 
+            -0.017078600823879242
+        ]
+    ], 
+    [
+        [
+            0.00995566975325346, 
+            -0.0403984896838665, 
+            -0.016170460730791092
+        ], 
+        [
+            -0.010830570012331009, 
+            0.03846506029367447, 
+            -0.02988303080201149
         ]
     ]
 ]
+
+
 
 emulatorNet.loadWeights(oldWeights);
 console.log("Predict: ", emulatorNet.forward(new Vector([1, 1])))
@@ -38,7 +65,7 @@ console.log("A");
 let input = new Vector([1,1]);
 console.log("Input: " + input.length);
 let output = emulatorNet.forward(input)
-let expected = new Vector([2]);
+let expected = new Vector([0.5, 0.25]);
 console.log("input der");
 console.log(emulatorNet.backward(output, expected))
 
@@ -63,10 +90,10 @@ console.log(diff);
 
 console.log("Predict: ", emulatorNet.forward(new Vector([1, 1])))
 // and again
-input = new Vector([1,1]);
+input = new Vector([2,2]);
 console.log("Input: " + input.length);
 output = emulatorNet.forward(input)
-expected = new Vector([2]);
+expected = new Vector([0.75, 0.375]);
 emulatorNet.backward(output, expected);
 
 let newWeights2 = emulatorNet.getWeights();
@@ -87,3 +114,5 @@ for (let i = 0; i < newWeights2.length; i++) {
 }
 console.log("Diff")
 console.log(diff);
+
+console.log("Predict: ", emulatorNet.forward(new Vector([1, 1])))

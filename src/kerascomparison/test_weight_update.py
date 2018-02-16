@@ -2,6 +2,8 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation
 from keras import optimizers
 import numpy as np
+np.set_printoptions(suppress=True)
+
 import keras 
 init = keras.initializers.RandomUniform(minval=-0.05, maxval=0.05, seed=None)
 model = Sequential()
