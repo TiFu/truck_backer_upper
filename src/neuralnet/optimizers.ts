@@ -13,7 +13,7 @@ export class SGD implements Optimizer {
     }
 
     calculateUpdate(weightDerivative: Vector): Vector {
-        return weightDerivative.scale(this.learningRate);
+        return weightDerivative.scale(-1 * this.learningRate);
     }
 }
 
@@ -38,7 +38,8 @@ export class SGDNesterovMomentum implements Optimizer {
         this.moments = velocity;
 
         // momentum * v - lr * g
-        let update = velocity.getScaled(this.momentum).add(scaledWeightDerivative);
+        // Nesterov: let update = velocity.getScaled(this.momentum).add(scaledWeightDerivative);
+        let update = velocity;
         return update;
     }
 }

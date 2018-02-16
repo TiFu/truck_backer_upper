@@ -53,9 +53,7 @@ export class Vector {
     }
 
     public getWithNewElement(element: Scalar): Vector {
-        console.log("Entries: " + this.entries.length)
         let newArr = this.entries.slice(0);
-        console.log(newArr.length);
         newArr.push(element);
         return new Vector(newArr);
     }

@@ -27,6 +27,10 @@ export class TrainTruckEmulator {
         }
     }
 
+    public getPerformedSteps() {
+        return this.trainedSteps;
+    }
+
     public getEmulatorNet(): NeuralNet {
         return this.neuralNet;
     }
@@ -67,11 +71,11 @@ export class TrainTruckEmulator {
         this.normalizeOutput(expectedVector);
         //[cdp.x, cdp.y, this.cabinAngle, this.tep.x, this.tep.y, this.trailerAngle]
         // Record errors
-        this.xCabError.push(Math.abs(expectedVector.entries[0] - result.entries[0]) * 50);
-        this.yCabError.push(Math.abs(expectedVector.entries[1] - result.entries[1]) * 50);
+        this.xCabError.push(Math.abs(expectedVector.entries[0] - result.entries[0]) * 25);
+        this.yCabError.push(Math.abs(expectedVector.entries[1] - result.entries[1]) * 25);
         this.cabAngleError.push(Math.abs(expectedVector.entries[2] - result.entries[2]) * 180);// * Math.PI * 180 / Math.PI
-        this.xTrailerError.push(Math.abs(expectedVector.entries[3] - result.entries[3]) * 50);
-        this.yTrailerError.push(Math.abs(expectedVector.entries[4] - result.entries[4]) * 50);
+        this.xTrailerError.push(Math.abs(expectedVector.entries[3] - result.entries[3]) * 25);
+        this.yTrailerError.push(Math.abs(expectedVector.entries[4] - result.entries[4]) * 25);
         this.trailerAngleError.push(Math.abs(expectedVector.entries[5] - result.entries[5]) * 180);
 
         let error = this.neuralNet.backward(result, expectedVector, true); // batch update

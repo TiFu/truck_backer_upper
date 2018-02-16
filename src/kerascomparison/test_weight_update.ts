@@ -1497,7 +1497,9 @@ let input = new Vector([1,2,3,4,5,6,7]);
 console.log("Input: " + input.length);
 let output = emulatorNet.forward(input)
 let expected = new Vector([1,2,3,4,5,6]);
-emulatorNet.backward(output, expected);
+emulatorNet.backward(output, expected, true);
+emulatorNet.updateWithAccumulatedWeights();
+
 
 let newWeights = emulatorNet.getWeights();
 
@@ -1518,3 +1520,79 @@ for (let i = 0; i < newWeights.length; i++) {
 }
 
 console.log(diff);
+
+console.log("------------------------------------------------")
+console.log("------------------------------------------------")
+console.log("------------------------------------------------")
+console.log("------------------------------------------------")
+
+input = new Vector([1,2,3,4,5,5,7]);
+console.log("Input: " + input.length);
+output = emulatorNet.forward(input)
+expected = new Vector([1,2,3,4,5,6]);
+emulatorNet.backward(output, expected, true);
+emulatorNet.updateWithAccumulatedWeights();
+
+newWeights = emulatorNet.getWeights();
+
+diff = [];
+
+for (let i = 0; i < newWeights.length; i++) {
+    let iArr = [];
+    let iWeights = newWeights[i];
+    for (let j = 0; j < iWeights.length; j++) {
+        let jWeights = iWeights[j]
+        let jArr = [];
+        for (let k = 0; k < jWeights.length; k++) {
+            jArr.push(jWeights[k] - oldWeights[i][j][k]);
+        }
+        iArr.push(jArr);
+    }
+    diff.push(iArr);
+}
+
+console.log(diff);
+
+/*
+input = new Vector([1,2,3,4,5,4,7]);
+console.log("Input: " + input.length);
+output = emulatorNet.forward(input)
+expected = new Vector([1,2,3,4,5,6]);
+emulatorNet.backward(output, expected, true);
+emulatorNet.updateWithAccumulatedWeights();
+
+input = new Vector([1,2,3,4,5,3,7]);
+console.log("Input: " + input.length);
+output = emulatorNet.forward(input)
+expected = new Vector([1,2,3,4,5,6]);
+emulatorNet.backward(output, expected, true);
+emulatorNet.updateWithAccumulatedWeights();
+
+input = new Vector([1,2,3,4,5,2,7]);
+console.log("Input: " + input.length);
+output = emulatorNet.forward(input)
+expected = new Vector([1,2,3,4,5,6]);
+emulatorNet.backward(output, expected, true);
+emulatorNet.updateWithAccumulatedWeights();
+
+input = new Vector([1,2,3,4,5,1,7]);
+console.log("Input: " + input.length);
+output = emulatorNet.forward(input)
+expected = new Vector([1,2,3,4,5,6]);
+emulatorNet.backward(output, expected, true);
+emulatorNet.updateWithAccumulatedWeights();
+
+input = new Vector([1,2,3,4,5,6,7]);
+console.log("Input: " + input.length);
+output = emulatorNet.forward(input)
+expected = new Vector([1,2,3,4,5,6]);
+emulatorNet.backward(output, expected, true);
+emulatorNet.updateWithAccumulatedWeights();
+
+input = new Vector([1,2,3,4,5,6,7]);
+console.log("Input: " + input.length);
+output = emulatorNet.forward(input)
+expected = new Vector([1,2,3,4,5,6]);
+emulatorNet.backward(output, expected, true);
+emulatorNet.updateWithAccumulatedWeights();
+*/
