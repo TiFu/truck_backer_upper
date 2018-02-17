@@ -96,6 +96,13 @@ output = emulatorNet.forward(input)
 expected = new Vector([0.75, 0.375]);
 emulatorNet.backward(output, expected, true);
 
+
+input = new Vector([3,3]);
+console.log("Input: " + input.length);
+output = emulatorNet.forward(input)
+expected = new Vector([1, 0.5]);
+emulatorNet.backward(output, expected, true);
+
 // and first batch (2 items)
 emulatorNet.updateWithAccumulatedWeights();
 

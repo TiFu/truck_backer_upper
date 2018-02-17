@@ -23,7 +23,7 @@ model.set_weights(weights)
 prediction = model.predict(np.array([[1,1]]))
 print("Predicted: " + str(prediction))
 
-model.fit(np.array([[1,1], [2, 2]]), np.array([[0.5, 0.25], [0.75, 0.375]]), epochs=1, batch_size=2)
+model.fit(np.array([[1,1], [2, 2], [3, 3]]), np.array([[0.5, 0.25], [0.75, 0.375], [1, 0.5]]), epochs=1, batch_size=3)
 np.set_printoptions(suppress=True)
 modelWeights = model.get_weights()
 diff = []
