@@ -120,7 +120,7 @@ export class AdalineUnit implements Unit {
 
         if (!this.fixedWeights) {
             let weightDerivative: Vector = this.lastInput.pop().getScaled(scalarFactor);
-            let update = this.optimizer.calculateUpdate(weightDerivative);
+            let update = weightDerivative;
             if (accumulateWeigthUpdates) {
                 this.accumulatedWeights.add(update);
                 this.batchCounter++;
@@ -133,6 +133,8 @@ export class AdalineUnit implements Unit {
     }
 
     private updateWeights( update: Vector) {
+        // calculate update for current batch
+        update = this.optimizer.calculateUpdate(update);
         this.lastUpdate = update;
         this.weights.add(update);
     }
