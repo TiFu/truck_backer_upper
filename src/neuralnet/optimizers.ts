@@ -38,8 +38,8 @@ export class SGDNesterovMomentum implements Optimizer {
         this.moments = velocity;
 
         // momentum * v - lr * g
-        // Nesterov: let update = velocity.getScaled(this.momentum).add(scaledWeightDerivative);
-        let update = velocity;
+        let update = velocity.getScaled(this.momentum).add(scaledWeightDerivative);
+        // let update = velocity;
         return update;
     }
 }

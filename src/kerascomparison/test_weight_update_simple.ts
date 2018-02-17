@@ -67,7 +67,7 @@ console.log("Input: " + input.length);
 let output = emulatorNet.forward(input)
 let expected = new Vector([0.5, 0.25]);
 console.log("input der");
-console.log(emulatorNet.backward(output, expected))
+console.log(emulatorNet.backward(output, expected, true))
 
 let newWeights = JSON.parse(JSON.stringify(emulatorNet.getWeights()));
 
@@ -94,7 +94,10 @@ input = new Vector([2,2]);
 console.log("Input: " + input.length);
 output = emulatorNet.forward(input)
 expected = new Vector([0.75, 0.375]);
-emulatorNet.backward(output, expected);
+emulatorNet.backward(output, expected, true);
+
+// and first batch (2 items)
+emulatorNet.updateWithAccumulatedWeights();
 
 let newWeights2 = emulatorNet.getWeights();
 

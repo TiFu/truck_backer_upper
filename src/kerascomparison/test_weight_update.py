@@ -10,7 +10,7 @@ model = Sequential()
 model.add(Dense(45, input_dim = 7, activation="tanh", kernel_initializer=init, bias_initializer=init))
 model.add(Dense(6, activation="linear", kernel_initializer=init, bias_initializer=init))
 
-sgd = optimizers.SGD(lr=0.1,momentum=0.0, decay=0, nesterov=False)
+sgd = optimizers.SGD(lr=0.1,momentum=0.9, decay=0, nesterov=True)
 rmsprop = optimizers.rmsprop(lr=0.001, rho=0.9, epsilon=1e-8);
 
 model.compile(loss="mean_squared_error", optimizer=sgd)
@@ -223,7 +223,7 @@ from convert_keras_weights import convert, printConverted
 model.set_weights(weights)
 model.fit(np.array([
       [1,2,3,4,5,6,7],
-   #  [1,2,3,4,5,5,7],
+       [1,2,3,4,5,5,7],
    #  [1,2,3,4,5,4,7], 
    #   [1,2,3,4,5,3,7], 
    #   [1,2,3,4,5,2,7], 
@@ -233,35 +233,6 @@ model.fit(np.array([
   ]),
   np.array([
         [1,2,3,4,5,6],
-    #    [1,2,3,4,5,6], 
-     #   [1,2,3,4,5,6], 
-       # [1,2,3,4,5,6], 
-      #  [1,2,3,4,5,6], 
-     #   [1,2,3,4,5,6], 
-     #   [1,2,3,4,5,6], 
-     #   [1,2,3,4,5,6]
-        ]), epochs=1, batch_size=1)
-
-np.set_printoptions(suppress=True)
-diff = np.array(model.get_weights()) - np.array(weights);
-printConverted(convert(diff))
-
-print("--------------------------------")
-print("--------------------------------")
-print("--------------------------------")
-
-model.fit(np.array([
-    #  [1,2,3,4,5,6,7],
-     [1,2,3,4,5,5,7],
-   #  [1,2,3,4,5,4,7], 
-   #   [1,2,3,4,5,3,7], 
-   #   [1,2,3,4,5,2,7], 
-   #   [1,2,3,4,5,1,7], 
-   #   [1,2,3,4,5,6,7], 
-   #   [1,2,3,4,5,6,7]
-  ]),
-  np.array([
-      #  [1,2,3,4,5,6],
         [1,2,3,4,5,6], 
      #   [1,2,3,4,5,6], 
        # [1,2,3,4,5,6], 

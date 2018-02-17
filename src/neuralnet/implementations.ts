@@ -19,7 +19,7 @@ export var outputEmulatorLayer: LayerConfig = {
 
 export var emulatorNetConfig: NetConfig = {
     inputs: 7,
-    optimizer: () => new SGD(0.1),
+    optimizer: () => new SGDNesterovMomentum(0.1, 0.9),
     errorFunction: new MSE(),
     weightInitRange: 0.3,
     layerConfigs: [

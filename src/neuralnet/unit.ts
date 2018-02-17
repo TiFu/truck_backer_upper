@@ -20,6 +20,7 @@ export class AdalineUnit implements Unit {
     private lastInput: Vector[];
     private fixedWeights: boolean;
     private accumulatedWeights: Vector;
+    private batchCounter: number;
     private weights: Vector;
     private lastUpdate: Vector;
     private debug: boolean;
@@ -98,6 +99,7 @@ export class AdalineUnit implements Unit {
         let entries = new Array(this.weights.length);
         entries.fill(0);
         this.accumulatedWeights = new Vector(entries);
+        this.batchCounter = 0;
     }
     public updateWithAccumulatedWeights() {
 //       console.log("Accumulated Weights: " + this.accumulatedWeights);
@@ -106,7 +108,7 @@ export class AdalineUnit implements Unit {
                 alert("Found NaN in a weight update");
             }
         }
-        this.updateWeights(this.accumulatedWeights);
+        this.updateWeights(this.accumulatedWeights.scale(1 / this.batchCounter));
         this.resetAccumulatedWeights();
     }
 
@@ -121,6 +123,7 @@ export class AdalineUnit implements Unit {
             let update = this.optimizer.calculateUpdate(weightDerivative);
             if (accumulateWeigthUpdates) {
                 this.accumulatedWeights.add(update);
+                this.batchCounter++;
             } else {
                 this.updateWeights(update);
             }

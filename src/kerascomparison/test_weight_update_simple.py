@@ -23,7 +23,7 @@ model.set_weights(weights)
 prediction = model.predict(np.array([[1,1]]))
 print("Predicted: " + str(prediction))
 
-model.fit(np.array([[1,1]]), np.array([[0.5, 0.25]]), epochs=1, batch_size=1)
+model.fit(np.array([[1,1], [2, 2]]), np.array([[0.5, 0.25], [0.75, 0.375]]), epochs=1, batch_size=2)
 np.set_printoptions(suppress=True)
 modelWeights = model.get_weights()
 diff = []
@@ -36,16 +36,16 @@ printConverted(convert(diff))
 prediction = model.predict(np.array([[1,1]]))
 print("Predicted: " + str(prediction))
 
-model.fit(np.array([[2,2]]), np.array([[0.75, 0.375]]), epochs=1, batch_size=1)
-modelWeights = model.get_weights()
-diff = []
-for i in range(len(modelWeights)):
-    diff.append(modelWeights[i] - betweenWeights[i]);
-printConverted(convert(diff))
+#model.fit(np.array([[2,2]]), np.array([[0.75, 0.375]]), epochs=1, batch_size=1)
+#modelWeights = model.get_weights()
+#diff = []
+#for i in range(len(modelWeights)):
+#    diff.append(modelWeights[i] - betweenWeights[i]);
+#printConverted(convert(diff))
 
 
 
-prediction = model.predict(np.array([[1,1]]))
-print("Predicted: " + str(prediction))
+#prediction = model.predict(np.array([[1,1]]))
+#print("Predicted: " + str(prediction))
 #print(model.get_updates_for(np.array([[1,1,1,1,1,1,1]])))
 
