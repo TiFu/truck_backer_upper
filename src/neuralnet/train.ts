@@ -23,7 +23,6 @@ export class TrainTruckEmulator {
         }
         if (neuralNet.getOutputDim() != 6) {
             throw new Error("Invalid Input Dim! Expected 6 but got " + neuralNet.getOutputDim());
-            
         }
     }
 
@@ -38,6 +37,7 @@ export class TrainTruckEmulator {
     public getErrorCurve(): Array<number> {
         return this.neuralNet.errors;
     }
+    
     private normalize(stateVector: Vector): void {
         stateVector.entries[0] = (stateVector.entries[0] - 50) / 50; // [0,70] -> [-1, 1]
         stateVector.entries[1] = stateVector.entries[1] / 50; // [-25, 25] -> [-1, 1]
@@ -69,6 +69,7 @@ export class TrainTruckEmulator {
         let retVal = this.world.nextTimeStep(nextSteeringAngle);
         let expectedVector = this.world.truck.getStateVector();
         this.normalizeOutput(expectedVector);
+
         //[cdp.x, cdp.y, this.cabinAngle, this.tep.x, this.tep.y, this.trailerAngle]
         // Record errors
         this.xCabError.push(Math.abs(expectedVector.entries[0] - result.entries[0]) * 25);
@@ -83,7 +84,6 @@ export class TrainTruckEmulator {
 
         this.trainedSteps++;
         if (this.trainedSteps % this.batchSize == 0) {
-            console.log("Batch Update " + this.trainedSteps);
             this.neuralNet.updateWithAccumulatedWeights();
         }
 
