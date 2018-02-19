@@ -147,6 +147,7 @@ export class TrainTruckController {
     public getCurrentLesson(): Lesson { 
         return this.currentLesson;
     }
+
     public trainSingleStep(): number {
         if (this.currentLesson == null) {
             throw new Error("You have to set the current lesson before calling this function!");
@@ -187,6 +188,26 @@ export class TrainTruckController {
         stateVector.entries[5] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
     }
 
+    private fixAngle(angle: Angle): Angle {
+        angle = angle % (2 * Math.PI)
+        if (angle > Math.PI) { // 180 deg + some deg => 
+            angle = Math.PI - (angle - Math.PI);
+        }
+        if (angle < - Math.PI) {
+            angle = Math.PI - (angle + Math.PI)
+        }
+        return angle;
+    }
+
+    private rescaleEmulatorOutputState(stateVector: Vector){
+        stateVector.entries[0] = stateVector.entries[0] * 25 + 50; // [0,70] -> [-1, 1]
+        stateVector.entries[1] = stateVector.entries[1] * 24; // [-25, 25] -> [-1, 1]
+        stateVector.entries[2] = this.fixAngle(stateVector.entries[2] * Math.PI); // [-Math.PI, Math.PI] -> [-1, 1]
+        stateVector.entries[3] = stateVector.entries[3] * 25 + 50; // [0,70] -> [-1, 1]
+        stateVector.entries[4] = stateVector.entries[4] * 25; // [-25, 25] -> [-1, 1]
+        stateVector.entries[5] = this.fixAngle(stateVector.entries[5] * Math.PI); // [-Math.PI, Math.PI] -> [-1, 1]        
+    }
+
     private normalizeDock(d: Dock) {
         let normX = (d.position.x - 50) / 50
         let normY = (d.position.y) / 50;
@@ -202,8 +223,10 @@ export class TrainTruckController {
         let i = 0;
         let summedSteeringSignal = 0;
 
+        // start at current state
+        let currentState = this.world.truck.getStateVector();
         while (canContinue) {
-            let currentState = this.world.truck.getStateVector();
+            // TODO: verify that the 'real' state was put in here
             this.normalize(currentState);
             let controllerSignal = this.controllerNet.forward(currentState);
             let steeringSignal = controllerSignal.entries[0];
@@ -213,6 +236,8 @@ export class TrainTruckController {
             controllerSignals.push(controllerSignal);
 
             currentState = this.emulatorNet.forward(stateWithSteering);
+            // rescale currentState (because output is not 'real' state)
+            this.rescaleEmulatorOutputState(currentState);
 
             this.emulatorInputs.push(stateWithSteering);
             statesFromEmulator.push(currentState);
@@ -229,12 +254,13 @@ export class TrainTruckController {
         if (i == 0) { // we didn't do anything => no update!
             return NaN;
         }
-        // we hit the end => calculate our error, backpropagate
+        // we hit the end => calculate performance error (real position - real target), backpropagate
         let finalState = this.world.truck.getStateVector();
         this.normalize(finalState)
         let dock = this.world.dock;
         let normalizedDock: Point = this.normalizeDock(dock);
 
+        // performance error i.e. real position - real target
         let controllerDerivative = this.calculateErrorDerivative(finalState, normalizedDock);
         let error = this.calculateError(finalState, normalizedDock);
         this.errors.push(error);
@@ -247,17 +273,28 @@ export class TrainTruckController {
             // get the error from the emulator and add it to the input error for the controller
             let errorFromEmulator = new Vector(emulatorDerivative.entries.slice(0, 6));
             controllerDerivative.add(errorFromEmulator);
+            // Apply preprocessing/scaling derivatives (linear layers => derivative independent of input)
+            this.applyScalingDerivative(controllerDerivative);
         }
         this.controllerNet.updateWithAccumulatedWeights();
         this.fixEmulator(false);
         return error;
     }
 
+    private applyScalingDerivative(controllerDerivative: Vector): void {
+        // we multiply output by 25 and then divide it by 50 for preprocessing
+        controllerDerivative.entries[0] *= (1 / 50) * 25;
+        controllerDerivative.entries[1] *= (1 / 50) * 25;
+        controllerDerivative.entries[2] *= 1; // * (1 / pi) * pi
+        controllerDerivative.entries[3] *= (1 / 50) * 25;
+        controllerDerivative.entries[4] *= (1 / 50) * 25;
+        controllerDerivative.entries[5] *= 1; // * (1 / pi) * pi
+    }
     private calculateError(finalState: Vector, dock: Point): number {
         let xTrailer = finalState.entries[3];
         let yTrailer = finalState.entries[4];
         let thetaTrailer = finalState.entries[5];
-        
+        console.log("Trailer Angle: ", thetaTrailer / Math.PI * 180);
         // IMPORTANT: x = 0 is at -1 because of the x transformation!
         // we just ignore x < 0 This also explains why it tries to drive a circle with max(xTrailer, 0)
         let xDiff = Math.max(xTrailer, -1) - dock.x
@@ -266,7 +303,10 @@ export class TrainTruckController {
 
         this.angleError.push(Math.abs(thetaDiff))
         this.yError.push(Math.abs(yDiff))
-        return 100 * xDiff * xDiff + 100 * yDiff * yDiff + Math.PI * thetaDiff * thetaDiff;
+        if (Math.abs(thetaTrailer) > Math.PI) {
+            console.log("Needs angle correction!!!");
+        }
+        return xDiff * xDiff + yDiff * yDiff + thetaDiff * thetaDiff;
     }
 
     private calculateErrorDerivative(finalState: Vector, dock: Point): Vector {
@@ -281,6 +321,6 @@ export class TrainTruckController {
         let thetaDiff = thetaTrailer - 0;
         
         // first 3 do not matter for the error
-        return new Vector([0, 0, 0, 100 * 2 * xDiff, 100 * 2 * yDiff, 100 / Math.PI * 2 * thetaDiff]);
+        return new Vector([0, 0, 0, 2 * xDiff, 2 * yDiff, 2 * thetaDiff]);
     }
 }
