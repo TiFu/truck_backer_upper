@@ -73,7 +73,10 @@ export class AdalineUnit implements Unit {
     public forward(input: Vector): Scalar {
         input = input.getWithNewElement(1); // add bias
 
-        this.lastInput.push(input);
+        // only need the last input for weight derivative
+        if (!this.fixedWeights) {
+            this.lastInput.push(input);
+        }
         if (input.length != this.weights.length) {
             throw new Error("Invalid Input Size: expected "  + this.weights.length + ", but got " + input.length);
         }
@@ -115,9 +118,9 @@ export class AdalineUnit implements Unit {
     // Returns derivative wrt to the inputs
     public backward(errorDerivative: Scalar, accumulateWeigthUpdates: boolean): Vector {
         let activationDerivative = this.activation.applyDerivative(this.lastSum);
-        let scalarFactor = errorDerivative * activationDerivative;
+        let scalarFactor = errorDerivative * activationDerivative;  
         let inputDerivative: Vector = this.weights.getScaled(scalarFactor);
-
+        
         if (!this.fixedWeights) {
             let weightDerivative: Vector = this.lastInput.pop().getScaled(scalarFactor);
             let update = weightDerivative;
@@ -128,7 +131,6 @@ export class AdalineUnit implements Unit {
                 this.updateWeights(update);
             }
         }
-
         return inputDerivative.getWithoutLastElement();
     }
 

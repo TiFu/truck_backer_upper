@@ -14,7 +14,7 @@ export class TrainTruckEmulator {
     public trailerAngleError: number[] = []
     public xTrailerError: number[] = []
     public yTrailerError: number[] = []
-
+    
     private trainedSteps = 0;
     
     public constructor(private world: World, private neuralNet: NeuralNet, private batchSize: number = 1) { 
@@ -226,13 +226,16 @@ export class TrainTruckController {
         // start at current state
         let currentState = this.world.truck.getStateVector();
         while (canContinue) {
-            // TODO: verify that the 'real' state was put in here
+            let realState = this.world.truck.getStateVector();
+            console.log(" Real: ", realState.entries[3].toFixed(2), realState.entries[4].toFixed(2),realState.entries[5].toFixed(2));
+            console.log("State: ", currentState.entries[3].toFixed(2), currentState.entries[4].toFixed(2),currentState.entries[5].toFixed(2));
+
             this.normalize(currentState);
             let controllerSignal = this.controllerNet.forward(currentState);
             let steeringSignal = controllerSignal.entries[0];
             summedSteeringSignal +=  steeringSignal;
-            
-            let stateWithSteering = currentState.getWithNewElement(controllerSignal.entries[0]);
+            console.log("Steering: ", steeringSignal);            
+            let stateWithSteering = currentState.getWithNewElement(steeringSignal);
             controllerSignals.push(controllerSignal);
 
             currentState = this.emulatorNet.forward(stateWithSteering);
@@ -244,11 +247,18 @@ export class TrainTruckController {
 
             canContinue = this.world.nextTimeStep(steeringSignal);
             if (i > this.currentLesson.maxSteps) {
+                console.log("Reached max steps!");
                 this.maxStepErrors++;
                 break;
             }
             i++;
         }
+        let realState = this.world.truck.getStateVector();
+        console.log(" Real: ", realState.entries[3].toFixed(2), realState.entries[4].toFixed(2), (realState.entries[5]/Math.PI * 180).toFixed(2));
+        console.log("State: ", currentState.entries[3].toFixed(2), currentState.entries[4].toFixed(2),(currentState.entries[5] / Math.PI * 180).toFixed(2));
+
+        if (i > 0.9 *  this.currentLesson.maxSteps)
+            console.log("Steps: " + i);
         this.steeringSignals.push(summedSteeringSignal / i);
 
         if (i == 0) { // we didn't do anything => no update!
@@ -294,17 +304,19 @@ export class TrainTruckController {
         let xTrailer = finalState.entries[3];
         let yTrailer = finalState.entries[4];
         let thetaTrailer = finalState.entries[5];
-        console.log("Trailer Angle: ", thetaTrailer / Math.PI * 180);
         // IMPORTANT: x = 0 is at -1 because of the x transformation!
         // we just ignore x < 0 This also explains why it tries to drive a circle with max(xTrailer, 0)
         let xDiff = Math.max(xTrailer, -1) - dock.x
         let yDiff = yTrailer - dock.y
         let thetaDiff = thetaTrailer - 0
 
-        this.angleError.push(Math.abs(thetaDiff))
-        this.yError.push(Math.abs(yDiff))
+        // We input the final state in emulator output space => angle / Math.PI and y divided by 25
+        this.angleError.push(Math.abs(thetaDiff * Math.PI))
+        this.yError.push(Math.abs(yDiff * 25))
+
         if (Math.abs(thetaTrailer) > Math.PI) {
             console.log("Needs angle correction!!!");
+            console.log("Trailer Angle: ", thetaTrailer / Math.PI * 180);
         }
         return xDiff * xDiff + yDiff * yDiff + thetaDiff * thetaDiff;
     }

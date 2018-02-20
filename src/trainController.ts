@@ -5,7 +5,6 @@ import {NetConfig, NeuralNet} from './neuralnet/net';
 import * as fs from 'fs';
 import {Vector} from './neuralnet/math'
 
-let sleep = require('sleep');
 let world = new World();
 
 let emulator_weights = fs.readFileSync("./emulator_weights").toString();
@@ -32,15 +31,21 @@ for (let j = 0; j < lessons.length; j++) {
     let lesson = lessons[j];
     trainTruckController.setLesson(lesson);
     console.log("Next Lesson: ", lesson.no, "Cab Angle: ", "[", lesson.cabAngle.min, ",", lesson.cabAngle.max, "]", "; x: [", lesson.x.min + ", " + lesson.x.max + "]")
-    for (let i = 0; i < lessons[0].samples; i++) {
-        console.log("Step " + i + " of " + lesson.samples);
+    for (let i = 0; i < 10 * lessons[0].samples; i++) {
         trainTruckController.trainSingleStep();
-        if (i % 100 == 0) {
+        break;
+        if (i % 100 == 0 && i > 0) {
+            console.log("Step " + i + " of " + lesson.samples);
             let averageYError = trainTruckController.yError.reduce((prev, next) => prev + next, 0) / trainTruckController.yError.length;
             let averageAngleError = trainTruckController.angleError.reduce((prev, next) => prev + next, 0) / trainTruckController.angleError.length;
+            let avgError = trainTruckController.errors.reduce((prev, next) => prev + next, 0) / trainTruckController.errors.length;
+            trainTruckController.emulatorInputs = [];
+            trainTruckController.errors = [];
             trainTruckController.yError = [];
             trainTruckController.angleError = [];
-            console.log("Y Distance: " + averageYError + ", Angle: " + averageYError)
+            trainTruckController.steeringSignals = [];
+            console.log("Avg error: ", avgError, "Y Distance: " + averageYError + ", Angle: " + averageYError / Math.PI *  180)
         }
     }
+    break;
 }
