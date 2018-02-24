@@ -48,11 +48,11 @@ export class TrainTruckEmulator {
     }
 
     private normalizeOutput(stateVector: Vector) {
-        stateVector.entries[0] = (stateVector.entries[0] - 50) / 25; // [0,70] -> [-1, 1]
-        stateVector.entries[1] = stateVector.entries[1] / 25; // [-25, 25] -> [-1, 1]
+        stateVector.entries[0] = (stateVector.entries[0] - 50) / 50; // [0,70] -> [-1, 1]
+        stateVector.entries[1] = stateVector.entries[1] / 50; // [-25, 25] -> [-1, 1]
         stateVector.entries[2] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
-        stateVector.entries[3] = (stateVector.entries[3] - 50) / 25; // [0,70] -> [-1, 1]
-        stateVector.entries[4] = stateVector.entries[4] / 25; // [-25, 25] -> [-1, 1]
+        stateVector.entries[3] = (stateVector.entries[3] - 50) / 50; // [0,70] -> [-1, 1]
+        stateVector.entries[4] = stateVector.entries[4] / 50; // [-25, 25] -> [-1, 1]
         stateVector.entries[5] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]        
     }
 
