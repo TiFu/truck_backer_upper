@@ -35,7 +35,7 @@ export class TrainTruckEmulator {
     }
 
     public getErrorCurve(): Array<number> {
-        return this.neuralNet.errors;
+        return []//this.neuralNet.errors;
     }
     
     private normalize(stateVector: Vector): void {
@@ -80,7 +80,7 @@ export class TrainTruckEmulator {
         this.trailerAngleError.push(Math.abs(expectedVector.entries[5] - result.entries[5]) * 180);
 
         let error = this.neuralNet.backward(result, expectedVector, true); // batch update
-        this.lastError = this.neuralNet.errors[this.neuralNet.errors.length - 1]
+      //  this.lastError = this.neuralNet.errors[this.neuralNet.errors.length - 1]
 
         this.trainedSteps++;
         if (this.trainedSteps % this.batchSize == 0) {

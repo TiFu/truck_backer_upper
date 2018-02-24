@@ -4,18 +4,19 @@ import {ActivationFunction} from './activation';
 import {Unit} from './unit'
 import {ErrorFunction} from './error'
 import {Optimizer} from './optimizers';
+import { WeightInitializer } from './weightinitializer';
 
 export interface NetConfig {
     inputs: number,
-    errorFunction: ErrorFunction,
-    weightInitRange: number,
+    errorFunction: ErrorFunction
     optimizer: () => Optimizer,
     layerConfigs: LayerConfig[];
 }
 
 export interface LayerConfig {
     neuronCount: number
-    unitConstructor: (inputDim: number, activation: ActivationFunction, weightInitRange: number, optimizer: Optimizer) => Unit
+    weightInitializer: WeightInitializer
+    unitConstructor: (inputDim: number, activation: ActivationFunction, weightInitRange: WeightInitializer, optimizer: Optimizer) => Unit
     activation: ActivationFunction
 }
 
@@ -36,7 +37,7 @@ export class NeuralNet {
             let layerConfig = netConfig.layerConfigs[i];
             let output = layerConfig.neuronCount;
             lastNeuronCount = output;
-            this.layers[i] = new Layer(input, output, layerConfig.activation, netConfig.optimizer, layerConfig.unitConstructor, netConfig.weightInitRange);
+            this.layers[i] = new Layer(input, output, layerConfig.activation, netConfig.optimizer, layerConfig.unitConstructor, layerConfig.weightInitializer);
             input = output; // input of next layer is output of this layer
         }
         this.outputDim = lastNeuronCount;

@@ -15,6 +15,14 @@ export class Vector {
         }
     }
 
+    public getLength(): number {
+        let sum = 0;
+        for (let i = 0; i < this.entries.length; i++) {
+            sum += this.entries[i] * this.entries[i];
+        }
+        return Math.sqrt(sum);
+    }
+
     public isEntryNaN() {
         for (let i = 0; i < this.entries.length; i++) {
             if (Number.isNaN(this.entries[i])) {

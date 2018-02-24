@@ -1,6 +1,7 @@
 import {Vector, Scalar} from './math';
 import {ActivationFunction} from './activation';
 import {Optimizer} from './optimizers';
+import {WeightInitializer} from './weightinitializer';
 
 export interface Unit {
     forward(input: Vector): Scalar;
@@ -25,10 +26,10 @@ export class AdalineUnit implements Unit {
     private lastUpdate: Vector;
     private debug: boolean;
 
-    constructor(private inputDim: number, private activation: ActivationFunction, initialWeightRange: number, private optimizer: Optimizer) {
+    constructor(private inputDim: number, private activation: ActivationFunction, weightInitializer: WeightInitializer, private optimizer: Optimizer) {
         this.fixedWeights = false;
         this.lastInput = []
-        this.weights = this.getRandomWeights(inputDim + 1, initialWeightRange); // bias
+        this.weights = weightInitializer(inputDim); // this.getRandomWeights(inputDim + 1, initialWeightRange); // bias
         this.resetAccumulatedWeights();
         console.log("inputDim: ", inputDim, "weights:", this.weights.length);
     }
@@ -43,14 +44,14 @@ export class AdalineUnit implements Unit {
         return this.lastUpdate;
     }
 
-    private getRandomWeights(inputDim: number, initialWeightRange: number): Vector { 
+  /*  private getRandomWeights(inputDim: number, initialWeightRange: number): Vector { 
         let random = [];
         for (let i = 0; i < inputDim; i++) {
             random.push(Math.random() * initialWeightRange - 0.5 * initialWeightRange); // [-0.3, 0.3]
         }
 //        console.log("Initial Weights: " + random);
         return new Vector(random);
-    }
+    }*/
 
     public setWeights(weights: Vector) {
         if (weights.length != this.weights.length) {

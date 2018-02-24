@@ -3,15 +3,16 @@ import {Vector, Scalar} from './math'
 import {ActivationFunction} from './activation';
 import {Unit, AdalineUnit} from './unit';
 import {Optimizer} from './optimizers';
+import { WeightInitializer } from './weightinitializer';
 
 export class Layer {
     private units: Unit[];
     private debug: boolean;
 
-    constructor(private inputDim: number, private outputDim: number, private activation: ActivationFunction, private optimizerConstructor: () => Optimizer, private unitConstructor: (inputDim: number, activation: ActivationFunction, initialWeightRange: number, optimizer: Optimizer) => Unit, initialWeightRange: number) {
+    constructor(private inputDim: number, private outputDim: number, private activation: ActivationFunction, private optimizerConstructor: () => Optimizer, private unitConstructor: (inputDim: number, activation: ActivationFunction, weightInitializer: WeightInitializer, optimizer: Optimizer) => Unit, weightInitializer: WeightInitializer) {
         this.units = [];
         for (let i = 0; i < outputDim; i++) {
-            this.units.push(this.unitConstructor(inputDim, activation, initialWeightRange, this.optimizerConstructor()));
+            this.units.push(this.unitConstructor(inputDim, activation, weightInitializer, this.optimizerConstructor()));
         }
     }
 
