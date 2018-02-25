@@ -31,11 +31,11 @@ for (let j = 0; j < lessons.length; j++) {
     let lesson = lessons[j];
     trainTruckController.setLesson(lesson);
     console.log("Next Lesson: ", lesson.no, "Cab Angle: ", "[", lesson.cabAngle.min, ",", lesson.cabAngle.max, "]", "; x: [", lesson.x.min + ", " + lesson.x.max + "]")
-    for (let i = 0; i < 10 * lessons[0].samples; i++) {
+    for (let i = 0; i < 20 * lessons[0].samples; i++) {
 //        console.log(i);
         trainTruckController.trainSingleStep();
         if (i % 100 == 0 && i > 0) {
-            console.log("Step " + i + " of " + lesson.samples * 10);
+            console.log("Step " + i + " of " + lesson.samples * 20);
             let averageYError = trainTruckController.yError.reduce((prev, next) => prev + next, 0) / trainTruckController.yError.length;
             let averageAngleError = trainTruckController.angleError.reduce((prev, next) => prev + next, 0) / trainTruckController.angleError.length;
             let avgError = trainTruckController.errors.reduce((prev, next) => prev + next, 0) / trainTruckController.errors.length;

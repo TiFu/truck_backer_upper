@@ -230,9 +230,10 @@ export class TrainTruckController {
             let stateWithSteering = currentState.getWithNewElement(steeringSignal);
             controllerSignals.push(controllerSignal);
 
+            let emulatedStateWithSteering = emulatedState.getWithNewElement(steeringSignal);
             // push through emulator
             // TODO: do we need to chain the emulator calls?
-            emulatedState = this.emulatorNet.forward(stateWithSteering);
+            emulatedState = this.emulatorNet.forward(emulatedStateWithSteering);
             
             //this.emulatorInputs.push(stateWithSteering);
             //statesFromEmulator.push(currentState);
@@ -252,8 +253,8 @@ export class TrainTruckController {
         //console.log(" Real: ", realState.entries[3].toFixed(2), realState.entries[4].toFixed(2), (realState.entries[5]/Math.PI * 180).toFixed(2));
         //console.log("State: ", currentState.entries[3].toFixed(2), currentState.entries[4].toFixed(2),(currentState.entries[5] / Math.PI * 180).toFixed(2));
 
-        if (i > 0.9 *  this.currentLesson.maxSteps)
-            console.log("90% of Max Steps: " + i);
+ //       if (i > 0.9 *  this.currentLesson.maxSteps)
+ //           console.log("90% of Max Steps: " + i);
 //        this.steeringSignals.push(summedSteeringSignal / i);
 
         if (i == 0) { // we didn't do anything => no update!
