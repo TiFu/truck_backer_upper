@@ -88,6 +88,8 @@ export class AdalineUnit implements Unit {
             console.log("[Unit] Last Sum: " + this.lastSum)
             console.log("[Unit] Weights: ", this.weights.entries);
             console.log("[Unit] Sum: ", this.lastSum);
+            console.log("Exiting...");
+            process.exit();
         }
         let activated = this.activation.apply(this.lastSum);
         if (Number.isNaN(activated))
@@ -109,7 +111,7 @@ export class AdalineUnit implements Unit {
 //       console.log("Accumulated Weights: " + this.accumulatedWeights);
         for (let i = 0; i < this.accumulatedWeights.length; i++) {
             if (isNaN(this.accumulatedWeights.entries[i])) {
-                alert("Found NaN in a weight update");
+                console.log("Found NaN in a weight update");
             }
         }
         this.updateWeights(this.accumulatedWeights.scale(1 / this.batchCounter));
@@ -139,6 +141,7 @@ export class AdalineUnit implements Unit {
         // calculate update for current batch
         update = this.optimizer.calculateUpdate(update);
         this.lastUpdate = update;
+  //      console.log("Update: ", this.lastUpdate);
         this.weights.add(update);
     }
 }

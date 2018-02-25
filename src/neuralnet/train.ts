@@ -199,15 +199,6 @@ export class TrainTruckController {
         return angle;
     }
 
-    private rescaleEmulatorOutputState(stateVector: Vector){
-        stateVector.entries[0] = stateVector.entries[0] * 25 + 50; // [0,70] -> [-1, 1]
-        stateVector.entries[1] = stateVector.entries[1] * 24; // [-25, 25] -> [-1, 1]
-        stateVector.entries[2] = this.fixAngle(stateVector.entries[2] * Math.PI); // [-Math.PI, Math.PI] -> [-1, 1]
-        stateVector.entries[3] = stateVector.entries[3] * 25 + 50; // [0,70] -> [-1, 1]
-        stateVector.entries[4] = stateVector.entries[4] * 25; // [-25, 25] -> [-1, 1]
-        stateVector.entries[5] = this.fixAngle(stateVector.entries[5] * Math.PI); // [-Math.PI, Math.PI] -> [-1, 1]        
-    }
-
     private normalizeDock(d: Dock) {
         let normX = (d.position.x - 50) / 50
         let normY = (d.position.y) / 50;
@@ -221,31 +212,35 @@ export class TrainTruckController {
         let statesFromEmulator = [];
         this.emulatorInputs = [];
         let i = 0;
-        let summedSteeringSignal = 0;
+//        let summedSteeringSignal = 0;
 
         // start at current state
         let currentState = this.world.truck.getStateVector();
+        let emulatedState = this.world.truck.getStateVector();
         while (canContinue) {
             let realState = this.world.truck.getStateVector();
-            console.log(" Real: ", realState.entries[3].toFixed(2), realState.entries[4].toFixed(2),realState.entries[5].toFixed(2));
-            console.log("State: ", currentState.entries[3].toFixed(2), currentState.entries[4].toFixed(2),currentState.entries[5].toFixed(2));
+       //     console.log(" Real: ", realState.entries[3].toFixed(2), realState.entries[4].toFixed(2),realState.entries[5].toFixed(2));
 
             this.normalize(currentState);
+            this.normalize(emulatedState);
             let controllerSignal = this.controllerNet.forward(currentState);
             let steeringSignal = controllerSignal.entries[0];
-            summedSteeringSignal +=  steeringSignal;
-            console.log("Steering: ", steeringSignal);            
+            //summedSteeringSignal +=  steeringSignal;
+       //     console.log("Steering: ", steeringSignal);            
             let stateWithSteering = currentState.getWithNewElement(steeringSignal);
             controllerSignals.push(controllerSignal);
 
-            currentState = this.emulatorNet.forward(stateWithSteering);
-            // rescale currentState (because output is not 'real' state)
-            this.rescaleEmulatorOutputState(currentState);
-
-            this.emulatorInputs.push(stateWithSteering);
-            statesFromEmulator.push(currentState);
+            // push through emulator
+            // TODO: do we need to chain the emulator calls?
+            emulatedState = this.emulatorNet.forward(stateWithSteering);
+            
+            //this.emulatorInputs.push(stateWithSteering);
+            //statesFromEmulator.push(currentState);
 
             canContinue = this.world.nextTimeStep(steeringSignal);
+            // set the next state
+            currentState = this.world.truck.getStateVector();
+
             if (i > this.currentLesson.maxSteps) {
                 console.log("Reached max steps!");
                 this.maxStepErrors++;
@@ -254,12 +249,12 @@ export class TrainTruckController {
             i++;
         }
         let realState = this.world.truck.getStateVector();
-        console.log(" Real: ", realState.entries[3].toFixed(2), realState.entries[4].toFixed(2), (realState.entries[5]/Math.PI * 180).toFixed(2));
-        console.log("State: ", currentState.entries[3].toFixed(2), currentState.entries[4].toFixed(2),(currentState.entries[5] / Math.PI * 180).toFixed(2));
+        //console.log(" Real: ", realState.entries[3].toFixed(2), realState.entries[4].toFixed(2), (realState.entries[5]/Math.PI * 180).toFixed(2));
+        //console.log("State: ", currentState.entries[3].toFixed(2), currentState.entries[4].toFixed(2),(currentState.entries[5] / Math.PI * 180).toFixed(2));
 
         if (i > 0.9 *  this.currentLesson.maxSteps)
-            console.log("Steps: " + i);
-        this.steeringSignals.push(summedSteeringSignal / i);
+            console.log("90% of Max Steps: " + i);
+//        this.steeringSignals.push(summedSteeringSignal / i);
 
         if (i == 0) { // we didn't do anything => no update!
             return NaN;
@@ -274,8 +269,7 @@ export class TrainTruckController {
         let controllerDerivative = this.calculateErrorDerivative(finalState, normalizedDock);
         let error = this.calculateError(finalState, normalizedDock);
         this.errors.push(error);
-
-        for (let i = statesFromEmulator.length - 1; i >= 0; i--){ 
+        for (let j = i-1; j >= 0; j--){ 
             let emulatorDerivative = this.emulatorNet.backwardWithGradient(controllerDerivative, false);
             let steeringSignalDerivative = emulatorDerivative.entries[6]; // last entry
             controllerDerivative = this.controllerNet.backwardWithGradient(new Vector([steeringSignalDerivative]), true);
@@ -283,23 +277,12 @@ export class TrainTruckController {
             // get the error from the emulator and add it to the input error for the controller
             let errorFromEmulator = new Vector(emulatorDerivative.entries.slice(0, 6));
             controllerDerivative.add(errorFromEmulator);
-            // Apply preprocessing/scaling derivatives (linear layers => derivative independent of input)
-            this.applyScalingDerivative(controllerDerivative);
         }
         this.controllerNet.updateWithAccumulatedWeights();
         this.fixEmulator(false);
         return error;
     }
 
-    private applyScalingDerivative(controllerDerivative: Vector): void {
-        // we multiply output by 25 and then divide it by 50 for preprocessing
-        controllerDerivative.entries[0] *= (1 / 50) * 25;
-        controllerDerivative.entries[1] *= (1 / 50) * 25;
-        controllerDerivative.entries[2] *= 1; // * (1 / pi) * pi
-        controllerDerivative.entries[3] *= (1 / 50) * 25;
-        controllerDerivative.entries[4] *= (1 / 50) * 25;
-        controllerDerivative.entries[5] *= 1; // * (1 / pi) * pi
-    }
     private calculateError(finalState: Vector, dock: Point): number {
         let xTrailer = finalState.entries[3];
         let yTrailer = finalState.entries[4];

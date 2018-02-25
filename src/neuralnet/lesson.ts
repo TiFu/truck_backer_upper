@@ -26,8 +26,8 @@ function rangeForStep(minR: Range, maxR: Range, step: number, maxSteps: number) 
 
 export var lessons: Array<Lesson> = []
 
-let minX = new Range(0.4, 1);
-let maxX = new Range(0.6, 2);
+let minX = new Range(0.5, 0.5);
+let maxX = new Range(0.5, 0.5);
 let minY = new Range(0, 0);
 let maxY = new Range(0, 0);
 let minCabAngle = new Range(- 30/180*Math.PI,-30 / 180 * Math.PI);
