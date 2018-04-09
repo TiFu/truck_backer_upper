@@ -1,0 +1,74 @@
+Note: I'll link to pdfs of the papers directly. The papers are hosted on stanford.edu, semanticscholar.org and the last one is from sciencedirect.com (redirected to ac.els-cdn.com). The same links also appear on the first page of the google search. 
+
+I have recently tried to implement the [Truck Backer Upper](http://www-isl.stanford.edu/~widrow/papers/c1989thetruck.pdf), but I can't seem to get the implementation right.
+I think I might be misunderstanding something fundamental. I'll elaborate on what I tried and how I understand the paper. I'm also looking for other papers which could help me implement the TBU (I've read a lot of them, basically all papers linked on Widrow's Stanford publications page).
+
+# Truck Model
+
+I use the model described in [Neuro-Genetic Truck Backer-Upper Controller](https://pdfs.semanticscholar.org/ca3c/ee16490e0108fceacb42ecb54021369e3a83.pdf) by Schoenauer and Ronald which is a slight adaptation of the model used in the paper. Namely they use $\arcsin$ instead of $\arctan$ and note that the "derivations of both models are equivalent in the first order and thus define similar trajectories".
+I have verified visually that the truck behaves as expected. I would expect that this is not a problem.
+
+
+# Emulator
+
+For the emulator training I generated ~10 million input-output samples (input truck state (x,y of trailer and x,y of [word] and cabin & trailer angle) + steering signal => output truck state)). The ranges of the coordinates are the same as in the original model: x in $[0,100]$, y in $[-50,50]$, $\theta_{cab}$ in $[-\pi, \pi]$, $\theta_{trailer}$ in $[-\pi, \pi]$. 
+
+A note on the number of samples I generated:
+In [this](www-isl.stanford.edu/~widrow/papers/c1990improvingthe.pdf) paper, Nguyen (one of the co-authors of the Truck Backer Upper Paper) describes a way to improve the learning speed of two layer neural networks. I've implemented this optimization and it increases the learning speed significantly. However, I don't know how many samples they used to train the Truck Emulator and I'd expect a lower error in the emulator to make training the controller easier. 
+
+My network (layers and inputs as described in the paper):
+
+- 7 Inputs (truck state + steering signal). I scaled the x and y coordinates and the angles, so that they are in $[-1,1]$. 
+- 45 hidden neurons with $\tanh$ activation
+- 6 Outputs with linear activation. The outputs use the same scaling as the inputs.
+
+I used Mean Squared Error (MSE) as the loss function and Stochastic Gradient Descent (SGD) with Nesterov Momentum (momentum = 0.9) and a learning rate of 0.1 for backpropagation. 
+
+The error in the coordinates is ca 0.014 and the error in the angle (in degree) is similar.
+
+Questions: 
+
+I think this part is relatively straight forward. I'm a bit concerned about the number of training samples I needed to get the error low enough. The error curve falls very sharply in the first couple thousand samples and then improves only very slowly from ca. 0.05 to 0.014. Is there anything obvious which I'm overlooking which could help either reduce the error or improve the learning speed? Increasing the learning rate is not an option, because an increase to 0.5 leads to NaN values in the updates.
+
+One potential problem could be my input variables. I read some other papers which claimed that the authors of the TBU paper did not use the angle of the cab relative to the x axis,but relative to the truck. I did not test this yet. I'm also not confident that this would improve the emulator.
+
+# Controller
+
+For the controller implementation, I want to validate my understanding of the theoretical model.
+
+[ include image of normal chain from paper => my image]
+
+Forward Pass:
+
+1. Feed the current state $z_i$ into the Controller C, get the steering signal.
+2. Feed the current state and steering signal $u_i$ into the truck kinematics. This gives me the next state $z_{i+1}$.
+3. Feed the current (emulator?) state and steering signal $u_i$ into the truck emulator Network and set emulator_state = output of the eumlator network.
+4. If not at dock, go to 1.
+In the implementation, I need to limit the number of steps the truck can make to avoid an endless loop if the truck becomes stuck. 
+
+**Question**: I have found multiple descriptions of this process. All of them are rather informal and I don't clearly understand what the correct implementation is. The description in the original paper is even less clear. The authors simply state: "For purposes of back-propagation of the error, the T-blocks are the truck emulator. But the actual truck kinematics are used when sensing the error EK itself." (p. II-360 / p. 4 in the TBU paper linked at the top). What I understand from this is, that the forward pass uses the actual truck kinematics to sense the error (which makes sense because you want to compare the 'real' truck position with the dock position to calculate the error). The question I have is, which state is passed to the emulator network in each step? This is required for the backpropagation step. 
+Is the emulator basically run in parallel, using it's own state (i.e. the next state input of the emulator is the previous state output of the emulator). Or is the 'real' state passed to the emulator in each step?
+
+The controller is trained by backpropagation through time as described in [Forward Models: Supervised Learning with a Distal Teacher](https://www.sciencedirect.com/science/article/pii/036402139290036T) by Jordan and Rummelhart (p. 324, equation (17) (p. 18 in the linked pdf)). See the picture below for an illustration of the used variables. $d^a_i$ indicates a derivative wrt to the parameter $a_i$.
+
+[include svg here]
+
+Let's assume the derivative of the error J wrt $z_{k+1}$ of the emulator in step $k+1$ is known (I'll name it $d^z_{k+1}$). We now have to calculate the derivative of J wrt $z_{k}$, as well as the updates for the derivative wrt to the controller inputs ($d^c_{k}$) and weights ($d^w_{k}$). Because the weights in the emulator are frozen, we don't have to calulate the derivative of J wrt to the emulator weights.
+
+$d^z_{k_1}$ and $d^u_{k}$ can be calculated by backpropagation through the right most emulator network.
+
+$d^w_k$ can be calculated using the normal backpropagation algorithm. We use only the steering signal derivative of $d^u_{k}$.
+ 
+$d^z_{k_2}$ can also be calculated using the normal backpropagation algorithm. 
+
+$d^z_{k}$ is interesting. We have two paths which use $z_{k}$ as input: the controller and the emulator. We use $d^z_{k} = d^z_{k_1} + d^z_{k_2}$ as the 'start' derivative for the backpropagation through the left most emulator. Now we're back in the step where we started with $d^z_{k+1}$. This is a slight adaptation of the equation in the Jordan paper (eq. (17)): The last term using $y^{*}_\alpha[n] - y_\alpha[n])
+is used to calculate the deviation from a given trajectory. The TBU does not have such a trajectory and every trajectory is correct, as long as it leads to the correct result.
+
+In each backpropagation step we save the weight derivative in the controller, but do not update the weights themselves. After backpropagating through the complete chain, we average the weight derivatives and calculate the weight update according to the optimizer e.g. SGD with Nesterov Momentum. 
+
+Question: Is this correct so far?
+
+My implementation currently trains, but not very well:
+Widrow & Nguyen describe their training procedure in the paper: They increased the area used ot place the truck stepwise. They report that 20 000 steps (1 000 per lesson, except for the last 4, which used 2 000) were enough to train the emulator. My current implementation needs 10.000 steps alone to achieve an angle error of 17 degrees and a y distance of ~0.3 from the dock for the easiest lesson (0.5 truck lengths from the dock, cab at +/-30 degree angle, trailer angle 0). The learning rate was 0.5 with a Nesterov Momentum of 0.9.
+
+Question: How can I improve the convergence speed of the controller training? The angle error and the y error (averaged over 100 backups) seem to jump up and down quite a bit.
