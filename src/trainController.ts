@@ -1,4 +1,4 @@
-import {TrainTruckEmulator, TrainTruckController} from './neuralnet/train'
+import {TrainTruckEmulator, TrainController} from './neuralnet/train'
 import {World} from './model/world'
 import {emulatorNet, controllerNet, hiddenEmulatorLayer, outputEmulatorLayer} from './neuralnet/implementations'
 import {NetConfig, NeuralNet} from './neuralnet/net';
@@ -14,7 +14,8 @@ let trainTruckEmulator = new TrainTruckEmulator(world, emulatorNet);
 trainTruckEmulator.getEmulatorNet().loadWeights(parsed_emulator_weights);
 
 
-let trainTruckController = new TrainTruckController(world, controllerNet , emulatorNet);
+let trainTruckController = new TrainController(world, world.truck, controllerNet , emulatorNet, new TruckControllerError(world.dock.position));
+
 try {
     let parsed_controller_weights = JSON.parse(fs.readFileSync("./controller_weights").toString());
     trainTruckController.getControllerNet().loadWeights(parsed_controller_weights);
@@ -25,7 +26,9 @@ import * as process from 'process'
 
 let alreadyTrainedSteps = Number.parseInt(process.argv[2])
 
-import {lessons} from './neuralnet/lesson';
+import {createTruckLessons} from './neuralnet/lesson';
+import { TruckControllerError } from './neuralnet/error';
+let lessons = createTruckLessons(world.truck);
 
 for (let j = 0; j < lessons.length; j++) {
     let lesson = lessons[j];

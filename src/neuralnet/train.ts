@@ -1,9 +1,10 @@
-import {World, Dock} from '../model/world';
+import {World, Dock, HasState} from '../model/world';
 import {NeuralNet} from './net'
 import {Vector} from './math'
 import {Angle, Point} from '../math'
 import {Lesson} from './lesson'
 import { ENGINE_METHOD_ALL } from 'constants';
+import { ControllerError } from './error';
 
 export class TrainTruckEmulator {
 
@@ -107,7 +108,7 @@ export class TrainTruckEmulator {
 }
 
 // let's not use this for now
-export class TrainTruckController {
+export class TrainController {
     public errors: Array<number> = [];
     public steeringSignals: Array<number> = [];
     public angleError: Array<number> = [];
@@ -120,7 +121,7 @@ export class TrainTruckController {
     public emulatorInputs: any = [];
     private currentLesson: Lesson = null;
 
-    public constructor(private world: World, private controllerNet: NeuralNet, private emulatorNet: NeuralNet) {
+    public constructor(private world: World, private realPlant: HasState, private controllerNet: NeuralNet, private emulatorNet: NeuralNet, private errorFunction: ControllerError) {
     }
 
     public getEmulatorNet() {
@@ -163,13 +164,11 @@ export class TrainTruckController {
         return this.errors;
     }
     
+    // TODO: get rid of this and make independent => HasState gets an init method which accepts a vector
+    // (and lesson has a getLimits function which returns a vector)
     private prepareTruckPosition() {
-        let length = this.world.truck.getTruckLength() + this.world.truck.getTrailerLength();
-        let tep1 = new Point(this.currentLesson.x.min * length, this.currentLesson.y.max * length);
-        let tep2 = new Point(this.currentLesson.x.max * length, this.currentLesson.y.min * length);
-        let maxAngleTrailer = [this.currentLesson.trailerAngle.min, this.currentLesson.trailerAngle.max];
-        let maxAngleCabin = [this.currentLesson.cabAngle.min, this.currentLesson.cabAngle.max];
-        this.world.randomizeTruckPosition(tep1, tep2, maxAngleTrailer, maxAngleCabin);
+        // tep1, tep2, maxAngleTrailer, maxAngleCabin
+        this.realPlant.randomizePosition(this.currentLesson);
     }
 
     private fixEmulator(fix: boolean) {
@@ -186,17 +185,6 @@ export class TrainTruckController {
         stateVector.entries[3] = (stateVector.entries[3] - 50) / 50; // [0,70] -> [-1, 1]
         stateVector.entries[4] = stateVector.entries[4] / 50; // [-25, 25] -> [-1, 1]
         stateVector.entries[5] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
-    }
-
-    private fixAngle(angle: Angle): Angle {
-        angle = angle % (2 * Math.PI)
-        if (angle > Math.PI) { // 180 deg + some deg => 
-            angle = Math.PI - (angle - Math.PI);
-        }
-        if (angle < - Math.PI) {
-            angle = Math.PI - (angle + Math.PI)
-        }
-        return angle;
     }
 
     private normalizeDock(d: Dock) {
@@ -216,7 +204,7 @@ export class TrainTruckController {
 
         // start at current state
         while (canContinue) {
-            let currentState = this.world.truck.getStateVector();
+            let currentState = this.realPlant.getStateVector();
             this.normalize(currentState);
             let controllerSignal = this.controllerNet.forward(currentState);
             console.log(controllerSignal);
@@ -231,7 +219,7 @@ export class TrainTruckController {
             
             canContinue = this.world.nextTimeStep(steeringSignal);
             // set the next state
-            currentState = this.world.truck.getStateVector();
+            currentState = this.realPlant.getStateVector();
 
             if (i > this.currentLesson.maxSteps) {
                 console.log("Reached max steps!");
@@ -240,18 +228,19 @@ export class TrainTruckController {
             }
             i++;
         }
-        let realState = this.world.truck.getStateVector();
+        let realState = this.realPlant.getStateVector();
 
         if (i == 0) { // we didn't do anything => no update!
             return NaN;
         }
         // we hit the end => calculate performance error (real position - real target), backpropagate
-        let finalState = this.world.truck.getStateVector();
+        let finalState = this.realPlant.getStateVector();
         this.normalize(finalState)
         let dock = this.world.dock;
         let normalizedDock: Point = this.normalizeDock(dock);
 
         // performance error i.e. real position - real target
+        // TODO: cross check this! it was in some paper i can't find right now
         let controllerDerivative = this.calculateErrorDerivative(finalState, normalizedDock);
         let error = this.calculateError(finalState, normalizedDock);
         this.errors.push(error);
@@ -269,39 +258,12 @@ export class TrainTruckController {
         return error;
     }
 
+    // TODO: extract calculate error... => only final state
     private calculateError(finalState: Vector, dock: Point): number {
-        let xTrailer = finalState.entries[3];
-        let yTrailer = finalState.entries[4];
-        let thetaTrailer = finalState.entries[5];
-        // IMPORTANT: x = 0 is at -1 because of the x transformation!
-        // we just ignore x < 0 This also explains why it tries to drive a circle with max(xTrailer, 0)
-        let xDiff = Math.max(xTrailer, -1) - dock.x
-        let yDiff = yTrailer - dock.y
-        let thetaDiff = thetaTrailer - 0
-
-        // We input the final state in emulator output space => angle / Math.PI and y divided by 25
-        this.angleError.push(Math.abs(thetaDiff * Math.PI))
-        this.yError.push(Math.abs(yDiff * 25))
-
-        if (Math.abs(thetaTrailer) > Math.PI) {
-            console.log("Needs angle correction!!!");
-            console.log("Trailer Angle: ", thetaTrailer / Math.PI * 180);
-        }
-        return xDiff * xDiff + yDiff * yDiff + thetaDiff * thetaDiff;
+        return this.errorFunction.getError(finalState);
     }
 
     private calculateErrorDerivative(finalState: Vector, dock: Point): Vector {
-        // 
-        let xTrailer = finalState.entries[3];
-        let yTrailer = finalState.entries[4];
-        let thetaTrailer = finalState.entries[5];
-
-        // Derivative of SSE
-        let xDiff = Math.max(xTrailer,-1) - dock.x; 
-        let yDiff = yTrailer - dock.y;
-        let thetaDiff = thetaTrailer - 0;
-        
-        // first 3 do not matter for the error
-        return new Vector([0, 0, 0, 2 * xDiff, 2 * yDiff, 2 * thetaDiff]);
+        return this.errorFunction.getErrorDerivative(finalState);
     }
 }

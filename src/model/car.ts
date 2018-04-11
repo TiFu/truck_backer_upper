@@ -1,12 +1,16 @@
 import { Point, scale, minus, plus,  Vector, Angle, getAngle, calculateVector, rotate } from '../math'
 import * as nnMath from '../neuralnet/math' // TODO: union math libraries..
-import {AngleType} from './world'
+import {AngleType, HasState} from './world'
 
-export class Car {
+export class Car implements HasState {
     private maxAngle: Angle = 70 / 180 * Math.PI;
     private velocity: number = -3;
     private carLength: number = 5;
     private lastSteeringAngle = 0;
+
+    public randomizePosition() {
+        console.log("[Car] Do nothing in randomize!");
+    }
 
     public constructor(private axle: Point, private angle: Angle) {
     }
@@ -44,6 +48,12 @@ export class Car {
         let fourth = minus(back, dir);
         return [first, second, third, fourth];
     }
+
+    public nextState(steeringSignal: number) {
+        this.nextTimeStep(steeringSignal);
+        return true;
+    }
+
     public nextTimeStep(steeringSignal: number) {
         let steeringAngle = steeringSignal * this.maxAngle;
         this.lastSteeringAngle = steeringAngle

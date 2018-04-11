@@ -1,20 +1,30 @@
-import { Point, scale, minus, plus,  Vector, Angle, getAngle, calculateVector, rotate } from '../math'
+import { Point, scale, minus, plus,  Vector, Angle, getAngle, calculateVector, rotate, StraightLine, isLeftOf } from '../math'
 import * as nnMath from '../neuralnet/math' // TODO: union math libraries..
-import {AngleType} from './world'
+import {Dock, AngleType, HasState, Limitable} from './world'
+import {Lesson} from '../neuralnet/lesson';
 
 import {expect} from 'chai';
 
 
-export class Truck {
+export class Truck implements HasState, Limitable {
     public velocity = 0.2; // m/sec
     public maxSteeringAngle = Math.PI / 180 * 70 // 70 degree
     public trailerLength = 14;
     public cabinLength = 6;
     private lastSteeringAngle: Angle = 0;
+    private limited = true;
 
-    public constructor(private tep: Point, private trailerAngle: Angle, private cabinAngle: Angle) {
+    public constructor(private tep: Point, private trailerAngle: Angle, private cabinAngle: Angle, private dock: Dock, private limits: Array<StraightLine> = []) {
         this.cabinAngle = this.fixAngle(cabinAngle)
         this.trailerAngle = this.fixAngle(trailerAngle)
+    }
+
+    public setLimits(limits: Array<StraightLine>): void {
+        this.limits = limits;
+    }
+
+    public setLimited(limited: boolean): void {
+        this.limited = limited;
     }
 
     public getStateVector(): nnMath.Vector {
@@ -133,8 +143,18 @@ export class Truck {
         this.drive(steeringSignal);
     }
 
+    public nextState(steeringSignal: number): boolean {
+        if (!this.limited || this.isTruckInValidPosition()) {
+            //this.truck.nextTimeStep(steeringSignal);        
+            this.drive(steeringSignal);
+            return this.isTruckInValidPosition();
+        } else {
+            return false;
+        }
+    }
+
     // -1, 1
-    public drive(steeringSignal: number) {
+    public drive(steeringSignal: number): boolean {
         let steeringAngle = this.maxSteeringAngle * Math.min(Math.max(-1, steeringSignal), 1);
         this.lastSteeringAngle = steeringAngle
         let A = this.velocity * Math.cos(steeringAngle);
@@ -154,6 +174,89 @@ export class Truck {
             this.cabinAngle = this.trailerAngle - Math.PI / 2;
             this.lastSteeringAngle = 0
         }
+
+        return this.isTruckInValidPosition();
+    }
+       // TODO: add check that truck is not too far away from area
+       private isTruckNotAtDock() {
+        let truckCorners = this.getTruckCorners();
+        let trailerCorners = this.getTrailerCorners();
+        let a = this.dock.position;
+        let b = plus(a, this.dock.dockDirection);
+
+        let truckLeftOf = truckCorners.some((p) => isLeftOf(a, b, p));
+        let trailerLeftOf = trailerCorners.some((p) => isLeftOf(a, b, p));
+        return !(truckLeftOf || trailerLeftOf);
+    }
+
+    public randomizePosition(lesson: Lesson): void {
+        let bounds = lesson.getBounds().entries;
+        let tep1 = new Point(bounds[0], bounds[1]);
+        let tep2 = new Point(bounds[2], bounds[3]);
+        let maxAngleTrailer = [bounds[4], bounds[5]];
+        let maxAngleCabin = [bounds[6], bounds[7]];
+        this.randomizeTruckPosition(tep1, tep2, maxAngleTrailer, maxAngleCabin);
+    }
+    /**
+     * 
+     * @param tep1 left bottom corner
+     * @param tep2 top right corner
+     * @param maxAngleTrailer 
+     * @param maxAngleCabin relative to trailer
+     */
+    public randomizeTruckPosition(tep1: Point, tep2: Point, maxAngleTrailer: Angle[], maxAngleCabin: Angle[]) {
+        let tep = this.getRandomTEP(tep1, tep2);
+        let trailerAngle = this.getRandomTrailerAngle(maxAngleTrailer);
+        let cabinAngle = this.getRandomCabinAngle(maxAngleCabin, trailerAngle)
+        this.setTruckPosition(tep, trailerAngle, cabinAngle);
+        while(!this.isTruckInValidPosition()) {
+            this.setTruckPosition(tep, trailerAngle, cabinAngle);
+        }        
+    }
+
+    private getRandomTrailerAngle(maxAngleTrailer: Angle[]): Angle {
+        let trailerAngle = Math.random() * (maxAngleTrailer[1] - maxAngleTrailer[0]) + maxAngleTrailer[0];
+        return trailerAngle;        
+    }
+
+    private getRandomCabinAngle(maxAngleCabin: Angle[], trailerAngle: Angle): Angle {
+        let cabinAngle = trailerAngle + Math.random() * (maxAngleCabin[1] - maxAngleCabin[0]) + maxAngleCabin[0];
+        return cabinAngle;        
+    }
+
+    private getRandomTEP(tep1: Point, tep2: Point): Point {
+        let x = Math.random() * (tep2.x - tep1.x) + tep1.x; 
+        let y = Math.random() * (tep2.y - tep1.y) + tep1.y;
+        let tep = new Point(x, y);
+        return tep;
+    }
+
+    public randomizeNoLimits() {
+        let tep1 = new Point(0,-50);
+        let tep2 = new Point(100, 50);
+        let tep = this.getRandomTEP(tep1, tep2);
+        let maxCabinAngle = [- this.getMaxCabinAngle(), this.getMaxCabinAngle()];
+        let maxTrailerAngle =  [- this.getMaxTrailerAngle() , this.getMaxTrailerAngle()];
+        let trailerAngle = this.getRandomTrailerAngle(maxCabinAngle);
+        let cabinAngle = this.getRandomCabinAngle(maxCabinAngle, trailerAngle);
+        this.setTruckPosition(tep, trailerAngle, cabinAngle);
+    }
+
+
+    private isTruckInArea() {
+        let truckCorners = this.getTruckCorners();
+        let trailerCorners = this.getTrailerCorners();
+
+        let match = false;
+        for (let i = 0; i < this.limits.length; i++) {
+            let limit = truckCorners.some((p) => this.limits[i].isLeftOf(p) || trailerCorners.some((p) => this.limits[i].isLeftOf(p)));
+            match = match || limit;
+        }        
+        return !match
+    }
+
+    public isTruckInValidPosition(): boolean {
+        return !this.limited || (this.isTruckNotAtDock() && this.isTruckInArea());
     }
 }
 

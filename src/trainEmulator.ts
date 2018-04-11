@@ -1,4 +1,4 @@
-import {TrainTruckEmulator, TrainTruckController} from './neuralnet/train'
+import {TrainTruckEmulator} from './neuralnet/train'
 import {World} from './model/world'
 import {emulatorNet} from './neuralnet/implementations'
 import * as fs from 'fs';
@@ -23,7 +23,7 @@ let highErrors = 0;
 let summedSteps = 0;
 for (let i = 0; i < steps; i++) {
 //    console.log(i + " of " + steps);
-    world.randomizeNoLimits();
+    world.truck.randomizeNoLimits();
     let lastError = trainTruckEmulator.train(epochSteps)[1];
     if (lastError > 0.2) {
         highErrors++;

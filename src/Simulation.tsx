@@ -2,12 +2,14 @@ declare var require: any; // trust me require exists
 import * as React from 'react'
 import WorldVisualization from "./WorldVisualization"
 import {World} from './model/world'
-import {TrainTruckEmulator, TrainTruckController} from './neuralnet/train'
+import {TrainTruckEmulator, TrainController} from './neuralnet/train'
 import {emulatorNet, controllerNet} from './neuralnet/implementations'
 import {Point, Vector, scalarProduct} from './math'
 const HighCharts = require("react-highcharts");
 import {LessonView} from './LessonView'
-import {lessons} from './neuralnet/lesson'
+import {createTruckLessons, Lesson} from './neuralnet/lesson'
+import { TruckControllerError } from './neuralnet/error';
+let lessons: Array<Lesson> = [];
 
 interface SimulationState {
      world: World;
@@ -18,7 +20,7 @@ interface SimulationState {
 export default class Simulation extends React.Component<{}, SimulationState> {
     static instance: Simulation;
     private trainTruckEmulator: TrainTruckEmulator;
-    private trainTruckController: TrainTruckController
+    private trainTruckController: TrainController
 
     private emulatorNetTextArea: HTMLTextAreaElement;
     private emulatorTrainSteps = 0;
@@ -37,8 +39,9 @@ export default class Simulation extends React.Component<{}, SimulationState> {
         if (Simulation.instance) throw Error("Already instantiated")
         else Simulation.instance = this;
         this.state = {world: new World(), steeringSignal: 0, running: false, emulatorWeights: undefined};
+        lessons = createTruckLessons(this.state.world.truck);
         this.trainTruckEmulator = new TrainTruckEmulator(this.state.world, emulatorNet, 16); // 16 batch size
-        this.trainTruckController = new TrainTruckController(this.state.world, controllerNet, emulatorNet);
+        this.trainTruckController = new TrainController(this.state.world, this.state.world.truck, controllerNet, emulatorNet, new TruckControllerError(this.state.world.dock.position));
         this.trainTruckController.setLesson(lessons[this.currentLessonIndex]);
     }
 
@@ -63,7 +66,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
     }
 
     public randomizePosition() {
-        this.state.world.randomizeNoLimits();
+        this.state.world.truck.randomizeNoLimits();
         this.onFrame(true);
     }
 
@@ -117,7 +120,7 @@ export default class Simulation extends React.Component<{}, SimulationState> {
             let epochs = 0;
             while (epochs < this.emulatedSteps && this.state.running) {
                 epochs += this.trainTruckEmulator.train(this.emulatedSteps)[0];
-                this.state.world.randomizeNoLimits();
+                this.state.world.truck.randomizeNoLimits();
                 this.onFrame(true);
             }
         }
