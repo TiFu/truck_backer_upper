@@ -33,8 +33,8 @@ export var emulatorNetConfig: NetConfig = {
 export var emulatorNet = new NeuralNet(emulatorNetConfig);
 
 var simpleEmulatorLayer: LayerConfig = {
-    neuronCount: 6,
-    weightInitializer: StaticInitializer([1, 1, 0]),
+    neuronCount: 1,
+    weightInitializer: StaticInitializer([1.02, 0.98, 0.1]), // we're off by 0.1
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Tanh()
 }
@@ -77,8 +77,8 @@ export var controllerNetConfig: NetConfig = {
 export var controllerNet = new NeuralNet(controllerNetConfig);
 
 export var hiddenSimpleControllerLayer: LayerConfig = {
-    neuronCount: 26,
-    weightInitializer: TwoLayerInitializer(0.7, 26),
+    neuronCount: 3,
+    weightInitializer: TwoLayerInitializer(0.7, 5),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Tanh()
 }
@@ -92,7 +92,7 @@ export var outputSimpleControllerLayer: LayerConfig = {
 
 export var simpleControllerNetConfig: NetConfig = {
     inputs: 1,
-    optimizer: () => new SGD(0.05),
+    optimizer: () => new SGD(0.1),
     errorFunction: new MSE(), // ignored
     layerConfigs: [
         hiddenSimpleControllerLayer,

@@ -18,7 +18,7 @@ export class Simple implements HasState {
         this.x = Math.tanh(this.x + controllerSignal);
     }
     private continue(): boolean {
-        return this.x > 10e-4;
+        return Math.abs(this.x) > 10e-4;
     }
 
     // randomize in [-3, 3]

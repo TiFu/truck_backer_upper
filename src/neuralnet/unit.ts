@@ -31,7 +31,7 @@ export class AdalineUnit implements Unit {
         this.lastInput = []
         this.weights = weightInitializer(inputDim); // this.getRandomWeights(inputDim + 1, initialWeightRange); // bias
         this.resetAccumulatedWeights();
-        console.log("inputDim: ", inputDim, "weights:", this.weights.length);
+        //console.log("inputDim: ", inputDim, "weights:", this.weights.length);
     }
 
     public clearInputs() {
@@ -121,9 +121,11 @@ export class AdalineUnit implements Unit {
     // Returns derivative wrt to the inputs
     public backward(errorDerivative: Scalar, accumulateWeigthUpdates: boolean): Vector {
         let activationDerivative = this.activation.applyDerivative(this.lastSum);
-        let scalarFactor = errorDerivative * activationDerivative;  
+        let scalarFactor = errorDerivative * activationDerivative;
         let inputDerivative: Vector = this.weights.getScaled(scalarFactor);
-        
+        if (inputDerivative.entries.reduce((prev, next) => prev || Number.isNaN(next), false)) {
+            throw new Error("Found NaN in backward pass!");
+        }
         if (!this.fixedWeights) {
             let weightDerivative: Vector = this.lastInput.pop().getScaled(scalarFactor);
             let update = weightDerivative;
@@ -141,7 +143,7 @@ export class AdalineUnit implements Unit {
         // calculate update for current batch
         update = this.optimizer.calculateUpdate(update);
         this.lastUpdate = update;
-  //      console.log("Update: ", this.lastUpdate);
+        console.log("[Update] ", this.lastUpdate.entries);
         this.weights.add(update);
     }
 }

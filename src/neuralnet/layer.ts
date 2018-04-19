@@ -75,6 +75,7 @@ export class Layer {
         for (let i = 0; i < this.inputDim; i++) {
             backpropError[i] = 0;
         }
+
         for (let i = 0; i < this.outputDim; i++) {
             let localError = this.units[i].backward(error.entries[i], accumulateWeightUpdates);
 
