@@ -9,7 +9,7 @@ export interface ErrorFunction {
 }
 
 export class MSE implements ErrorFunction {
-        
+
     public getError(is: Vector, should: Vector): Scalar {
         let diff = 0;
         for (let i = 0; i < is.length; i++) {
@@ -20,6 +20,7 @@ export class MSE implements ErrorFunction {
     }
 
     public getErrorDerivative(is: Vector, should: Vector): Vector {
+        // 2 * (is - should) bzw -2 * (should - is)
         return plus(is, should.getScaled(-1)).scale(2 / is.length);
     }
 }
@@ -30,7 +31,7 @@ export class WeightedMSE implements ErrorFunction {
     public constructor(private weights: Vector) {
         this.weightSum = weights.entries.reduce((prev, next) => prev + next, 0);
     }
-            
+
     public getError(is: Vector, should: Vector): Scalar {
         let diff = 0;
         for (let i = 0; i < is.length; i++) {
@@ -52,11 +53,11 @@ export interface ControllerError {
 
 export class SimpleControllerError implements ControllerError {
     public getError(finalState: Vector): Scalar {
-        return finalState.entries[0] * finalState.entries[0];
+        return (0 - finalState.entries[0]) * (0 - finalState.entries[0]);
     }
 
     public getErrorDerivative(finalState: Vector): Vector {
-        return new Vector([2 * finalState.entries[0]]);
+        return new Vector([- 2 * (0 - finalState.entries[0])]);
     }
 }
 
@@ -68,17 +69,17 @@ export class TruckControllerError implements ControllerError {
         this.angleError = [];
         this.yError = [];
     }
-    
+
     public getErrorDerivative(finalState: Vector): Vector {
         let xTrailer = finalState.entries[3];
         let yTrailer = finalState.entries[4];
         let thetaTrailer = finalState.entries[5];
 
         // Derivative of SSE
-        let xDiff = Math.max(xTrailer,-1) - this.dock.x; 
+        let xDiff = Math.max(xTrailer,-1) - this.dock.x;
         let yDiff = yTrailer - this.dock.y;
         let thetaDiff = thetaTrailer - 0;
-        
+
         // first 3 do not matter for the error
         return new Vector([0, 0, 0, 2 * xDiff, 2 * yDiff, 2 * thetaDiff]);
     }

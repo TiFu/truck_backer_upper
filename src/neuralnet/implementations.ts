@@ -78,21 +78,21 @@ export var controllerNet = new NeuralNet(controllerNetConfig);
 
 export var hiddenSimpleControllerLayer: LayerConfig = {
     neuronCount: 3,
-    weightInitializer: TwoLayerInitializer(0.7, 5),
+    weightInitializer: StaticInitializer([0.1, -0.1]),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Tanh()
 }
 
 export var outputSimpleControllerLayer: LayerConfig = {
     neuronCount: 1,
-    weightInitializer: TwoLayerInitializer(0.7, 1),
+    weightInitializer: StaticInitializer([0.3, -0.1, 0.25, -0.15]),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Tanh() // [-1, 1]
 }
 
 export var simpleControllerNetConfig: NetConfig = {
     inputs: 1,
-    optimizer: () => new SGD(0.1),
+    optimizer: () => new SGD(0.001),
     errorFunction: new MSE(), // ignored
     layerConfigs: [
         hiddenSimpleControllerLayer,

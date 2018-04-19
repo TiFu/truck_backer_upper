@@ -24,17 +24,38 @@ let lessons = createTruckLessons(world.truck);
 
 let j = 0;
 let lesson = lessons[j];
-lesson.maxSteps = 3;
+lesson.maxSteps = 2;
 trainTruckController.setLesson(lesson);
+let errorAverage = 0;
 for (let i = 0; i < lessons[0].samples; i++) {
     let error = trainTruckController.trainSingleStep();
-    console.error("[Error] ", i, error);
-    if (Math.abs(error) < 10e-7) {
-        break;
-    }
+    errorAverage += error;
     if (i % 100 == 0 && i > 0) {
-        console.log("Step " + i + " of " + lesson.samples);
+        console.log("[Error] ", errorAverage/100);
+        console.log("[Sample] Step " + i + " of " + lesson.samples);
+        if (Math.abs(errorAverage) < 10e-7) {
+            break;
+        }
+        errorAverage = 0;
     }
 }
 
-console.error(simpleControllerNet.getWeights());
+console.log("---------------------------------")
+console.log("---------------------------------")
+console.log("---------------------------------")
+console.log("---------------------------------")
+console.log("---------------------------------")
+
+console.log("SimpleControllerNet")
+console.log(simpleControllerNet.getWeights());
+
+console.log("");
+console.log(simple);
+simple.x = 2;
+let controllerSignal = new Vector([5]);
+while (Math.abs(controllerSignal.entries[0]) > 10e-7) {
+    controllerSignal = simpleControllerNet.forward(new Vector([simple.x]));
+    console.log("[TestState] ", controllerSignal)
+    simple.nextState(controllerSignal.entries[0]);
+    console.log("[TestState] ", simple.x);
+}

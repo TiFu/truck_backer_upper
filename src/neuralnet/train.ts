@@ -16,10 +16,10 @@ export class TrainTruckEmulator {
     public trailerAngleError: number[] = []
     public xTrailerError: number[] = []
     public yTrailerError: number[] = []
-    
+
     private trainedSteps = 0;
-    
-    public constructor(private world: World, private neuralNet: NeuralNet, private batchSize: number = 1) { 
+
+    public constructor(private world: World, private neuralNet: NeuralNet, private batchSize: number = 1) {
         if (neuralNet.getInputDim() != 6 + 1) {
             throw new Error("Invalid Input Dim! Expected 7 but got " + neuralNet.getInputDim());
         }
@@ -39,7 +39,7 @@ export class TrainTruckEmulator {
     public getErrorCurve(): Array<number> {
         return []//this.neuralNet.errors;
     }
-    
+
     private normalize(stateVector: Vector): void {
         stateVector.entries[0] = (stateVector.entries[0] - 50) / 50; // [0,70] -> [-1, 1]
         stateVector.entries[1] = stateVector.entries[1] / 50; // [-25, 25] -> [-1, 1]
@@ -55,7 +55,7 @@ export class TrainTruckEmulator {
         stateVector.entries[2] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
         stateVector.entries[3] = (stateVector.entries[3] - 50) / 50; // [0,70] -> [-1, 1]
         stateVector.entries[4] = stateVector.entries[4] / 50; // [-25, 25] -> [-1, 1]
-        stateVector.entries[5] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]        
+        stateVector.entries[5] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
     }
 
     public trainStep(nextSteeringAngle: number): boolean {
@@ -146,7 +146,7 @@ export class TrainController {
         return this.performedTrainSteps < this.currentLesson.samples;
     }
 
-    public getCurrentLesson(): Lesson { 
+    public getCurrentLesson(): Lesson {
         return this.currentLesson;
     }
 
@@ -164,7 +164,7 @@ export class TrainController {
     public getErrorCurve(): Array<number> {
         return this.errors;
     }
-    
+
     // TODO: get rid of this and make independent => HasState gets an init method which accepts a vector
     // (and lesson has a getLimits function which returns a vector)
     private prepareTruckPosition() {
@@ -212,14 +212,13 @@ export class TrainController {
             let controllerSignal = this.controllerNet.forward(currentState);
             console.log("[ControllerSignal]", controllerSignal.entries[0]);
             let steeringSignal = controllerSignal.entries[0];
-            //summedSteeringSignal +=  steeringSignal;
-       //     console.log("Steering: ", steeringSignal);            
+
             let stateWithSteering = currentState.getWithNewElement(steeringSignal);
 
             controllerSignals.push(controllerSignal);
             // derivative depends on output/input
             this.emulatorNet.forward(stateWithSteering);
-            
+
             canContinue = this.realPlant.nextState(steeringSignal);
             console.log("[Continue]", canContinue)
             // set the next state
@@ -227,8 +226,8 @@ export class TrainController {
             console.log("[NextState]", currentState.entries[0])
 
             console.log("------- END -------");
-            if (i > this.currentLesson.maxSteps) {
-                console.log("Reached max steps!");
+            if (i+1 >= this.currentLesson.maxSteps) {
+                console.log("[Max Steps] Reached max steps at " + currentState + " with " + this.currentLesson.maxSteps);
                 this.maxStepErrors++;
                 break;
             }
@@ -248,12 +247,14 @@ export class TrainController {
         // performance error i.e. real position - real target
         // TODO: cross check this! it was in some paper i can't find right now
         let controllerDerivative = this.calculateErrorDerivative(finalState, normalizedDock);
+        let controllerError = this.calculateError(finalState, normalizedDock);
+        console.log("[FinalError] ", controllerError);
         console.log("[FinalState] ", finalState.entries[0]);
         console.log("[ControllerDerivative] ", controllerDerivative.entries[0])
         let error = this.calculateError(finalState, normalizedDock);
-        console.log("[Error] ", error);
+    //    console.log("[Error] ", error);
         this.errors.push(error);
-        for (let j = i-1; j >= 0; j--) { 
+        for (let j = i-1; j >= 0; j--) {
             console.log("Entering emulator");
             let emulatorDerivative = this.emulatorNet.backwardWithGradient(controllerDerivative, false);
             console.log("[EmulatorDerivative]", emulatorDerivative.entries);
