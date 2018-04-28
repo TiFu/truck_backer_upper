@@ -5,6 +5,47 @@ import {Lesson} from '../neuralnet/lesson';
 
 import {expect} from 'chai';
 
+export class NormalizedTruck implements HasState, Limitable {
+    public constructor(private truck: Truck) {
+
+    }
+
+    public setLimits(limits: StraightLine[]) {
+        this.truck.setLimits(limits);
+    }
+
+    public getStateDescription() {
+        return this.truck.getStateDescription();
+    }
+
+    public setLimited(limited: boolean) {
+        this.truck.setLimited(limited);
+    }
+    public randomizePosition(lesson: Lesson) {
+        this.truck.randomizePosition(lesson);
+    }
+
+    public nextState(steeringSignal: number): boolean {
+        return this.truck.nextState(steeringSignal);
+    }
+
+    public getOriginalState(): nnMath.Vector {
+        return this.truck.getOriginalState();
+    }
+
+    public getStateVector(): nnMath.Vector {
+        let stateVector = this.truck.getStateVector();
+        console.log("[Original State] ", stateVector.entries);
+        stateVector.entries[0] = (stateVector.entries[0] - 50) / 50; // [0,70] -> [-1, 1]
+        stateVector.entries[1] = stateVector.entries[1] / 50; // [-25, 25] -> [-1, 1]
+        stateVector.entries[2] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
+        stateVector.entries[3] = (stateVector.entries[3] - 50) / 50; // [0,70] -> [-1, 1]
+        stateVector.entries[4] = stateVector.entries[4] / 50; // [-25, 25] -> [-1, 1]
+        stateVector.entries[5] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
+        return stateVector;
+    }
+}
+
 
 export class Truck implements HasState, Limitable {
     public velocity = 0.2; // m/sec
@@ -19,12 +60,19 @@ export class Truck implements HasState, Limitable {
         this.trailerAngle = this.fixAngle(trailerAngle)
     }
 
+    public getOriginalState(): nnMath.Vector {
+        return this.getStateVector();
+    }
     public setLimits(limits: Array<StraightLine>): void {
         this.limits = limits;
     }
 
     public setLimited(limited: boolean): void {
         this.limited = limited;
+    }
+
+    public getStateDescription(): string[] {
+        return [ "Coupling Device Position x", "Coupling Device Position y", "Cabin Angle", "End of Truck x", "End of Truck y", "Trailer Angle"];
     }
 
     public getStateVector(): nnMath.Vector {
@@ -147,7 +195,11 @@ export class Truck implements HasState, Limitable {
         if (!this.limited || this.isTruckInValidPosition()) {
             //this.truck.nextTimeStep(steeringSignal);        
             this.drive(steeringSignal);
-            return this.isTruckInValidPosition() && this.continue();
+            console.log("[Check]")
+            console.log("[Check] Result calculation:")
+            let result = this.isTruckInValidPosition() && this.continue();
+            console.log("[Check] End Result: ", result);
+            return result;
         } else {
             return false;
         }
@@ -156,7 +208,10 @@ export class Truck implements HasState, Limitable {
     private continue(): boolean {
         let distanceVector = this.getEndOfTruck().getVectorTo(this.dock.position);
         // less than 10cm distance is acceptable
-        return distanceVector.x > 0.1 && distanceVector.y > 0.1;
+       console.log("[Distance Vector] ", distanceVector);
+       let result =  !(Math.abs(distanceVector.x) < 0.1 && Math.abs(distanceVector.y) < 0.1);
+       console.log("[Check] [Continue]", result);
+       return result;
     }
     // -1, 1
     public drive(steeringSignal: number): boolean {
@@ -183,14 +238,20 @@ export class Truck implements HasState, Limitable {
         return this.isTruckInValidPosition();
     }
        // TODO: add check that truck is not too far away from area
-       private isTruckNotAtDock() {
+    private isTruckNotAtDock() {
         let truckCorners = this.getTruckCorners();
+        console.log("[Check] Truck Corners", JSON.stringify(truckCorners));
         let trailerCorners = this.getTrailerCorners();
+        console.log("[Check] Trailer Corners", JSON.stringify(trailerCorners));
         let a = this.dock.position;
+        console.log("[Check] Dock: ", a);
         let b = plus(a, this.dock.dockDirection);
+        console.log("[Check] Direction ", b);
 
         let truckLeftOf = truckCorners.some((p) => isLeftOf(a, b, p));
+        console.log("[Check] Truck Left Of ", truckLeftOf);
         let trailerLeftOf = trailerCorners.some((p) => isLeftOf(a, b, p));
+        console.log("[Check] Trailer Left Of ", trailerLeftOf);
         return !(truckLeftOf || trailerLeftOf);
     }
 
@@ -261,7 +322,13 @@ export class Truck implements HasState, Limitable {
     }
 
     public isTruckInValidPosition(): boolean {
-        return !this.limited || (this.isTruckNotAtDock() && this.isTruckInArea());
+        let notAtDock =  this.isTruckNotAtDock();
+        let inArea = this.isTruckInArea();
+        console.log("[Check] [NotAtDock] ",notAtDock);
+        console.log("[Check] [TruckInArea] ", inArea);
+        let result = !this.limited || (notAtDock && inArea);
+        console.log("[Check] [Valid Position] ", result);
+        return result;
     }
 }
 

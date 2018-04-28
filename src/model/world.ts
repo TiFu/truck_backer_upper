@@ -12,7 +12,9 @@ export class Dock {
 
 }
 export interface HasState {
-    getStateVector(): nnMath.Vector
+    getOriginalState(): nnMath.Vector; // unnormalized
+    getStateVector(): nnMath.Vector // normalized
+    getStateDescription(): string[];
     nextState(input: number): boolean;
     randomizePosition(lesson: Lesson): void;
 }

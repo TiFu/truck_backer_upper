@@ -73,8 +73,7 @@ export class AdalineUnit implements Unit {
 
     public forward(input: Vector): Scalar {
         input = input.getWithNewElement(1); // add bias
-        console.log("[Input] ", input.entries);
-
+      
         // only need the last input for weight derivative
         if (!this.fixedWeights) {
             this.lastInput.push(input);
@@ -84,7 +83,7 @@ export class AdalineUnit implements Unit {
         }
 
         this.lastSum = this.weights.multiply(input); // last is bias
-        console.log("[Sum] ", this.lastSum);
+
         if (Number.isNaN(this.lastSum)) {
             console.log("[Unit] Input: " + input);
             console.log("[Unit] Last Sum: " + this.lastSum)
@@ -96,7 +95,6 @@ export class AdalineUnit implements Unit {
         let activated = this.activation.apply(this.lastSum);
         if (Number.isNaN(activated))
             console.log("[Unit] Activated: ", activated, "Last Sum: ", this.lastSum);
-        console.log("[Activated] ", activated)
         return activated;
     }
 
@@ -125,7 +123,7 @@ export class AdalineUnit implements Unit {
     public backward(errorDerivative: Scalar, accumulateWeigthUpdates: boolean): Vector {
         let activationDerivative = this.activation.applyDerivative(this.lastSum);
         let scalarFactor = errorDerivative * activationDerivative;
-        console.log("[DerivativeScalarFactor]", scalarFactor)
+ //       console.log("[DerivativeScalarFactor]", scalarFactor)
         let inputDerivative: Vector = this.weights.getScaled(scalarFactor);
         if (inputDerivative.entries.reduce((prev, next) => prev || Number.isNaN(next), false)) {
             throw new Error("Found NaN in backward pass!");
@@ -147,7 +145,7 @@ export class AdalineUnit implements Unit {
         // calculate update for current batch
         update = this.optimizer.calculateUpdate(update);
         this.lastUpdate = update;
-        console.log("[Update] ", this.lastUpdate.entries);
+//        console.log("[Update] ", this.lastUpdate.entries);
         this.weights.add(update);
     }
 }

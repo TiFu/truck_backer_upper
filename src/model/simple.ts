@@ -8,6 +8,9 @@ export class Simple implements HasState {
     private startPositions: number[] = [-2]
 
 
+    public getStateDescription() {
+        return [ "x"];
+    }
     public getStateVector(): Vector {
         return new Vector([this.x])
     }
@@ -24,6 +27,9 @@ export class Simple implements HasState {
         return Math.abs(this.x) > 10e-5;
     }
 
+    public getOriginalState() {
+        return this.getStateVector();
+    }
     // randomize in [-3, 3]
     public randomizePosition() {
         if (this.positionIndex >= this.startPositions.length) {

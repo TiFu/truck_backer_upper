@@ -66,7 +66,7 @@ export var outputControllerLayer: LayerConfig = {
 
 export var controllerNetConfig: NetConfig = {
     inputs: 6,
-    optimizer: () => new SGDNesterovMomentum(0.001,0.9),
+    optimizer: () => new SGD(0.8),
     errorFunction: new MSE(), // ignored
     layerConfigs: [
         hiddenControllerLayer,

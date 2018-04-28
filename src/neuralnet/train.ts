@@ -179,16 +179,6 @@ export class TrainController {
         }
     }
 
-    private normalize(stateVector: Vector): void {
-   /*     stateVector.entries[0] = (stateVector.entries[0] - 50) / 50; // [0,70] -> [-1, 1]
-        stateVector.entries[1] = stateVector.entries[1] / 50; // [-25, 25] -> [-1, 1]
-        stateVector.entries[2] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
-        stateVector.entries[3] = (stateVector.entries[3] - 50) / 50; // [0,70] -> [-1, 1]
-        stateVector.entries[4] = stateVector.entries[4] / 50; // [-25, 25] -> [-1, 1]
-        stateVector.entries[5] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
-    */
-    }
-
     private normalizeDock(d: Dock) {
         let normX = (d.position.x - 50) / 50
         let normY = (d.position.y) / 50;
@@ -207,8 +197,7 @@ export class TrainController {
         // start at current state
         while (canContinue) {
             let currentState = this.realPlant.getStateVector();
-            console.log("[CurrentState] ", currentState.entries[0]);
-            this.normalize(currentState);
+            console.log("[CurrentState] ", currentState.entries);
             let controllerSignal = this.controllerNet.forward(currentState);
             console.log("[ControllerSignal]", controllerSignal.entries[0]);
             let steeringSignal = controllerSignal.entries[0];
@@ -223,7 +212,8 @@ export class TrainController {
             console.log("[Continue]", canContinue)
             // set the next state
             currentState = this.realPlant.getStateVector();
-            console.log("[NextState]", currentState.entries[0])
+            let outputState = this.realPlant.getOriginalState();
+            console.log("[NextState]", outputState.entries[3], outputState.entries[4], outputState.entries[5] * 180 / Math.PI)
 
             console.log("------- END -------");
             if (i+1 >= this.currentLesson.maxSteps) {
@@ -234,13 +224,12 @@ export class TrainController {
             i++;
         }
         let realState = this.realPlant.getStateVector();
-
+        console.log("[Steps] ", i);
         if (i == 0) { // we didn't do anything => no update!
             return NaN;
         }
         // we hit the end => calculate performance error (real position - real target), backpropagate
         let finalState = this.realPlant.getStateVector();
-        this.normalize(finalState)
         let dock = this.world.dock;
         let normalizedDock: Point = this.normalizeDock(dock);
 
@@ -272,6 +261,13 @@ export class TrainController {
         }
         this.controllerNet.updateWithAccumulatedWeights();
         this.fixEmulator(false);
+        let endState = this.realPlant.getOriginalState();
+        let endError = this.errorFunction.getError(this.realPlant.getStateVector());
+        console.log("[Sumary] ---------- SUMMARY OF THIS STEP ----------");
+        console.log("[Sumary] Steps: ", i+1, " of ", this.currentLesson.maxSteps);
+        console.log("[Sumary] Final Position (Original): ", endState.entries[3], endState.entries[4], endState.entries[5] * 180 / Math.PI);
+        console.log("[Sumary] Error: ",  endError);
+        console.log("[Sumary] --------------------------------------------------------");
         return error;
     }
 

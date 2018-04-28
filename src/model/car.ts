@@ -15,6 +15,12 @@ export class Car implements HasState {
     public constructor(private axle: Point, private angle: Angle) {
     }
 
+    public getStateDescription() {
+        return ["x", "y", "angle"];
+    }
+    public getOriginalState(): nnMath.Vector {
+        return this.getStateVector();
+    }
     public getStateVector(): nnMath.Vector {
         return new nnMath.Vector([this.axle.x, this.axle.y, this.angle]);
     }
