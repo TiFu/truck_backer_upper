@@ -147,12 +147,17 @@ export class Truck implements HasState, Limitable {
         if (!this.limited || this.isTruckInValidPosition()) {
             //this.truck.nextTimeStep(steeringSignal);        
             this.drive(steeringSignal);
-            return this.isTruckInValidPosition();
+            return this.isTruckInValidPosition() && this.continue();
         } else {
             return false;
         }
     }
 
+    private continue(): boolean {
+        let distanceVector = this.getEndOfTruck().getVectorTo(this.dock.position);
+        // less than 10cm distance is acceptable
+        return distanceVector.x > 0.1 && distanceVector.y > 0.1;
+    }
     // -1, 1
     public drive(steeringSignal: number): boolean {
         let steeringAngle = this.maxSteeringAngle * Math.min(Math.max(-1, steeringSignal), 1);

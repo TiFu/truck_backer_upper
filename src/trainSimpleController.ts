@@ -33,7 +33,7 @@ for (let i = 0; i < lessons[0].samples; i++) {
     if (i % 100 == 0 && i > 0) {
         console.log("[Error] ", errorAverage/100);
         console.log("[Sample] Step " + i + " of " + lesson.samples);
-        if (Math.abs(errorAverage) < 10e-7) {
+        if (Math.abs(errorAverage / 100) < 0.0004) {
             break;
         }
         errorAverage = 0;
@@ -53,9 +53,11 @@ console.log("");
 console.log(simple);
 simple.x = 2;
 let controllerSignal = new Vector([5]);
-while (Math.abs(controllerSignal.entries[0]) > 10e-7) {
+let i = 0;
+while (Math.abs(controllerSignal.entries[0]) > 10e-7 || i < 10) {
     controllerSignal = simpleControllerNet.forward(new Vector([simple.x]));
     console.log("[TestState] ", controllerSignal)
     simple.nextState(controllerSignal.entries[0]);
     console.log("[TestState] ", simple.x);
+    i++;
 }

@@ -245,7 +245,6 @@ export class TrainController {
         let normalizedDock: Point = this.normalizeDock(dock);
 
         // performance error i.e. real position - real target
-        // TODO: cross check this! it was in some paper i can't find right now
         let controllerDerivative = this.calculateErrorDerivative(finalState, normalizedDock);
         let controllerError = this.calculateError(finalState, normalizedDock);
         console.log("[FinalError] ", controllerError);

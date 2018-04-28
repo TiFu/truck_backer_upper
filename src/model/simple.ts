@@ -3,7 +3,7 @@ import { Vector } from '../neuralnet/math';
 import { StraightLine } from '../math';
 
 export class Simple implements HasState {
-    private x: number;
+    public x: number;
     private positionIndex: number = 0;
     private startPositions: number[] = [-2]
 
@@ -21,7 +21,7 @@ export class Simple implements HasState {
         this.x = Math.tanh(this.x + controllerSignal);
     }
     private continue(): boolean {
-        return Math.abs(this.x) > 10e-4;
+        return Math.abs(this.x) > 10e-5;
     }
 
     // randomize in [-3, 3]
