@@ -22,8 +22,8 @@ export var outputEmulatorLayer: LayerConfig = {
 
 export var emulatorNetConfig: NetConfig = {
     inputs: 7,
+    // TODO: was trained with 0.1 then 0.01 after improvement stops => basically decay
     optimizer: () => new SGD(0.01), //new SGDNesterovMomentum(0.1, 0.9),
-//    errorFunction: new WeightedMSE(new Vector([3,3,1,3,3, 1])),
     errorFunction: new MSE(),
     layerConfigs: [
         hiddenEmulatorLayer,
