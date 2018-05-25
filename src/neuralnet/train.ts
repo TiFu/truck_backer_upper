@@ -8,7 +8,6 @@ import { ControllerError } from './error';
 import { emulatorNet } from './implementations';
 
 export class TrainTruckEmulator {
-
     private lastError: number;
     public cabAngleError: number[] = [];
     public xCabError: number[] = []
@@ -20,12 +19,6 @@ export class TrainTruckEmulator {
     private trainedSteps = 0;
     
     public constructor(private plant: HasState, private neuralNet: NeuralNet, private batchSize: number = 1) {
-        if (neuralNet.getInputDim() != 6 + 1) {
-            throw new Error("Invalid Input Dim! Expected 7 but got " + neuralNet.getInputDim());
-        }
-        if (neuralNet.getOutputDim() != 6) {
-            throw new Error("Invalid Input Dim! Expected 6 but got " + neuralNet.getOutputDim());
-        }
     }
 
     public getPerformedSteps() {
@@ -52,20 +45,13 @@ export class TrainTruckEmulator {
 
         //[cdp.x, cdp.y, this.cabinAngle, this.tep.x, this.tep.y, this.trailerAngle]
         // Record errors
-        this.xCabError.push(Math.abs(expectedVector.entries[0] - result.entries[0]) * 25);
-        this.yCabError.push(Math.abs(expectedVector.entries[1] - result.entries[1]) * 25);
+        this.xCabError.push(Math.abs(expectedVector.entries[0] - result.entries[0]) * 50);
+        this.yCabError.push(Math.abs(expectedVector.entries[1] - result.entries[1]) * 50);
         this.cabAngleError.push(Math.abs(expectedVector.entries[2] - result.entries[2]) * 180);// * Math.PI * 180 / Math.PI
-        this.xTrailerError.push(Math.abs(expectedVector.entries[3] - result.entries[3]) * 25);
-        this.yTrailerError.push(Math.abs(expectedVector.entries[4] - result.entries[4]) * 25);
+        this.xTrailerError.push(Math.abs(expectedVector.entries[3] - result.entries[3]) * 50);
+        this.yTrailerError.push(Math.abs(expectedVector.entries[4] - result.entries[4]) * 50);
         this.trailerAngleError.push(Math.abs(expectedVector.entries[5] - result.entries[5]) * 180);
         this.lastError = this.neuralNet.getError(result, expectedVector);
-        console.log("[Error] ", this.lastError);
-        console.log("[Error] XCab: ", this.xCabError[this.xCabError.length - 1]);
-        console.log("[Error] yCab: ", this.yCabError[this.xCabError.length - 1]);
-        console.log("[Error] xTrailer: ", this.xTrailerError[this.xCabError.length - 1]);
-        console.log("[Error] yTrailer: ", this.yTrailerError[this.xCabError.length - 1]);
-        console.log("[Error] cabAngle: ", this.cabAngleError[this.xCabError.length - 1]);
-        console.log("[Error] trailerAngle: ", this.trailerAngleError[this.xCabError.length - 1]);
  
        let error = this.neuralNet.backward(result, expectedVector, true); // batch update
 
@@ -85,14 +71,10 @@ export class TrainTruckEmulator {
             let cont = this.trainStep(nextSteeringAngle);
             err += this.lastError;
             count++;
-            console.log("count", count);
-            console.log("err/count", err/count);
             if (!cont) {
                 return [i, err / count];
             }
         }
-        console.log("epochs", epochs);
-        console.log("err/epochs", err/epochs);
         return [epochs, err / count];
     }
 }

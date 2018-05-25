@@ -73,7 +73,7 @@ export class AdalineUnit implements Unit {
 
     public forward(input: Vector): Scalar {
         input = input.getWithNewElement(1); // add bias
-      
+
         // only need the last input for weight derivative
         if (!this.fixedWeights) {
             this.lastInput.push(input);

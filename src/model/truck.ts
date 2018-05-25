@@ -35,7 +35,6 @@ export class NormalizedTruck implements HasState, Limitable {
 
     public getStateVector(): nnMath.Vector {
         let stateVector = this.truck.getStateVector();
-        console.log("[Original State] ", stateVector.entries);
         stateVector.entries[0] = (stateVector.entries[0] - 50) / 50; // [0,70] -> [-1, 1]
         stateVector.entries[1] = stateVector.entries[1] / 50; // [-25, 25] -> [-1, 1]
         stateVector.entries[2] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
@@ -116,7 +115,6 @@ export class Truck implements HasState, Limitable {
         this.tep = tep;
         this.trailerAngle = this.fixAngle(trailerAngle)
         this.cabinAngle = this.fixAngle(cabinAngle)
-        console.log("[New Truck Position] ", this.tep.x, this.tep.y, this.trailerAngle * 180 / Math.PI, this.cabinAngle * 180 / Math.PI);
     }
     
     public getTrailerLength(): number {

@@ -3,7 +3,6 @@ import {World} from './model/world'
 import {emulatorNet} from './neuralnet/implementations'
 import * as fs from 'fs';
 import {NormalizedTruck} from './model/truck';
-import { TruckControllerError } from './neuralnet/error';
 
 let world = new World();
 let trainTruckEmulator = new TrainTruckEmulator(new NormalizedTruck(world.truck), emulatorNet, 1);
@@ -15,6 +14,7 @@ try {
 } catch(err) {
 
 }
+let dumps = 0;
 
 let steps = 10000001
 let errorSTep = 1000;
@@ -28,7 +28,7 @@ for (let i = 0; i < steps; i++) {
     world.truck.randomizeNoLimits();
     let lastError2 = trainTruckEmulator.train(epochSteps);
     let lastError = lastError2[1];
-    console.log("lastError", lastError);
+//    console.log("lastError", lastError);
     if (lastError > 0.2) {
         highErrors++;
     }
@@ -42,6 +42,13 @@ for (let i = 0; i < steps; i++) {
         let yCab = trainTruckEmulator.yCabError.reduce((prev: number, next: number) => prev + next, 0) / trainTruckEmulator.yCabError.length
         let yTrailer = trainTruckEmulator.yTrailerError.reduce((prev: number, next: number) => prev + next, 0) / trainTruckEmulator.yTrailerError.length
         let xTrailer = trainTruckEmulator.xTrailerError.reduce((prev: number, next: number) => prev + next, 0) / trainTruckEmulator.xTrailerError.length
+
+        console.log("[Cab Angle Error] ", cabAngle);
+        console.log("[Trailer Angle] ", trailerAngle);
+        console.log("[x cab] ", xCab);
+        console.log("[y cab] ", yCab);
+        console.log("[y trailer]", yTrailer);
+        console.log("[x trailer]", xTrailer);
 
         trainTruckEmulator.cabAngleError = [];
         trainTruckEmulator.trailerAngleError = [];
