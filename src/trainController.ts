@@ -12,9 +12,8 @@ let world = new World();
 let emulator_weights = fs.readFileSync("./emulator_weights").toString();
 let parsed_emulator_weights = JSON.parse(emulator_weights);
 //emulatorNet.setDebugMode(true);
-let trainTruckEmulator = new TrainTruckEmulator(world, emulatorNet);
+let trainTruckEmulator = new TrainTruckEmulator(new NormalizedTruck(world.truck), emulatorNet);
 trainTruckEmulator.getEmulatorNet().loadWeights(parsed_emulator_weights);
-
 
 let normalizedDockPosition = new Point((world.dock.position.x - 50)/ 50, world.dock.position.y / 50);
 let errorFunc = new TruckControllerError(normalizedDockPosition);
@@ -26,6 +25,7 @@ try {
 } catch(err) {
 
 }
+
 import * as process from 'process'
 
 let alreadyTrainedSteps = Number.parseInt(process.argv[2])

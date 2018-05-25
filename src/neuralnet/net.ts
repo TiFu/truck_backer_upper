@@ -100,6 +100,9 @@ export class NeuralNet {
         return error;        
     }
 
+    public getError(output:Vector, expected: Vector): number {
+        return this.netConfig.errorFunction.getError(output, expected);
+    }
     public backward(output: Vector, expected: Vector, accumulateWeigthUpdates: boolean = false): Vector {
         let error = this.netConfig.errorFunction.getErrorDerivative(output, expected);
 

@@ -18,8 +18,8 @@ export class TrainTruckEmulator {
     public yTrailerError: number[] = []
 
     private trainedSteps = 0;
-
-    public constructor(private world: World, private neuralNet: NeuralNet, private batchSize: number = 1) {
+    
+    public constructor(private plant: HasState, private neuralNet: NeuralNet, private batchSize: number = 1) {
         if (neuralNet.getInputDim() != 6 + 1) {
             throw new Error("Invalid Input Dim! Expected 7 but got " + neuralNet.getInputDim());
         }
@@ -40,37 +40,15 @@ export class TrainTruckEmulator {
         return []//this.neuralNet.errors;
     }
 
-    private normalize(stateVector: Vector): void {
-        stateVector.entries[0] = (stateVector.entries[0] - 50) / 50; // [0,70] -> [-1, 1]
-        stateVector.entries[1] = stateVector.entries[1] / 50; // [-25, 25] -> [-1, 1]
-        stateVector.entries[2] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
-        stateVector.entries[3] = (stateVector.entries[3] - 50) / 50; // [0,70] -> [-1, 1]
-        stateVector.entries[4] = stateVector.entries[4] / 50; // [-25, 25] -> [-1, 1]
-        stateVector.entries[5] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
-    }
-
-    private normalizeOutput(stateVector: Vector) {
-        stateVector.entries[0] = (stateVector.entries[0] - 50) / 50; // [0,70] -> [-1, 1]
-        stateVector.entries[1] = stateVector.entries[1] / 50; // [-25, 25] -> [-1, 1]
-        stateVector.entries[2] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
-        stateVector.entries[3] = (stateVector.entries[3] - 50) / 50; // [0,70] -> [-1, 1]
-        stateVector.entries[4] = stateVector.entries[4] / 50; // [-25, 25] -> [-1, 1]
-        stateVector.entries[5] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
-    }
-
     public trainStep(nextSteeringAngle: number): boolean {
-        // TODO: turn off boundary checks for this train step
-        let initialStateVector = this.world.truck.getStateVector();
-        let stateVector = this.world.truck.getStateVector();
+        let stateVector = this.plant.getStateVector();
 
-        // TODO: adapt to same implementation as in keras
-        this.normalize(stateVector);
         stateVector = stateVector.getWithNewElement(nextSteeringAngle);
-        let result = this.neuralNet.forward(stateVector);
 
-        let retVal = this.world.nextTimeStep(nextSteeringAngle);
-        let expectedVector = this.world.truck.getStateVector();
-        this.normalizeOutput(expectedVector);
+        let result = this.neuralNet.forward(stateVector);
+        let retVal = this.plant.nextState(nextSteeringAngle);
+
+        let expectedVector = this.plant.getStateVector();
 
         //[cdp.x, cdp.y, this.cabinAngle, this.tep.x, this.tep.y, this.trailerAngle]
         // Record errors
@@ -80,9 +58,16 @@ export class TrainTruckEmulator {
         this.xTrailerError.push(Math.abs(expectedVector.entries[3] - result.entries[3]) * 25);
         this.yTrailerError.push(Math.abs(expectedVector.entries[4] - result.entries[4]) * 25);
         this.trailerAngleError.push(Math.abs(expectedVector.entries[5] - result.entries[5]) * 180);
-
-        let error = this.neuralNet.backward(result, expectedVector, true); // batch update
-      //  this.lastError = this.neuralNet.errors[this.neuralNet.errors.length - 1]
+        this.lastError = this.neuralNet.getError(result, expectedVector);
+        console.log("[Error] ", this.lastError);
+        console.log("[Error] XCab: ", this.xCabError[this.xCabError.length - 1]);
+        console.log("[Error] yCab: ", this.yCabError[this.xCabError.length - 1]);
+        console.log("[Error] xTrailer: ", this.xTrailerError[this.xCabError.length - 1]);
+        console.log("[Error] yTrailer: ", this.yTrailerError[this.xCabError.length - 1]);
+        console.log("[Error] cabAngle: ", this.cabAngleError[this.xCabError.length - 1]);
+        console.log("[Error] trailerAngle: ", this.trailerAngleError[this.xCabError.length - 1]);
+ 
+       let error = this.neuralNet.backward(result, expectedVector, true); // batch update
 
         this.trainedSteps++;
         if (this.trainedSteps % this.batchSize == 0) {
@@ -100,10 +85,14 @@ export class TrainTruckEmulator {
             let cont = this.trainStep(nextSteeringAngle);
             err += this.lastError;
             count++;
+            console.log("count", count);
+            console.log("err/count", err/count);
             if (!cont) {
                 return [i, err / count];
             }
         }
+        console.log("epochs", epochs);
+        console.log("err/epochs", err/epochs);
         return [epochs, err / count];
     }
 }
