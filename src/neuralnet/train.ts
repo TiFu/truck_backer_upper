@@ -169,34 +169,37 @@ export class TrainController {
         // start at current state
         while (canContinue) {
             let currentState = this.realPlant.getStateVector();
-            console.log("[CurrentState] ", currentState.entries);
+        //    console.log("[CurrentState] ", currentState.entries);
             let controllerSignal = this.controllerNet.forward(currentState);
-            console.log("[ControllerSignal]", controllerSignal.entries[0]);
+         //   console.log("[ControllerSignal]", controllerSignal.entries[0]);
             let steeringSignal = controllerSignal.entries[0];
 
             let stateWithSteering = currentState.getWithNewElement(steeringSignal);
-            console.log("[State with steering] ", stateWithSteering.entries);
+         //   console.log("[State with steering] ", stateWithSteering.entries);
             controllerSignals.push(controllerSignal);
             // derivative depends on output/input
             this.emulatorNet.forward(stateWithSteering);
 
             canContinue = this.realPlant.nextState(steeringSignal);
-            console.log("[Continue]", canContinue)
+       //     console.log("[Continue]", canContinue)
             // set the next state
             currentState = this.realPlant.getStateVector();
             let outputState = this.realPlant.getOriginalState();
-            console.log("[NextState]", outputState.entries[0], outputState.entries[1], outputState.entries[2] * 180 / Math.PI)
+       //     console.log("[NextState]", outputState.entries[0], outputState.entries[1], outputState.entries[2] * 180 / Math.PI)
 
-            console.log("------- END -------");
+     //       console.log("------- END -------");
             if (i+1 >= this.currentLesson.maxSteps) {
                 console.log("[Max Steps] Reached max steps at " + currentState + " with " + this.currentLesson.maxSteps);
                 this.maxStepErrors++;
+                if (this.maxStepErrors > 10) {
+                    process.exit();
+                }
                 break;
             }
             i++;
         }
         let realState = this.realPlant.getStateVector();
-        console.log("[Steps] ", i);
+    //    console.log("[Steps] ", i);
         if (i == 0) { // we didn't do anything => no update!
             return NaN;
         }
@@ -208,38 +211,38 @@ export class TrainController {
         // performance error i.e. real position - real target
         let controllerDerivative = this.calculateErrorDerivative(finalState, normalizedDock);
         let controllerError = this.calculateError(finalState, normalizedDock);
-        console.log("[FinalError] ", controllerError);
-        console.log("[FinalState] ", finalState.entries[0]);
-        console.log("[ControllerDerivative] ", controllerDerivative.entries[0])
+//        console.log("[FinalError] ", controllerError);
+  //      console.log("[FinalState] ", finalState.entries[0]);
+    //    console.log("[ControllerDerivative] ", controllerDerivative.entries[0])
         let error = this.calculateError(finalState, normalizedDock);
     //    console.log("[Error] ", error);
         this.errors.push(error);
         for (let j = i-1; j >= 0; j--) {
-            console.log("Entering emulator");
+       //     console.log("Entering emulator");
             let emulatorDerivative = this.emulatorNet.backward(controllerDerivative); //.backwardWithGradient(controllerDerivative, false);
-            console.log("[EmulatorDerivative]", emulatorDerivative.entries);
+     //       console.log("[EmulatorDerivative]", emulatorDerivative.entries);
             let steeringSignalDerivative = emulatorDerivative.entries[emulatorDerivative.entries.length - 1]; // last entry
-            console.log("Exited emulator");
-            console.log("[SteeringSignalDerivative]", steeringSignalDerivative);
-            console.log("Entering controler");
+  //          console.log("Exited emulator");
+ //           console.log("[SteeringSignalDerivative]", steeringSignalDerivative);
+   //         console.log("Entering controler");
             controllerDerivative = this.controllerNet.backwardWithGradient(new Vector([steeringSignalDerivative]), true);
-            console.log("[ControllerDerivative] ", controllerDerivative.entries);
-            console.log("exited controler");
+   //         console.log("[ControllerDerivative] ", controllerDerivative.entries);
+   //         console.log("exited controler");
 
             // get the error from the emulator and add it to the input error for the controller
             let errorFromEmulator = new Vector(emulatorDerivative.entries.slice(0, 6));
             controllerDerivative.add(errorFromEmulator);
-            console.log("[NextEmulatorDerivative]", controllerDerivative.entries);
+//            console.log("[NextEmulatorDerivative]", controllerDerivative.entries);
         }
         this.controllerNet.updateWithAccumulatedWeights();
         this.fixEmulator(false);
         let endState = this.realPlant.getOriginalState();
         let endError = this.errorFunction.getError(this.realPlant.getStateVector());
-        console.log("[Summary] ---------- SUMMARY OF THIS STEP ----------");
+   /*     console.log("[Summary] ---------- SUMMARY OF THIS STEP ----------");
         console.log("[Summary] Steps: ", i+1, " of ", this.currentLesson.maxSteps);
         console.log("[Summary] Final Position (Original): ", endState.entries[0], endState.entries[1], endState.entries[2] * 180 / Math.PI);
         console.log("[Summary] Error: ",  endError);
-        console.log("[Summary] --------------------------------------------------------");
+        console.log("[Summary] --------------------------------------------------------");*/
         return error;
     }
 

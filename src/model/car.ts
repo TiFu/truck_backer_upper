@@ -44,7 +44,7 @@ export class NormalizedCar implements HasState, Limitable, HasLength {
 }
 export class Car implements HasState, HasLength {
     private maxAngle: Angle = 70 / 180 * Math.PI;
-    private velocity: number = -3;
+    private velocity: number = -1;
     private carLength: number = 5;
     private lastSteeringAngle = 0;
 
@@ -153,7 +153,7 @@ export class Car implements HasState, HasLength {
         this.axle.x = tep.x; //tep.x;
         this.axle.y = tep.y;
         this.angle = trailerAngle; //25/180*Math.PI; //trailerAngle;
-        console.log("[Random Position] ", this.axle.x, this.axle.y, this.angle);
+    //    console.log("[Random Position] ", this.axle.x, this.axle.y, this.angle);
     }
 
     public getJacobiMatrix(input: nnMath.Vector): nnMath.Matrix {

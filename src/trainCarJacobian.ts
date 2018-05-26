@@ -21,12 +21,12 @@ let normalizedDockPosition = new Point((world.dock.position.x - 50)/ 50, world.d
 let errorFunc = new CarControllerError(normalizedDockPosition);
 let trainTruckController = new TrainController(world, new NormalizedCar(world.car), carControllerNet , new CarEmulator(world.car), errorFunc);
 
-try {
+/*try {
     let parsed_controller_weights = JSON.parse(fs.readFileSync("./controller_weights").toString());
     trainTruckController.getControllerNet().loadWeights(parsed_controller_weights);
 } catch(err) {
 
-}
+}*/
 
 import * as process from 'process'
 
@@ -54,8 +54,5 @@ for (let j = 0; j < lessons.length; j++) {
             trainTruckController.steeringSignals = [];
             console.log("[Info][AvgError] Lesson: " + lesson.no + ", Step " + i + "; Avg error: ", avgError, "Y Distance: " + averageYError + ", Angle: " + averageAngleError / Math.PI *  180)
         }
-   }
-   if (j == 3) {
-       break;
    }
 }

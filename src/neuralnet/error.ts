@@ -149,9 +149,9 @@ export class CarControllerError implements ControllerError {
         let xDiff = Math.max(xTrailer, -1) - this.dock.x
         let yDiff = yTrailer - this.dock.y
         let thetaDiff = thetaTrailer - 0
-        console.log("[Err] Trailer ", xTrailer, yTrailer, thetaTrailer);
-        console.log("[Err] Dock Position", this.dock.x, this.dock.y);
-        console.log("[Err] Calculated Error: ", xDiff, yDiff, thetaDiff);
+    //    console.log("[Err] Trailer ", xTrailer, yTrailer, thetaTrailer);
+    //    console.log("[Err] Dock Position", this.dock.x, this.dock.y);
+   //     console.log("[Err] Calculated Error: ", xDiff, yDiff, thetaDiff);
         // We input the final state in emulator output space => angle / Math.PI and y divided by 50
         this.angleError.push(Math.abs(thetaDiff * Math.PI))
         this.yError.push(Math.abs(yDiff * 50))
