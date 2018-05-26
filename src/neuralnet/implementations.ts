@@ -125,7 +125,7 @@ export var outputCarControllerLayer: LayerConfig = {
 
 export var carControllerNetConfig: NetConfig = {
     inputs: 3,
-    optimizer: () => new SGD(0.001),
+    optimizer: () => new SGD(0.1),
     errorFunction: new MSE(), // ignored
     layerConfigs: [
         hiddenCarControllerLayer,

@@ -34,15 +34,15 @@ let alreadyTrainedSteps = Number.parseInt(process.argv[2])
 
 import {createTruckLessons} from './neuralnet/lesson';
 import { NeuralNetEmulator } from './neuralnet/emulator';
-let lessons = createTruckLessons(world.truck);
+let lessons = createTruckLessons(world.car);
 
 for (let j = 0; j < lessons.length; j++) {
     let lesson = lessons[j];
     trainTruckController.setLesson(lesson);
-    console.log("Next Lesson: ", lesson.no, "Cab Angle: ", "[", lesson.cabAngle.min * 180 / Math.PI, ",", lesson.cabAngle.max * 180 / Math.PI, "]", "; x: [", lesson.x.min + ", " + lesson.x.max + "]")
+    console.log("[Info] Next Lesson: ", lesson.no, "Cab Angle: ", "[", lesson.trailerAngle.min * 180 / Math.PI, ",", lesson.trailerAngle.max * 180 / Math.PI, "]", "; x: [", lesson.x.min + ", " + lesson.x.max + "], y: [", lesson.y.min, ", ", lesson.y.max, "]")
     for (let i = 0; i < lessons[0].samples; i++) {
         trainTruckController.trainSingleStep();
-        if (i % 100 == 0 && i > 0) {
+        if ((i % 100 == 0 && i > 0) || i == lessons[0].samples - 1) {
             console.log("Step " + i + " of " + lesson.samples);
             let averageYError = errorFunc.yError.reduce((prev, next) => prev + next, 0) / errorFunc.yError.length;
             let averageAngleError = errorFunc.angleError.reduce((prev, next) => prev + next, 0) / errorFunc.angleError.length;
@@ -52,7 +52,7 @@ for (let j = 0; j < lessons.length; j++) {
             errorFunc.yError = [];
             errorFunc.angleError = [];
             trainTruckController.steeringSignals = [];
-            console.log("[AvgError] Avg error: ", avgError, "Y Distance: " + averageYError + ", Angle: " + averageAngleError / Math.PI *  180)
+            console.log("[Info][AvgError] Step " + i + "; Avg error: ", avgError, "Y Distance: " + averageYError + ", Angle: " + averageAngleError / Math.PI *  180)
         }
    }
    break;

@@ -106,7 +106,7 @@ export class Car implements HasState, HasLength {
         let front = this.axle.addVector(scaledFrontDirection);
         return back.x > 0 && front.x > 0 && back.x < 100 && Math.abs(back.y) < 50 && front.x < 100 && Math.abs(front.y) < 50 ;
     }
-    
+
     public nextTimeStep(steeringSignal: number) {
         let steeringAngle = steeringSignal * this.maxAngle;
         this.lastSteeringAngle = steeringAngle
@@ -153,6 +153,7 @@ export class Car implements HasState, HasLength {
         this.axle.x = tep.x;
         this.axle.y = tep.y;
         this.angle = trailerAngle;
+        console.log("[Random Position] ", this.axle.x, this.axle.y, this.angle);
     }
 
     public getJacobiMatrix(input: nnMath.Vector): nnMath.Matrix {

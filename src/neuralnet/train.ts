@@ -235,11 +235,11 @@ export class TrainController {
         this.fixEmulator(false);
         let endState = this.realPlant.getOriginalState();
         let endError = this.errorFunction.getError(this.realPlant.getStateVector());
-        console.log("[Sumary] ---------- SUMMARY OF THIS STEP ----------");
-        console.log("[Sumary] Steps: ", i+1, " of ", this.currentLesson.maxSteps);
-        console.log("[Sumary] Final Position (Original): ", endState.entries[0], endState.entries[1], endState.entries[2] * 180 / Math.PI);
-        console.log("[Sumary] Error: ",  endError);
-        console.log("[Sumary] --------------------------------------------------------");
+        console.log("[Summary] ---------- SUMMARY OF THIS STEP ----------");
+        console.log("[Summary] Steps: ", i+1, " of ", this.currentLesson.maxSteps);
+        console.log("[Summary] Final Position (Original): ", endState.entries[0], endState.entries[1], endState.entries[2] * 180 / Math.PI);
+        console.log("[Summary] Error: ",  endError);
+        console.log("[Summary] --------------------------------------------------------");
         return error;
     }
 
