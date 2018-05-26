@@ -9,6 +9,9 @@ const HighCharts = require("react-highcharts");
 import {LessonView} from './LessonView'
 import {createTruckLessons, Lesson} from './neuralnet/lesson'
 import { TruckControllerError } from './neuralnet/error';
+import {NormalizedTruck} from './model/truck';
+import {NeuralNetEmulator} from './neuralnet/emulator';
+
 let lessons: Array<Lesson> = [];
 
 interface SimulationState {
@@ -40,8 +43,8 @@ export default class Simulation extends React.Component<{}, SimulationState> {
         else Simulation.instance = this;
         this.state = {world: new World(), steeringSignal: 0, running: false, emulatorWeights: undefined};
         lessons = createTruckLessons(this.state.world.truck);
-        this.trainTruckEmulator = new TrainTruckEmulator(this.state.world, emulatorNet, 16); // 16 batch size
-        this.trainTruckController = new TrainController(this.state.world, this.state.world.truck, controllerNet, emulatorNet, new TruckControllerError(this.state.world.dock.position));
+        this.trainTruckEmulator = new TrainTruckEmulator(new NormalizedTruck(this.state.world.truck), emulatorNet, 16); // 16 batch size
+        this.trainTruckController = new TrainController(this.state.world, this.state.world.truck, controllerNet, new NeuralNetEmulator(emulatorNet), new TruckControllerError(this.state.world.dock.position));
         this.trainTruckController.setLesson(lessons[this.currentLessonIndex]);
     }
 

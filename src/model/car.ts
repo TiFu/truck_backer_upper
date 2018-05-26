@@ -64,12 +64,47 @@ export class Car implements HasState {
         let steeringAngle = steeringSignal * this.maxAngle;
         this.lastSteeringAngle = steeringAngle
 
-        let dX = this.velocity * Math.cos(this.angle)
-        let dY = this.velocity * Math.sin(this.angle)
-        let dAngle = this.velocity / this.carLength * Math.tan(steeringAngle)
+        let dAngle = steeringAngle;
+        let dX = this.velocity * Math.cos(this.angle + steeringAngle)
+        let dY = this.velocity * Math.sin(this.angle + steeringAngle)
 
         this.axle.x += dX;
         this.axle.y += dY;
         this.angle += dAngle;
+    }
+
+    public getJacobiMatrix(input: nnMath.Vector): nnMath.Matrix {
+        let jacobiMatrix = new nnMath.Matrix([
+            [1, 0, - this.velocity * Math.sin(input.entries[2] + input.entries[3]), - this.velocity * Math.sin(input.entries[2] + input.entries[3])], // x
+            [0, 1, this.velocity * Math.cos(input.entries[2] + input.entries[3]), this.velocity * Math.cos(input.entries[2] + input.entries[3])], // y 
+            [0, 0, 1, 1] // angle
+        ])
+        return jacobiMatrix;
+    }
+}
+
+import {Emulator} from '../neuralnet/emulator'
+export class CarEmulator implements Emulator {
+    private input: nnMath.Vector[];
+
+    public constructor(private car: Car) {
+
+    }
+
+    public setNotTrainable(trainable: boolean): void {
+        
+    }
+    public forward(input: nnMath.Vector): void {
+        if (!this.input) {
+            this.input = [];
+        }
+
+        this.input.push(input);
+    }
+
+    public backward(gradient: nnMath.Vector){ 
+        let lastInput = this.input.pop();
+        let matrix = this.car.getJacobiMatrix(lastInput);
+        return gradient.multiplyMatrixFromLeft(matrix);
     }
 }

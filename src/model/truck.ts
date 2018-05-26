@@ -4,6 +4,7 @@ import {Dock, AngleType, HasState, Limitable} from './world'
 import {Lesson} from '../neuralnet/lesson';
 
 import {expect} from 'chai';
+import { Emulator } from '../neuralnet/emulator';
 
 export class NormalizedTruck implements HasState, Limitable {
     public constructor(private truck: Truck) {
@@ -321,4 +322,25 @@ export class TruckException extends Error {
     public constructor(message: string) {
         super(message);
     }
+}
+
+export class TruckEmulator implements Emulator {
+    private input: nnMath.Vector[];
+
+    public forward(input: nnMath.Vector): void {
+        if (!this.input) {
+            this.input = [];
+        }
+        this.input.push(input);
+    }
+
+    public setNotTrainable(trainable: boolean): void {
+        
+    }
+
+    public backward(gradient: nnMath.Vector): nnMath.Vector {
+        this.input.pop();
+        throw new Error("Truck Emulator backward not implemented yet!");
+    }
+
 }

@@ -17,7 +17,7 @@ trainTruckEmulator.getEmulatorNet().loadWeights(parsed_emulator_weights);
 
 let normalizedDockPosition = new Point((world.dock.position.x - 50)/ 50, world.dock.position.y / 50);
 let errorFunc = new TruckControllerError(normalizedDockPosition);
-let trainTruckController = new TrainController(world, new NormalizedTruck(world.truck), controllerNet , emulatorNet, errorFunc);
+let trainTruckController = new TrainController(world, new NormalizedTruck(world.truck), controllerNet , new NeuralNetEmulator(emulatorNet), errorFunc);
 
 try {
     let parsed_controller_weights = JSON.parse(fs.readFileSync("./controller_weights").toString());
@@ -31,6 +31,7 @@ import * as process from 'process'
 let alreadyTrainedSteps = Number.parseInt(process.argv[2])
 
 import {createTruckLessons} from './neuralnet/lesson';
+import { NeuralNetEmulator } from './neuralnet/emulator';
 let lessons = createTruckLessons(world.truck);
 
 for (let j = 0; j < lessons.length; j++) {

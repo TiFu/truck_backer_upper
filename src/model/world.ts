@@ -61,6 +61,7 @@ export class World {
     }
 
     public nextTimeStep(steeringSignal: number): boolean {
+        this.car.nextTimeStep(steeringSignal);
         return this.truck.nextState(steeringSignal);
     }
 }

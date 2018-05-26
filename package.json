@@ -4,6 +4,7 @@
   "description": "",
   "main": "main.js",
   "scripts": {
+    "watch": "webpack --watch",
     "test": "mocha --recursive build/tests",
     "dev-test-watch": "mocha-typescript-watch -o mocha.opts build/tests/neuralnet/layer.js"
   },

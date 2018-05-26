@@ -6,6 +6,7 @@ import {Lesson} from './lesson'
 import { ENGINE_METHOD_ALL } from 'constants';
 import { ControllerError } from './error';
 import { emulatorNet } from './implementations';
+import { Emulator } from './emulator';
 
 export class TrainTruckEmulator {
     private lastError: number;
@@ -93,7 +94,7 @@ export class TrainController {
     public emulatorInputs: any = [];
     private currentLesson: Lesson = null;
 
-    public constructor(private world: World, private realPlant: HasState, private controllerNet: NeuralNet, private emulatorNet: NeuralNet, private errorFunction: ControllerError) {
+    public constructor(private world: World, private realPlant: HasState, private controllerNet: NeuralNet, private emulatorNet: Emulator, private errorFunction: ControllerError) {
     }
 
     public getEmulatorNet() {
@@ -145,7 +146,7 @@ export class TrainController {
 
     private fixEmulator(fix: boolean) {
         if (this.fixedEmulator != fix) {0
-            this.emulatorNet.fixWeights(fix); // do not train emulator
+            this.emulatorNet.setNotTrainable(fix); // do not train emulator
             this.fixedEmulator = fix;
         }
     }
@@ -215,7 +216,7 @@ export class TrainController {
         this.errors.push(error);
         for (let j = i-1; j >= 0; j--) {
             console.log("Entering emulator");
-            let emulatorDerivative = this.emulatorNet.backwardWithGradient(controllerDerivative, false);
+            let emulatorDerivative = this.emulatorNet.backward(controllerDerivative); //.backwardWithGradient(controllerDerivative, false);
             console.log("[EmulatorDerivative]", emulatorDerivative.entries);
             let steeringSignalDerivative = emulatorDerivative.entries[emulatorDerivative.entries.length - 1]; // last entry
             console.log("Exited emulator");

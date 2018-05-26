@@ -11,8 +11,10 @@ let simple = new Simple();
 
 //emulatorNet.setDebugMode(true);
 //let trainTruckEmulator = new TrainTruckEmulator(world, simpleEmulatorNet);
+import {NeuralNetEmulator} from './neuralnet/emulator';
+
 let simpleControllerError = new SimpleControllerError();
-let trainTruckController = new TrainController(world, simple, simpleControllerNet , simpleEmulatorNet, simpleControllerError);
+let trainTruckController = new TrainController(world, simple, simpleControllerNet , new NeuralNetEmulator(simpleEmulatorNet), simpleControllerError);
 
 import * as process from 'process'
 
