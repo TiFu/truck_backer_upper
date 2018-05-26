@@ -28,6 +28,12 @@ export function StaticInitializer(weights: number[]): WeightInitializer {
     }
 }
 
+export function RandomWeightInitializer(weightRange: number) {
+    return (dim: number) => {
+        return getRandomWeights(dim + 1, weightRange);
+    }
+}
+
 function getRandomWeights(inputDim: number, initialWeightRange: number): Vector {
     let random = [];
     for (let i = 0; i < inputDim; i++) {

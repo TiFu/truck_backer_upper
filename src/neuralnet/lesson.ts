@@ -7,18 +7,18 @@ export class Range {
 import {Point} from '../math';
 import {Vector} from '../neuralnet/math'
 import {Truck} from '../model/truck'
-import {Dock} from '../model/world';
+import {Dock, HasLength} from '../model/world';
 
 export class Lesson {
 
-    public constructor(private truck: Truck, public no: number, public samples: number, 
+    public constructor(private truck: HasLength, public no: number, public samples: number, 
         public x: Range, public y: Range, public trailerAngle: Range, 
         public cabAngle: Range, public maxSteps: number){ 
 
     }
 
     public getBounds(): Vector {
-        let length = this.truck.getTruckLength() + this.truck.getTrailerLength();
+        let length = this.truck.getLength();
         let tep1 = new Point(this.x.min * length, this.y.max * length);
         let tep2 = new Point(this.x.max * length, this.y.min * length);
         let maxAngleTrailer = [this.trailerAngle.min, this.trailerAngle.max];

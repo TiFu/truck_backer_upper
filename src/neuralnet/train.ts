@@ -175,7 +175,7 @@ export class TrainController {
             let steeringSignal = controllerSignal.entries[0];
 
             let stateWithSteering = currentState.getWithNewElement(steeringSignal);
-
+            console.log("[State with steering] ", stateWithSteering.entries);
             controllerSignals.push(controllerSignal);
             // derivative depends on output/input
             this.emulatorNet.forward(stateWithSteering);
@@ -185,7 +185,7 @@ export class TrainController {
             // set the next state
             currentState = this.realPlant.getStateVector();
             let outputState = this.realPlant.getOriginalState();
-            console.log("[NextState]", outputState.entries[3], outputState.entries[4], outputState.entries[5] * 180 / Math.PI)
+            console.log("[NextState]", outputState.entries[0], outputState.entries[1], outputState.entries[2] * 180 / Math.PI)
 
             console.log("------- END -------");
             if (i+1 >= this.currentLesson.maxSteps) {
@@ -237,7 +237,7 @@ export class TrainController {
         let endError = this.errorFunction.getError(this.realPlant.getStateVector());
         console.log("[Sumary] ---------- SUMMARY OF THIS STEP ----------");
         console.log("[Sumary] Steps: ", i+1, " of ", this.currentLesson.maxSteps);
-        console.log("[Sumary] Final Position (Original): ", endState.entries[3], endState.entries[4], endState.entries[5] * 180 / Math.PI);
+        console.log("[Sumary] Final Position (Original): ", endState.entries[0], endState.entries[1], endState.entries[2] * 180 / Math.PI);
         console.log("[Sumary] Error: ",  endError);
         console.log("[Sumary] --------------------------------------------------------");
         return error;

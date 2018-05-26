@@ -4,7 +4,7 @@ import {AdalineUnit} from './unit'
 import {ActivationFunction, Tanh, Sigmoid, Linear, ReLu} from './activation'
 import {Vector} from './math'
 import {Optimizer, SGD, SGDNesterovMomentum} from './optimizers';
-import { WeightInitializer, TwoLayerInitializer, StaticInitializer } from './weightinitializer';
+import { WeightInitializer, TwoLayerInitializer, StaticInitializer, RandomWeightInitializer } from './weightinitializer';
 
 export var hiddenEmulatorLayer: LayerConfig = {
     neuronCount: 45,
@@ -102,3 +102,35 @@ export var simpleControllerNetConfig: NetConfig = {
 }
 
 export var simpleControllerNet = new NeuralNet(simpleControllerNetConfig);
+
+
+// Car
+
+
+export var hiddenCarControllerLayer: LayerConfig = {
+    neuronCount: 26,
+    weightInitializer: RandomWeightInitializer(0.01),
+//    weightInitializer: TwoLayerInitializer(0.7, 26),
+    unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
+    activation: new Tanh()
+}
+
+export var outputCarControllerLayer: LayerConfig = {
+    neuronCount: 1,
+    weightInitializer: RandomWeightInitializer(0.01),
+//    weightInitializer: TwoLayerInitializer(0.7, 1),
+    unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
+    activation: new Tanh() // [-1, 1]
+}
+
+export var carControllerNetConfig: NetConfig = {
+    inputs: 3,
+    optimizer: () => new SGD(0.001),
+    errorFunction: new MSE(), // ignored
+    layerConfigs: [
+        hiddenCarControllerLayer,
+        outputCarControllerLayer
+    ]
+}
+
+export var carControllerNet = new NeuralNet(carControllerNetConfig);

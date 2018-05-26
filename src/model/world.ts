@@ -11,6 +11,11 @@ export class Dock {
     }
 
 }
+
+export interface HasLength {
+    getLength(): number;
+}
+
 export interface HasState {
     getOriginalState(): nnMath.Vector; // unnormalized
     getStateVector(): nnMath.Vector // normalized

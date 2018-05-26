@@ -1,16 +1,19 @@
 import { Point, scale, minus, plus,  Vector, Angle, getAngle, calculateVector, rotate, StraightLine, isLeftOf } from '../math'
 import * as nnMath from '../neuralnet/math' // TODO: union math libraries..
-import {Dock, AngleType, HasState, Limitable} from './world'
+import {Dock, AngleType, HasState, Limitable, HasLength} from './world'
 import {Lesson} from '../neuralnet/lesson';
 
 import {expect} from 'chai';
 import { Emulator } from '../neuralnet/emulator';
 
-export class NormalizedTruck implements HasState, Limitable {
+export class NormalizedTruck implements HasState, Limitable, HasLength {
     public constructor(private truck: Truck) {
 
     }
 
+    public getLength() {
+        return this.truck.getLength();
+    }
     public setLimits(limits: StraightLine[]) {
         this.truck.setLimits(limits);
     }
@@ -47,7 +50,7 @@ export class NormalizedTruck implements HasState, Limitable {
 }
 
 
-export class Truck implements HasState, Limitable {
+export class Truck implements HasState, Limitable, HasLength {
     public velocity = 3; // m/sec
     public maxSteeringAngle = Math.PI / 180 * 70 // 70 degree
     public trailerLength = 14;
@@ -55,6 +58,10 @@ export class Truck implements HasState, Limitable {
     private lastSteeringAngle: Angle = 0;
     private limited = true;
 
+    public getLength() {
+        return this.getTruckLength() + this.getTrailerLength();
+    }
+    
     public constructor(private tep: Point, private trailerAngle: Angle, private cabinAngle: Angle, private dock: Dock, private limits: Array<StraightLine> = []) {
         this.cabinAngle = this.fixAngle(cabinAngle)
         this.trailerAngle = this.fixAngle(trailerAngle)
@@ -265,7 +272,7 @@ export class Truck implements HasState, Limitable {
         let cabinAngle = this.getRandomCabinAngle(maxAngleCabin, trailerAngle)
         this.setTruckPosition(tep, trailerAngle, cabinAngle);
         while(!this.isTruckInValidPosition()) {
-            this.setTruckPosition(tep, trailerAngle, cabinAngle);
+            this.randomizeTruckPosition(tep1, tep2, maxAngleTrailer, maxAngleCabin);
         }        
     }
 

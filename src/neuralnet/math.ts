@@ -44,7 +44,7 @@ export class Vector {
             throw new Error("Matrix with " + matrixDim[0] + " rows can not be multiplied with vector of length " + this.length);
         }
 
-        for (let i = 0; i < matrixDim[0]; i++) {
+        for (let i = 0; i < matrixDim[1]; i++) {
             let currentSum = 0;
             for (let j = 0; j < this.length; j++) {
                 currentSum += this.entries[j] * matrix.content[j][i];
@@ -77,7 +77,7 @@ export class Vector {
         }
         return this;
     }
-    
+
     public multiply(other: Vector): Scalar {
         let sum = 0.0;
         for (let i = 0; i < this.entries.length; i++) {
