@@ -39,7 +39,7 @@ let lessons = createTruckLessons(world.car);
 for (let j = 0; j < lessons.length; j++) {
     let lesson = lessons[j];
     trainTruckController.setLesson(lesson);
-    console.log("[Info] Next Lesson: ", lesson.no, "Cab Angle: ", "[", lesson.trailerAngle.min * 180 / Math.PI, ",", lesson.trailerAngle.max * 180 / Math.PI, "]", "; x: [", lesson.x.min + ", " + lesson.x.max + "], y: [", lesson.y.min, ", ", lesson.y.max, "]")
+    console.log("[Info] Next Lesson: " + lesson.no + " : " + JSON.stringify(lesson.getBoundsDescription()))
     for (let i = 0; i < lessons[0].samples; i++) {
         trainTruckController.trainSingleStep();
         if ((i % 100 == 0 && i > 0) || i == lessons[0].samples - 1) {
@@ -52,8 +52,10 @@ for (let j = 0; j < lessons.length; j++) {
             errorFunc.yError = [];
             errorFunc.angleError = [];
             trainTruckController.steeringSignals = [];
-            console.log("[Info][AvgError] Step " + i + "; Avg error: ", avgError, "Y Distance: " + averageYError + ", Angle: " + averageAngleError / Math.PI *  180)
+            console.log("[Info][AvgError] Lesson: " + lesson.no + ", Step " + i + "; Avg error: ", avgError, "Y Distance: " + averageYError + ", Angle: " + averageAngleError / Math.PI *  180)
         }
    }
-   break;
+   if (j == 3) {
+       break;
+   }
 }

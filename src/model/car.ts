@@ -150,9 +150,9 @@ export class Car implements HasState, HasLength {
     public randomizeTruckPosition(tep1: Point, tep2: Point, maxAngleTrailer: Angle[], maxAngleCabin: Angle[]) {
         let tep = this.getRandomTEP(tep1, tep2);
         let trailerAngle = this.getRandomTrailerAngle(maxAngleTrailer);
-        this.axle.x = tep.x;
+        this.axle.x = tep.x; //tep.x;
         this.axle.y = tep.y;
-        this.angle = trailerAngle;
+        this.angle = trailerAngle; //25/180*Math.PI; //trailerAngle;
         console.log("[Random Position] ", this.axle.x, this.axle.y, this.angle);
     }
 

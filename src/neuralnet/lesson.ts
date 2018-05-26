@@ -17,6 +17,19 @@ export class Lesson {
 
     }
 
+    public getBoundsDescription(): any {
+        let bounds = this.getBounds().entries;
+        return {
+            "tep1.x": bounds[0],
+            "tep1.y": bounds[1],
+            "tep2.x": bounds[2],
+            "tep2.y": bounds[3],
+            "minAngleTrailer": bounds[4] * 180 / Math.PI,
+            "maxAngleTrailer": bounds[5] * 180 / Math.PI,
+            "minAngleCabin": bounds[6] * 180 / Math.PI,
+            "maxAngleCabin": bounds[7] * 180 / Math.PI
+        }
+    }
     public getBounds(): Vector {
         let length = this.truck.getLength();
         let tep1 = new Point(this.x.min * length, this.y.max * length);
@@ -56,10 +69,10 @@ export function createTruckLessons(truck: HasLength) {
     let maxX = new Range(0.6, 2);
     let minY = new Range(0, 1);
     let maxY = new Range(0, 2);
-    let minCabAngle = new Range(- 30/180*Math.PI,-180 / 180 * Math.PI);
-    let maxCabAngle = new Range(30/180*Math.PI, 180/180*Math.PI);
-    let minTrailerAngle = new Range(-30/180 * Math.PI, -180/180*Math.PI);
-    let maxTrailerAngle = new Range(30/180 * Math.PI, 180/180 * Math.PI);
+    let minCabAngle = new Range(- 30/180*Math.PI,-90 / 180 * Math.PI);
+    let maxCabAngle = new Range(30/180*Math.PI, 90/180*Math.PI);
+    let minTrailerAngle = new Range(-30/180 * Math.PI, -90/180*Math.PI);
+    let maxTrailerAngle = new Range(30/180 * Math.PI, 90/180 * Math.PI);
     let lessonCount = 12;
 
     for (let i = 0; i < lessonCount; i++) {
@@ -67,10 +80,10 @@ export function createTruckLessons(truck: HasLength) {
         let yR = rangeForStep(minY, maxY, i, lessonCount);
         let trailerR = rangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCount);
         let cabR = rangeForStep(minCabAngle, maxCabAngle, i, lessonCount);
-        let samples = 10000;
-        lessons.push(new Lesson(truck, i, samples, xR, yR, trailerR, cabR, xR.max * 5 * 20 + 100));
+        let samples = 2500;
+        lessons.push(new Lesson(truck, i, samples, xR, yR, trailerR, cabR, xR.max + 10));
         if (i == lessonCount - 1) {
-            lessons.push(new Lesson(truck, i, 10000, xR, yR, trailerR, cabR, xR.max * 5 * 20 + 30));
+            lessons.push(new Lesson(truck, i, 10000, xR, yR, trailerR, cabR, xR.max + 130));
         }
     }
     return lessons;
