@@ -66,13 +66,13 @@ export function createTruckLessons(truck: HasLength) {
     let lessons: Array<Lesson> = []
 
     let minX = new Range(2, 2);
-    let maxX = new Range(2, 2);
+    let maxX = new Range(2, 5);
     let minY = new Range(0, 0);
     let maxY = new Range(0, 0);
-    let minCabAngle = new Range(- 30/180*Math.PI,-90 / 180 * Math.PI);
-    let maxCabAngle = new Range(30/180*Math.PI, 90/180*Math.PI);
-    let minTrailerAngle = new Range(-30/180 * Math.PI, -90/180*Math.PI);
-    let maxTrailerAngle = new Range(30/180 * Math.PI, 90/180 * Math.PI);
+    let minCabAngle = new Range(- 30/180*Math.PI,-30 / 180 * Math.PI);
+    let maxCabAngle = new Range(30/180*Math.PI, 30/180*Math.PI);
+    let minTrailerAngle = new Range(-30/180 * Math.PI, -30/180*Math.PI);
+    let maxTrailerAngle = new Range(30/180 * Math.PI, 30/180 * Math.PI);
     let lessonCount = 12;
 
     for (let i = 0; i < lessonCount; i++) {
@@ -81,7 +81,7 @@ export function createTruckLessons(truck: HasLength) {
         let trailerR = rangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCount);
         let cabR = rangeForStep(minCabAngle, maxCabAngle, i, lessonCount);
         let samples = 5000;
-        lessons.push(new Lesson(truck, i, samples, xR, yR, trailerR, cabR, 2 * xR.max + 10));
+        lessons.push(new Lesson(truck, i, samples, xR, yR, trailerR, cabR, 2 * xR.max + 30));
         if (i == lessonCount - 1) {
             lessons.push(new Lesson(truck, i, 10000, xR, yR, trailerR, cabR, 2 * xR.max + 100));
         }

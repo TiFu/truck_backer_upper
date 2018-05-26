@@ -125,7 +125,7 @@ export var outputCarControllerLayer: LayerConfig = {
 
 export var carControllerNetConfig: NetConfig = {
     inputs: 3,
-    optimizer: () => new SGDNesterovMomentum(0.05, 0.9),
+    optimizer: () => new SGDNesterovMomentum(0.0005, 0.9),
     errorFunction: new MSE(), // ignored
     layerConfigs: [
         hiddenCarControllerLayer,
