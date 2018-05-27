@@ -52,7 +52,7 @@ for (let j = 0; j < lessons.length; j++) {
             errorFunc.yError = [];
             errorFunc.angleError = [];
             trainTruckController.steeringSignals = [];
-            console.log("[Info][AvgError] Lesson: " + lesson.no + ", Step " + i + "; Avg error: ", avgError, "Y Distance: " + averageYError + ", Angle: " + averageAngleError / Math.PI *  180)
+            console.log("[Info][AvgError] Lesson: " + lesson.no + ", Step " + i + " of " + lesson.samples + "; Avg error: ", avgError, "Y Distance: " + averageYError + ", Angle: " + averageAngleError / Math.PI *  180)
         }
    }
 }
