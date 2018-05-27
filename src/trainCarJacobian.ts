@@ -8,6 +8,7 @@ import {Vector} from './neuralnet/math'
 import {TruckControllerError, CarControllerError} from './neuralnet/error';
 import {Point} from './math';
 import {CarEmulator, NormalizedCar, Car} from './model/car';
+import * as process from 'process'
 
 let world = new World();
 
@@ -22,6 +23,7 @@ let errorFunc = new CarControllerError(normalizedDockPosition);
 let trainTruckController = new TrainController(world, new NormalizedCar(world.car), carControllerNet , new CarEmulator(world.car), errorFunc);
 
 
+// start at y dist
 let startingLesson = 0; //Number.parseInt(process.argv[2]);
 console.log("Using starting lesson: " + startingLesson);
 
@@ -37,8 +39,6 @@ if (startingLesson > 0) {
 } else {
     console.log("Starting with random weights");
 }
-
-import * as process from 'process'
 
 
 import {createTruckLessons} from './neuralnet/lesson';
@@ -69,5 +69,4 @@ for (let j = startingLesson; j < lessons.length; j++) {
    }
    // save lesson weights
    fs.writeFileSync("./car_controller_weights_" + j, JSON.stringify(carControllerNet.getWeights()));
-
 }
