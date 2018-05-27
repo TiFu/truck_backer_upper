@@ -8,12 +8,13 @@ import {Point} from '../math';
 import {Vector} from '../neuralnet/math'
 import {Truck} from '../model/truck'
 import {Dock, HasLength} from '../model/world';
+import { SGDNesterovMomentum, Optimizer, SGD } from './optimizers';
 
 export class Lesson {
 
     public constructor(private truck: HasLength, public no: number, public samples: number, 
         public x: Range, public y: Range, public trailerAngle: Range, 
-        public cabAngle: Range, public maxSteps: number){ 
+        public cabAngle: Range, public maxSteps: number, public optimizer: () => Optimizer){ 
 
     }
 
@@ -63,16 +64,30 @@ function rangeForStep(minR: Range, maxR: Range, step: number, maxSteps: number) 
 }
 
 export function createTruckLessons(truck: HasLength) {
+    let optimizers = [
+        () => new SGD(0.01), 
+        () => new SGD(0.01) ,
+        () => new SGD(0.01),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),        
+    ]
     let lessons: Array<Lesson> = []
 
-    let minX = new Range(2, 2);
-    let maxX = new Range(2, 4);
-    let minY = new Range(0, -2);
-    let maxY = new Range(0, 2);
-    let minCabAngle = new Range(- 30/180*Math.PI,-50 / 180 * Math.PI);
-    let maxCabAngle = new Range(30/180*Math.PI, 50/180*Math.PI);
-    let minTrailerAngle = new Range(-30/180 * Math.PI, -90/180*Math.PI);
-    let maxTrailerAngle = new Range(30/180 * Math.PI, 90/180 * Math.PI);
+    let minX = new Range(0.75, 2);
+    let maxX = new Range(0.75, 4);
+    let minY = new Range(0, 0);
+    let maxY = new Range(0, 0);
+    let minCabAngle = new Range(- 30/180*Math.PI,-30 / 180 * Math.PI);
+    let maxCabAngle = new Range(30/180*Math.PI, 30/180*Math.PI);
+    let minTrailerAngle = new Range(-30/180 * Math.PI, -30/180*Math.PI);
+    let maxTrailerAngle = new Range(30/180 * Math.PI,30/180 * Math.PI);
     let lessonCount = 12;
 
     for (let i = 0; i < lessonCount; i++) {
@@ -81,9 +96,9 @@ export function createTruckLessons(truck: HasLength) {
         let trailerR = rangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCount);
         let cabR = rangeForStep(minCabAngle, maxCabAngle, i, lessonCount);
         let samples = 5000;
-        lessons.push(new Lesson(truck, i, samples, xR, yR, trailerR, cabR, 2 * xR.max + 30));
+        lessons.push(new Lesson(truck, i, samples, xR, yR, trailerR, cabR, 2 * xR.max + 30, optimizers[i]));
         if (i == lessonCount - 1) {
-            lessons.push(new Lesson(truck, i, 10000, xR, yR, trailerR, cabR, 2 * xR.max + 100));
+            lessons.push(new Lesson(truck, i, 10000, xR, yR, trailerR, cabR, 2 * xR.max + 100, optimizers[i]));
         }
     }
     return lessons;

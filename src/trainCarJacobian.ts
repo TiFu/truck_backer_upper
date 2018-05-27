@@ -21,26 +21,38 @@ let normalizedDockPosition = new Point((world.dock.position.x - 50)/ 50, world.d
 let errorFunc = new CarControllerError(normalizedDockPosition);
 let trainTruckController = new TrainController(world, new NormalizedCar(world.car), carControllerNet , new CarEmulator(world.car), errorFunc);
 
-/*try {
-    let parsed_controller_weights = JSON.parse(fs.readFileSync("./controller_weights").toString());
-    trainTruckController.getControllerNet().loadWeights(parsed_controller_weights);
-} catch(err) {
 
-}*/
+let startingLesson = 0; //Number.parseInt(process.argv[2]);
+console.log("Using starting lesson: " + startingLesson);
+
+if (startingLesson > 0) {
+    try {
+        console.log("Loading weights from car_controller_weights_" + (startingLesson - 1));
+        let parsed_controller_weights = JSON.parse(fs.readFileSync("./car_controller_weights_" + (startingLesson - 1)).toString());
+        trainTruckController.getControllerNet().loadWeights(parsed_controller_weights);
+    } catch(err) {
+        console.log(err);
+        process.exit();
+    }
+} else {
+    console.log("Starting with random weights");
+}
 
 import * as process from 'process'
 
-let alreadyTrainedSteps = Number.parseInt(process.argv[2])
 
 import {createTruckLessons} from './neuralnet/lesson';
 import { NeuralNetEmulator } from './neuralnet/emulator';
 let lessons = createTruckLessons(world.car);
 
-for (let j = 0; j < lessons.length; j++) {
+for (let j = startingLesson; j < lessons.length; j++) {
     let lesson = lessons[j];
     trainTruckController.setLesson(lesson);
+    carControllerNet.changeOptimizer(lesson.optimizer);
+
     console.log("[Info] Next Lesson: " + lesson.no + " : " + JSON.stringify(lesson.getBoundsDescription()))
-    for (let i = 0; i < lessons[0].samples; i++) {
+    console.log("Optimizer: " + lesson.optimizer);
+    for (let i = startingLesson; i < lessons[j].samples; i++) {
         trainTruckController.trainSingleStep();
         if ((i % 100 == 0 && i > 0) || i == lessons[0].samples - 1) {
             console.log("Step " + i + " of " + lesson.samples);
@@ -55,4 +67,7 @@ for (let j = 0; j < lessons.length; j++) {
             console.log("[Info][AvgError] Lesson: " + lesson.no + ", Step " + i + " of " + lesson.samples + "; Avg error: ", avgError, "Y Distance: " + averageYError + ", Angle: " + averageAngleError / Math.PI *  180)
         }
    }
+   // save lesson weights
+   fs.writeFileSync("./car_controller_weights_" + j, JSON.stringify(carControllerNet.getWeights()));
+
 }

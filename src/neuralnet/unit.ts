@@ -14,6 +14,7 @@ export interface Unit {
     getLastUpdate(): Vector;
     setDebug(debug: boolean): void;
     clearInputs(): void;
+    changeOptimizer(optimizer: Optimizer): void;
 }
 
 export class AdalineUnit implements Unit {
@@ -32,6 +33,10 @@ export class AdalineUnit implements Unit {
         this.weights = weightInitializer(inputDim); // this.getRandomWeights(inputDim + 1, initialWeightRange); // bias
         this.resetAccumulatedWeights();
         //console.log("inputDim: ", inputDim, "weights:", this.weights.length);
+    }
+
+    public changeOptimizer(optimizer: Optimizer) {
+        this.optimizer = optimizer;
     }
 
     public clearInputs() {

@@ -46,6 +46,12 @@ export class Layer {
         this.units.forEach(u => u.clearInputs());
     }
 
+    public changeOptimizer(optimizerFunc: () => Optimizer) {
+        for (let i = 0; i < this.units.length; i++) {
+            this.units[i].changeOptimizer(optimizerFunc());
+        }
+    }
+    
     public forward(input: Vector): Vector {
         if (input.length != this.inputDim) {
             throw new Error("Invalid Input Dimension! Expected " + this.inputDim + ", but got " + input.length);

@@ -43,6 +43,12 @@ export class NeuralNet {
         this.outputDim = lastNeuronCount;
     }
 
+    public changeOptimizer(optimizerFunc: () => Optimizer) {
+        console.log("Changing optimizer")
+        for (let i = 0; i < this.netConfig.layerConfigs.length; i++) {
+            this.layers[i].changeOptimizer(optimizerFunc);
+        }
+    }
     public clearInputs() {
         this.layers.forEach(l => l.clearInputs());
     }
