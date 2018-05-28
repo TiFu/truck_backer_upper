@@ -100,43 +100,6 @@ export function createTruckLessons(truck: HasLength) {
         lessons.push(new Lesson(truck, i, samples, xR, yR, trailerR, cabR, 2 * xR.max + 30, optimizers[i]));
     }
 
-
-    // y distance lessons
-    optimizers = [
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),        
-    ]
-
-    //distance lessons
-    minX = new Range(0.75, 2);
-    maxX = new Range(0.75, 4);
-    minY = new Range(0, 0.1);
-    maxY = new Range(0, -1);
-    minCabAngle = new Range(- 30/180*Math.PI,-30 / 180 * Math.PI);
-    maxCabAngle = new Range(30/180*Math.PI, 30/180*Math.PI);
-    minTrailerAngle = new Range(-30/180 * Math.PI, -30/180*Math.PI);
-    maxTrailerAngle = new Range(30/180 * Math.PI,30/180 * Math.PI);
-    let lessonCountY = 12;
-
-    for (let i = 0; i < lessonCountY; i++) {
-        let xR = rangeForStep(minX, maxX, i, lessonCountY);
-        let yR = rangeForStep(minY, maxY, i, lessonCountY);
-        let trailerR = rangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCountY);
-        let cabR = rangeForStep(minCabAngle, maxCabAngle, i, lessonCountY);
-        let samples = 5000;
-        lessons.push(new Lesson(truck, i + lessonCountX , samples, xR, yR, trailerR, cabR, 2 * xR.max + 30, optimizers[i]));
-    }
-
     //angle lessons
     optimizers = [
         () => new SGD(0.01), 
@@ -155,8 +118,8 @@ export function createTruckLessons(truck: HasLength) {
     
     minX = new Range(1.5, 2);
     maxX = new Range(2, 4);
-    minY = new Range(0.25, 1);
-    maxY = new Range(-0.25, -1);
+    minY = new Range(0, 0);
+    maxY = new Range(0, 0);
     minCabAngle = new Range(- 30/180*Math.PI,-90 / 180 * Math.PI);
     maxCabAngle = new Range(30/180*Math.PI, 90/180*Math.PI);
     minTrailerAngle = new Range(-30/180 * Math.PI, -90/180*Math.PI);
@@ -169,8 +132,44 @@ export function createTruckLessons(truck: HasLength) {
         let trailerR = rangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCountAngle);
         let cabR = rangeForStep(minCabAngle, maxCabAngle, i, lessonCountAngle);
         let samples = 5000;
-        lessons.push(new Lesson(truck, i  + lessonCountY + lessonCountX , samples, xR, yR, trailerR, cabR, 2 * xR.max + 30, optimizers[i]));
+        lessons.push(new Lesson(truck, i + lessonCountX , samples, xR, yR, trailerR, cabR, 2 * xR.max + 30, optimizers[i]));
     }
+
+    // y distance lessons
+    optimizers = [
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),        
+    ]
+
+    minX = new Range(0.75, 2);
+    maxX = new Range(0.75, 4);
+    minY = new Range(0, 0.1);
+    maxY = new Range(0, -1);
+    minCabAngle = new Range(- 30/180*Math.PI,-30 / 180 * Math.PI);
+    maxCabAngle = new Range(30/180*Math.PI, 30/180*Math.PI);
+    minTrailerAngle = new Range(-30/180 * Math.PI, -30/180*Math.PI);
+    maxTrailerAngle = new Range(30/180 * Math.PI,30/180 * Math.PI);
+    let lessonCountY = 12;
+
+    for (let i = 0; i < lessonCountY; i++) {
+        let xR = rangeForStep(minX, maxX, i, lessonCountY);
+        let yR = rangeForStep(minY, maxY, i, lessonCountY);
+        let trailerR = rangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCountY);
+        let cabR = rangeForStep(minCabAngle, maxCabAngle, i, lessonCountY);
+        let samples = 5000;
+        lessons.push(new Lesson(truck, i + lessonCountY + lessonCountX , samples, xR, yR, trailerR, cabR, 2 * xR.max + 30, optimizers[i]));
+    }
+
 
 //    console.log("Created lessons: ", lessons);
     return lessons;
