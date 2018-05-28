@@ -102,18 +102,18 @@ export function createTruckLessons(truck: HasLength) {
 
     //angle lessons
     optimizers = [
-        () => new SGD(0.01), 
-        () => new SGD(0.01) ,
-        () => new SGD(0.01),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),        
+        () => new SGD(0.01),  // 12
+        () => new SGD(0.01) , //13
+        () => new SGD(0.01), // 14 
+        () => new SGDNesterovMomentum(0.0001, 0.9), //15
+        () => new SGDNesterovMomentum(0.0001, 0.9), //16
+        () => new SGDNesterovMomentum(0.0001, 0.9), //17
+        () => new SGDNesterovMomentum(0.0001, 0.9), // 18
+        () => new SGDNesterovMomentum(0.0001, 0.9), // 19
+        () => new SGDNesterovMomentum(0.00005, 0.9), // lesson 20
+        () => new SGDNesterovMomentum(0.00005, 0.9),
+        () => new SGDNesterovMomentum(0.00005, 0.9),
+        () => new SGDNesterovMomentum(0.00005, 0.9),        
     ]
     
     minX = new Range(1.5, 2);
