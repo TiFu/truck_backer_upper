@@ -105,6 +105,13 @@ export class TrainController {
         return this.controllerNet;
     }
 
+    public predict(): number {
+        let currentState = this.realPlant.getStateVector();
+        this.controllerNet.fixWeights(true); // do not safe input in units
+        let controllerSignal = this.controllerNet.forward(currentState);
+        return controllerSignal.entries[0];
+    }
+
     public setLesson(lesson: Lesson): void {
         this.currentLesson = lesson;
         this.performedTrainSteps = 0;

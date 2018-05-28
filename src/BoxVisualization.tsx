@@ -7,10 +7,12 @@ import {Point, plus, minus, calculateVector, scale} from './math'
 
 interface BoxVisualizationProps{
     points: Point[];
-    cordSystemTransformer: CoordinateSystemTransformation
+    cordSystemTransformer: CoordinateSystemTransformation;
+    color?: string;
 }
 export class BoxVisualization extends React.Component<BoxVisualizationProps, {}> {
-
+    static defaultProps = { color: "black"};
+    
     public constructor(props: BoxVisualizationProps) {
         super(props)
     }
@@ -34,7 +36,7 @@ export class BoxVisualization extends React.Component<BoxVisualizationProps, {}>
 
         
         return  <Group>
-                    <Line points={rectanglePoints} stroke="black" />
+                    <Line points={rectanglePoints} stroke={this.props.color} />
                 </Group>
     }
 }

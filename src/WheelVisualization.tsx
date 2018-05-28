@@ -14,10 +14,12 @@ interface WheelVisualizationProps{
     wheelLength: number;
     cordSystemTransformer: CoordinateSystemTransformation
     steeringAngle?: Angle;
+    color?: string;
 }
 export class WheelVisualization extends React.Component<WheelVisualizationProps, {}> {
     public static defaultProps: Partial<WheelVisualizationProps> = {
-        steeringAngle: 0
+        steeringAngle: 0,
+        color: "black"
     }
 
     public constructor(props: WheelVisualizationProps) {
@@ -61,8 +63,8 @@ export class WheelVisualization extends React.Component<WheelVisualizationProps,
         wheelEndRight = this.map(wheelEndRight)
 
         return  <Group>
-                    <Line points={[wheelBeginLeft.x, wheelBeginLeft.y, wheelEndLeft.x, wheelEndLeft.y]} stroke="black" />
-                    <Line points={[wheelBeginRight.x, wheelBeginRight.y, wheelEndRight.x, wheelEndRight.y]} stroke="black" />
+                    <Line points={[wheelBeginLeft.x, wheelBeginLeft.y, wheelEndLeft.x, wheelEndLeft.y]} stroke={this.props.color} />
+                    <Line points={[wheelBeginRight.x, wheelBeginRight.y, wheelEndRight.x, wheelEndRight.y]} stroke={this.props.color} />
                 </Group>
     }
 }
