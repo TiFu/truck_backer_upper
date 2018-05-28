@@ -22,9 +22,15 @@ let normalizedDockPosition = new Point((world.dock.position.x - 50)/ 50, world.d
 let errorFunc = new CarControllerError(normalizedDockPosition);
 let trainTruckController = new TrainController(world, new NormalizedCar(world.car), carControllerNet , new CarEmulator(world.car), errorFunc);
 
+import {createTruckLessons} from './neuralnet/lesson';
+import { NeuralNetEmulator } from './neuralnet/emulator';
+let lessons = createTruckLessons(world.car);
 
 // start at y dist
-let startingLesson = 0; //Number.parseInt(process.argv[2]);
+if (process.argv.length < 3) {
+    console.log("Argument starting lesson needed! Pick value between 0 and " + (lessons.length - 1) );
+}
+let startingLesson = Number.parseInt(process.argv[2]);
 console.log("Using starting lesson: " + startingLesson);
 
 if (startingLesson > 0) {
@@ -40,10 +46,6 @@ if (startingLesson > 0) {
     console.log("Starting with random weights");
 }
 
-
-import {createTruckLessons} from './neuralnet/lesson';
-import { NeuralNetEmulator } from './neuralnet/emulator';
-let lessons = createTruckLessons(world.car);
 
 for (let j = startingLesson; j < lessons.length; j++) {
     let lesson = lessons[j];

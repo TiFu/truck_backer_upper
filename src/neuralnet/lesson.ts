@@ -103,9 +103,9 @@ export function createTruckLessons(truck: HasLength) {
 
     // y distance lessons
     optimizers = [
-        () => new SGD(0.1), 
-        () => new SGD(0.01) ,
-        () => new SGD(0.01),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9),
         () => new SGDNesterovMomentum(0.0001, 0.9),
         () => new SGDNesterovMomentum(0.0001, 0.9),
         () => new SGDNesterovMomentum(0.0001, 0.9),
@@ -118,9 +118,9 @@ export function createTruckLessons(truck: HasLength) {
     ]
 
     //distance lessons
-    minX = new Range(1.25, 2);
-    maxX = new Range(2, 4);
-    minY = new Range(0, 1);
+    minX = new Range(0.75, 2);
+    maxX = new Range(0.75, 4);
+    minY = new Range(0, 0.1);
     maxY = new Range(0, -1);
     minCabAngle = new Range(- 30/180*Math.PI,-30 / 180 * Math.PI);
     maxCabAngle = new Range(30/180*Math.PI, 30/180*Math.PI);
@@ -155,8 +155,8 @@ export function createTruckLessons(truck: HasLength) {
     
     minX = new Range(1.5, 2);
     maxX = new Range(2, 4);
-    minY = new Range(0, 1);
-    maxY = new Range(0, -1);
+    minY = new Range(0.25, 1);
+    maxY = new Range(-0.25, -1);
     minCabAngle = new Range(- 30/180*Math.PI,-90 / 180 * Math.PI);
     maxCabAngle = new Range(30/180*Math.PI, 90/180*Math.PI);
     minTrailerAngle = new Range(-30/180 * Math.PI, -90/180*Math.PI);
