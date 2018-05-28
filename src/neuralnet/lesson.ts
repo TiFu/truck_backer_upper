@@ -139,26 +139,26 @@ export function createTruckLessons(truck: HasLength) {
     optimizers = [
         () => new SGDNesterovMomentum(0.0001, 0.9),
         () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9),        
+        () => new SGDNesterovMomentum(0.00001, 0.9),
+        () => new SGDNesterovMomentum(0.000001, 0.9),
+        () => new SGDNesterovMomentum(0.00001, 0.9),
+        () => new SGDNesterovMomentum(0.00001, 0.9),
+        () => new SGDNesterovMomentum(0.00001, 0.9),
+        () => new SGDNesterovMomentum(0.000001, 0.9),
+        () => new SGDNesterovMomentum(0.000001, 0.9),
+        () => new SGDNesterovMomentum(0.000001, 0.9),
+        () => new SGDNesterovMomentum(0.0000005, 0.9),
+        () => new SGDNesterovMomentum(0.0000001, 0.9),
     ]
 
-    minX = new Range(0.75, 2);
-    maxX = new Range(0.75, 4);
-    minY = new Range(0, 0.1);
-    maxY = new Range(0, -1);
-    minCabAngle = new Range(- 30/180*Math.PI,-30 / 180 * Math.PI);
-    maxCabAngle = new Range(30/180*Math.PI, 30/180*Math.PI);
-    minTrailerAngle = new Range(-30/180 * Math.PI, -30/180*Math.PI);
-    maxTrailerAngle = new Range(30/180 * Math.PI,30/180 * Math.PI);
+    minX = new Range(1.5, 2);
+    maxX = new Range(2, 4);
+    minY = new Range(0, 0);
+    maxY = new Range(0, 0);
+    minCabAngle = new Range(- 90/180*Math.PI,-180 / 180 * Math.PI);
+    maxCabAngle = new Range(90/180*Math.PI, 180/180*Math.PI);
+    minTrailerAngle = new Range(-90/180 * Math.PI, -180/180*Math.PI);
+    maxTrailerAngle = new Range(90/180 * Math.PI,180/180 * Math.PI);
     let lessonCountY = 12;
 
     for (let i = 0; i < lessonCountY; i++) {

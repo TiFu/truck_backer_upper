@@ -308,6 +308,8 @@ export default class Simulation extends React.Component<{}, SimulationState> {
 
     public randomizePositionLesson() {
         this.state.world.car.randomizePosition(this.state.selectedLesson);
+        let state = this.state.world.car.getStateVector().entries;
+        console.log("New Position: ", state[0], state[1], state[2] * 180 / Math.PI);
         this.forceUpdate();
     }
 
