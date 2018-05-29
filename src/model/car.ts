@@ -43,7 +43,7 @@ export class NormalizedCar implements HasState, Limitable, HasLength {
     }
 }
 export class Car implements HasState, HasLength {
-    private maxAngle: Angle = 70 / 180 * Math.PI;
+    private maxAngle: Angle = 30 / 180 * Math.PI;
     private velocity: number = -1;
     private carLength: number = 5;
     private lastSteeringAngle = 0;
@@ -158,11 +158,11 @@ export class Car implements HasState, HasLength {
 
     // CAREFUL: THIS MATRIX IS SCALED with x/50, y/50, angle/pi and steering angle / (angle/180*PI)
     public getJacobiMatrix(input: nnMath.Vector): nnMath.Matrix {
-        let xDAngle = - 1 / 50.0 * Math.PI * this.velocity * Math.sin(input.entries[2] * Math.PI + input.entries[3] * (this.maxAngle / 180 * Math.PI));
-        let xDSteeringAngle = - 1 / 50.0 * (this.maxAngle / 180 * Math.PI) * this.velocity * Math.sin(input.entries[2] * Math.PI + input.entries[3] * (this.maxAngle / 180 * Math.PI));
+        let xDAngle = - 1 / 50.0 * Math.PI * this.velocity * Math.sin(input.entries[2] * Math.PI + input.entries[3] * this.maxAngle);
+        let xDSteeringAngle = - 1 / 50.0 * this.maxAngle * this.velocity * Math.sin(input.entries[2] * Math.PI + input.entries[3] *this.maxAngle);
 
-        let yDAngle = 1 / 50.0 * Math.PI * this.velocity * Math.cos(input.entries[2] * Math.PI + input.entries[3] * (this.maxAngle / 180 * Math.PI));
-        let yDSteeringAngle = 1 / 50.0 * (this.maxAngle / 180 * Math.PI) * this.velocity * Math.cos(input.entries[2] * Math.PI + input.entries[3] * (this.maxAngle / 180 * Math.PI));
+        let yDAngle = 1 / 50.0 * Math.PI * this.velocity * Math.cos(input.entries[2] * Math.PI + input.entries[3] * this.maxAngle);
+        let yDSteeringAngle = 1 / 50.0 * this.maxAngle * this.velocity * Math.cos(input.entries[2] * Math.PI + input.entries[3] * this.maxAngle);
 
         let jacobiMatrix = new nnMath.Matrix([
             [1, 0, xDAngle, xDSteeringAngle], // x
