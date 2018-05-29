@@ -136,7 +136,7 @@ export class CarControllerError implements ControllerError {
         let thetaDiff = thetaTrailer - 0;
 
         // first 3 do not matter for the error
-        return new Vector([2 * xDiff, 2 * yDiff, 2 * thetaDiff]);
+        return new Vector([2 * xDiff, 4 * 2 * yDiff, 2 * thetaDiff]);
     }
 
     // 3 elements: x trailer y trailer theta trailer at position 3 4 and 5

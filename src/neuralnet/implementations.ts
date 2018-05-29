@@ -108,16 +108,16 @@ export var simpleControllerNet = new NeuralNet(simpleControllerNetConfig);
 
 
 export var hiddenCarControllerLayer: LayerConfig = {
-    neuronCount: 45,
+    neuronCount: 26,
 //    weightInitializer: RandomWeightInitializer(0.1),
-    weightInitializer: TwoLayerInitializer(0.7, 45),
+    weightInitializer: TwoLayerInitializer(0.7, 26),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Tanh()
 }
 
 export var outputCarControllerLayer: LayerConfig = {
     neuronCount: 1,
-    weightInitializer: RandomWeightInitializer(0.01),
+    weightInitializer: RandomWeightInitializer(0.1),
 //    weightInitializer: TwoLayerInitializer(0.7, 1),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Tanh() // [-1, 1]

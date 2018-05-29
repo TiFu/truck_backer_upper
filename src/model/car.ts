@@ -156,11 +156,18 @@ export class Car implements HasState, HasLength {
     //    console.log("[Random Position] ", this.axle.x, this.axle.y, this.angle);
     }
 
+    // CAREFUL: THIS MATRIX IS SCALED with x/50, y/50, angle/pi and steering angle / (angle/180*PI)
     public getJacobiMatrix(input: nnMath.Vector): nnMath.Matrix {
+        let xDAngle = - 1 / 50.0 * Math.PI * this.velocity * Math.sin(input.entries[2] * Math.PI + input.entries[3] * (this.maxAngle / 180 * Math.PI));
+        let xDSteeringAngle = - 1 / 50.0 * (this.maxAngle / 180 * Math.PI) * this.velocity * Math.sin(input.entries[2] * Math.PI + input.entries[3] * (this.maxAngle / 180 * Math.PI));
+
+        let yDAngle = 1 / 50.0 * Math.PI * this.velocity * Math.cos(input.entries[2] * Math.PI + input.entries[3] * (this.maxAngle / 180 * Math.PI));
+        let yDSteeringAngle = 1 / 50.0 * (this.maxAngle / 180 * Math.PI) * this.velocity * Math.cos(input.entries[2] * Math.PI + input.entries[3] * (this.maxAngle / 180 * Math.PI));
+
         let jacobiMatrix = new nnMath.Matrix([
-            [1, 0, - this.velocity * Math.sin(input.entries[2] + input.entries[3]), - this.velocity * Math.sin(input.entries[2] + input.entries[3])], // x
-            [0, 1, this.velocity * Math.cos(input.entries[2] + input.entries[3]), this.velocity * Math.cos(input.entries[2] + input.entries[3])], // y 
-            [0, 0, 1, 1] // angle
+            [1, 0, xDAngle, xDSteeringAngle], // x
+            [0, 1, yDAngle, yDSteeringAngle], // y 
+            [0, 0, 1, this.maxAngle / 180] // angle
         ]);
         return jacobiMatrix;
     }
