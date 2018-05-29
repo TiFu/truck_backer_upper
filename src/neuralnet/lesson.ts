@@ -83,8 +83,8 @@ export function createTruckLessons(truck: HasLength) {
     //distance lessons
     let minX = new Range(1, 2);
     let maxX = new Range(1, 4);
-    let minY = new Range(-0.1, -0.5);
-    let maxY = new Range(0.1, 0.5);
+    let minY = new Range(-0.1, -1);
+    let maxY = new Range(0.1, 1);
     let minCabAngle = new Range(- 30/180*Math.PI,-30 / 180 * Math.PI);
     let maxCabAngle = new Range(30/180*Math.PI, 30/180*Math.PI);
     let minTrailerAngle = new Range(-30/180 * Math.PI, -30/180*Math.PI);
