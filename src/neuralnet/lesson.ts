@@ -106,17 +106,17 @@ export function createCarJacobianLessons(truck: HasLength) {
 export function createCarControllerLessons(truck: HasLength) {
     let optimizers: Array<() => Optimizer> = [
         () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(0.75, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(0.01, 0.9), // didn't work YOLO
     ]
     let lessons: Array<Lesson> = []
 
@@ -136,7 +136,7 @@ export function createCarControllerLessons(truck: HasLength) {
         let yR = rangeForStep(minY, maxY, i, lessonCountX);
         let trailerR = rangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCountX);
         let cabR = rangeForStep(minCabAngle, maxCabAngle, i, lessonCountX);
-        let samples = 100000;
+        let samples = 10000;
         lessons.push(new Lesson(truck, i, samples, xR, yR, trailerR, cabR, 2 * xR.max + 50, optimizers[i]));
     }
 //    console.log("Created lessons: ", lessons);
