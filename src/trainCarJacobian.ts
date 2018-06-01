@@ -56,7 +56,7 @@ for (let j = startingLesson; j < lessons.length; j++) {
     console.log("Optimizer: " + lesson.optimizer);
     for (let i = startingLesson; i < lessons[j].samples; i++) {
         trainTruckController.trainSingleStep();
-        if ((i % 100 == 0 && i > 0) || i == lessons[0].samples - 1) {
+        if ((i + 100) > lessons[j].samples && (i % 100 == 0 && i > 0) || i == lessons[j].samples - 1) {
             console.log("Step " + i + " of " + lesson.samples);
             let averageYError = errorFunc.yError.reduce((prev, next) => prev + next, 0) / errorFunc.yError.length;
             let averageAngleError = errorFunc.angleError.reduce((prev, next) => prev + next, 0) / errorFunc.angleError.length;
