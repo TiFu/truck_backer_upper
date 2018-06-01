@@ -43,7 +43,7 @@ export var carHiddenEmulatorLayer: LayerConfig = {
 
 export var carOutputEmulatorLayer: LayerConfig = {
     neuronCount: 3,
-    weightInitializer: TwoLayerInitializer(0.7, 6),
+    weightInitializer: RandomWeightInitializer(0.01),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Linear()
 }
@@ -51,7 +51,7 @@ export var carOutputEmulatorLayer: LayerConfig = {
 export var carEmulatorNetConfig: NetConfig = {
     inputs: 4,
     optimizer: () => new SGDNesterovMomentum(0.001, 0.9), // start with 0.1, then 0.01 then 0.001
-    errorFunction: new WeightedMSE(new Vector([0.45, 0.45, 0.1])),
+    errorFunction: new MSE(),
     layerConfigs: [
         carHiddenEmulatorLayer,
         carOutputEmulatorLayer
