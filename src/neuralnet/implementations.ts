@@ -33,6 +33,34 @@ export var emulatorNetConfig: NetConfig = {
 
 export var emulatorNet = new NeuralNet(emulatorNetConfig);
 
+
+export var carHiddenEmulatorLayer: LayerConfig = {
+    neuronCount: 45,
+    weightInitializer: TwoLayerInitializer(0.7, 45),
+    unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
+    activation: new Tanh()
+}
+
+export var carOutputEmulatorLayer: LayerConfig = {
+    neuronCount: 3,
+    weightInitializer: TwoLayerInitializer(0.7, 6),
+    unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
+    activation: new Linear()
+}
+
+export var carEmulatorNetConfig: NetConfig = {
+    inputs: 4,
+    optimizer: () => new SGD(0.001), // start with 0.1, then 0.01 then 0.001
+    errorFunction: new MSE(),
+    layerConfigs: [
+        carHiddenEmulatorLayer,
+        carOutputEmulatorLayer
+    ]
+}
+
+export var carEmulatorNet = new NeuralNet(carEmulatorNetConfig);
+
+
 var simpleEmulatorLayer: LayerConfig = {
     neuronCount: 1,
     weightInitializer: StaticInitializer([1.02, 0.98, 0.1]), // we're off by 0.1

@@ -77,6 +77,17 @@ export class Car implements HasState, HasLength {
         return this.carLength / 2
     }
 
+    public randomizeNoLimits() {
+        let tep1 = new Point(0,50);
+        let tep2 = new Point(100, -50);
+        let tep = this.getRandomTEP(tep1, tep2);
+        let angleRange = [- Math.PI, Math.PI];
+        let angle = this.getRandomTrailerAngle(angleRange);
+        this.axle.x = tep.x;
+        this.axle.y = tep.y;
+        this.angle = angle;
+    }
+        
     public getLastSteeringAngle() {
         return this.lastSteeringAngle;
     }
