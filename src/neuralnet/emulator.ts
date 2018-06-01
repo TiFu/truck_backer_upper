@@ -11,8 +11,8 @@ export interface Emulator {
 }
 
 export class NeuralNetEmulator implements Emulator{
-
-    public constructor(private net: NeuralNet) {
+    
+    public constructor(private net: NeuralNet, private comparisonEmulator: Emulator = null) {
 
     }
 
@@ -21,10 +21,21 @@ export class NeuralNetEmulator implements Emulator{
     }
 
     public forward(input: Vector): void {
+        this.comparisonEmulator.forward(input);
         this.net.forward(input);
     }
 
     public backward(error: Vector): Vector {
-        return this.net.backwardWithGradient(error, false);
+        let neuralNetDerivative = this.net.backwardWithGradient(error, false);
+        let comparisonDerivative = this.comparisonEmulator.backward(error);
+    /*    console.log("Comparison", comparisonDerivative.entries);
+        console.log("NN: ", neuralNetDerivative.entries);
+        let diff = [];
+        for (let i = 0; i < comparisonDerivative.entries.length; i++) {
+            diff.push( neuralNetDerivative.entries[i] / comparisonDerivative.entries[i]);
+        }
+        console.log("Diffs: ", diff);
+        console.log("");*/
+        return neuralNetDerivative;
     }
 }

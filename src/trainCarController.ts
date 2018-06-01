@@ -22,7 +22,7 @@ trainTruckEmulator.getEmulatorNet().loadWeights(parsed_emulator_weights);
 
 let normalizedDockPosition = new Point((world.dock.position.x - 50)/ 50, world.dock.position.y / 50);
 let errorFunc = new CarControllerError(normalizedDockPosition);
-let trainTruckController = new TrainController(world, new NormalizedCar(world.car), carControllerNet, new NeuralNetEmulator(carEmulatorNet), errorFunc);
+let trainTruckController = new TrainController(world, new NormalizedCar(world.car), carControllerNet, new NeuralNetEmulator(carEmulatorNet, new CarEmulator(world.car)), errorFunc);
 
 let lessons = createCarControllerLessons(world.car);
 

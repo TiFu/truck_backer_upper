@@ -50,7 +50,7 @@ export var carOutputEmulatorLayer: LayerConfig = {
 
 export var carEmulatorNetConfig: NetConfig = {
     inputs: 4,
-    optimizer: () => new SGDNesterovMomentum(0.001, 0.9), // start with 0.1, then 0.01 then 0.001
+    optimizer: () => new SGDNesterovMomentum(0.00001, 0.9), // start with 0.1, then 0.01 then 0.001
     errorFunction: new MSE(),
     layerConfigs: [
         carHiddenEmulatorLayer,
