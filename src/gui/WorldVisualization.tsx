@@ -20,8 +20,8 @@ export default class WorldVisualization extends React.Component<{ world: World},
 
     public constructor(props: { world: World}) {
         super(props);
-        this.canvasWidth = 1600
-        this.canvasHeight = 800
+        this.canvasWidth = 800
+        this.canvasHeight = 400
     }
 
     componentDidMount() {
@@ -43,7 +43,7 @@ export default class WorldVisualization extends React.Component<{ world: World},
 
     }
     public render() {
-        let cst = new CoordinateSystemTransformation(15, 15, new Vector(this.canvasWidth * 1 / 4.0, this.canvasHeight / 2.0));
+        let cst = new CoordinateSystemTransformation(5, 5, new Vector(this.canvasWidth * 1 / 4.0, this.canvasHeight / 2.0));
         let limitVis = [];
         let limits = this.props.world.getLimits();
         for (let i = 0; i < limits.length; i++) {

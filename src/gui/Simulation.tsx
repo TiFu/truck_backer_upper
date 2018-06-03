@@ -16,8 +16,8 @@ import {CarControllerError} from '../neuralnet/error';
 import {Car} from '../model/car';
 import {Truck} from '../model/truck';
 import {Dock} from '../model/world';
+import Slider from 'rc-slider';
 
-let lessons: Array<Lesson> = [];
 
 interface SimulationProps {
     object: Car | Truck;
@@ -30,7 +30,7 @@ interface SimulationState {
      driveButtonDisabled: boolean;
 }
 
-export default class Simulation extends React.Component<SimulationProps, SimulationState> {
+export class Simulation extends React.Component<SimulationProps, SimulationState> {
     static instance: Simulation;
     private lastTimestamp: number = -1;
     private stepLengthInMs = 1000;
@@ -42,7 +42,7 @@ export default class Simulation extends React.Component<SimulationProps, Simulat
         this.state = {
             world: new World(this.props.object, this.props.dock), 
             steeringSignal: 0, 
-            simulationSpeed: 1,
+            simulationSpeed: 4,
             driveButtonDisabled: false
         };
     }
@@ -85,13 +85,49 @@ export default class Simulation extends React.Component<SimulationProps, Simulat
     }
 
     private handleDriveButton(e: any) {
-        this.drive(0.5, () => {});
+        this.drive(this.state.steeringSignal, () => {});
+    }
+    private handleSteeringSignalChanged(value: number) {
+        this.setState({steeringSignal: value})
+    }
+    private handleSimulationSpeedChanged(value: number) {
+        this.setState({simulationSpeed: value});
     }
 
     public render() {
+        let marksSteering: any = {};
+        for (let i = -1; i <= 1; i += 0.2) {
+            marksSteering[i] = "" + i.toFixed(2);
+        }
+        let marksSimulationSpeed: any = { 1: "1", 2: "2"};
+        for (let i = 4; i <= 16; i += 4) {
+            marksSimulationSpeed[i] = "" + i.toFixed(0);
+        }
         return <div>
-            <WorldVisualization world={this.state.world} />
-            <input type="button" value="Drive" disabled={this.state.driveButtonDisabled} onClick={this.handleDriveButton.bind(this)} />
+            <div className="container">
+                <div className="row">
+                    <div className="col-sm-6 pad">
+                        <div className="col-sm-12 panel panel-default">
+                            <WorldVisualization world={this.state.world} />
+                        </div>
+                    </div>
+                    <div className="col-sm-6 pad">
+                        <div className="col-sm-12 panel panel-default h-100">
+                            <div className="form-group pad-slider">
+                                <label htmlFor="formGroupExampleInput">Steering Signal</label>
+                                <Slider min={-1} max={1} marks={marksSteering}onChange={this.handleSteeringSignalChanged.bind(this)} value={this.state.steeringSignal} step={0.05} />
+                            </div>
+                            <div className="form-group pad-slider">
+                                <label htmlFor="formGroupExampleInput">Simulation Speed</label>
+                                <Slider min={1} max={16} marks={marksSimulationSpeed}onChange={this.handleSimulationSpeedChanged.bind(this)} value={this.state.simulationSpeed} step={1} />
+                            </div>
+                            <div className="h3">
+                            <button type="button" className="btn btn-primary" disabled={this.state.driveButtonDisabled} onClick={this.handleDriveButton.bind(this)} >Drive</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     }
 }
