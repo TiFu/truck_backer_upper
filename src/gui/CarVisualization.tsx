@@ -1,9 +1,9 @@
 import * as React from 'react'
-import {Truck} from './model/truck'
-import {Car} from './model/car'
+import {Truck} from '../model/truck'
+import {Car} from '../model/car'
 import {CoordinateSystemTransformation} from './CoordinateSystemTransformation';
 import { Layer, Rect, Stage, Group, Line, Circle} from 'react-konva'
-import {plus, minus, calculateVector, scale, Point} from './math'
+import {plus, minus, calculateVector, scale, Point} from '../math'
 import {BoxVisualization} from './BoxVisualization'
 import {WheelVisualization} from './WheelVisualization'
 import { ENGINE_METHOD_DIGESTS } from 'constants';

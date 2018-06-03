@@ -1,4 +1,4 @@
-import {Point, Vector, plus, minus, scale, mapPoint} from './math'
+import {Point, Vector, plus, minus, scale, mapPoint} from '../math'
 
 
 export class CoordinateSystemTransformation {

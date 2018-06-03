@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {Lesson} from './neuralnet/lesson'
+import {Lesson} from '../neuralnet/lesson'
 import {Grid, Row, Col} from 'react-bootstrap'
 interface LessonViewProps {
     lesson: Lesson;

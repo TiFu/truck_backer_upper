@@ -1,8 +1,8 @@
 import * as React from 'react'
-import {Truck} from './model/truck'
+import {Truck} from '../model/truck'
 import {CoordinateSystemTransformation} from './CoordinateSystemTransformation';
 import { Layer, Rect, Stage, Group, Line, Circle} from 'react-konva'
-import {Point, plus, minus, calculateVector, scale, Angle, rotateVector, Vector} from './math'
+import {Point, plus, minus, calculateVector, scale, Angle, rotateVector, Vector} from '../math'
 
 
 interface WheelVisualizationProps{

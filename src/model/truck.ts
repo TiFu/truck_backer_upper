@@ -194,14 +194,14 @@ export class Truck implements HasState, Limitable, HasLength {
         return Math.abs(this.trailerAngle - this.cabinAngle);
     }
 
-    public nextTimeStep(steeringSignal: number) {
-        this.drive(steeringSignal);
+    public nextTimeStep(steeringSignal: number, time: number) {
+        this.drive(steeringSignal, time);
     }
 
-    public nextState(steeringSignal: number): boolean {
+    public nextState(steeringSignal: number, time: number = 1): boolean {
         if (!this.limited || this.isTruckInValidPosition()) {
             //this.truck.nextTimeStep(steeringSignal);        
-            this.drive(steeringSignal);
+            this.drive(steeringSignal, time);
             let result = this.isTruckInValidPosition() && this.continue();
             return result;
         } else {
@@ -216,16 +216,16 @@ export class Truck implements HasState, Limitable, HasLength {
        return result;
     }
     // -1, 1
-    public drive(steeringSignal: number): boolean {
+    public drive(steeringSignal: number, time: number): boolean {
         let steeringAngle = this.maxSteeringAngle * Math.min(Math.max(-1, steeringSignal), 1);
         this.lastSteeringAngle = steeringAngle
-        let A = this.velocity * Math.cos(steeringAngle);
+        let A = this.velocity * time * Math.cos(steeringAngle);
         let B = A * Math.cos(this.cabinAngle - this.trailerAngle)
 
         this.tep.x -= B * Math.cos(this.trailerAngle);
         this.tep.y -= B * Math.sin(this.trailerAngle);
         this.trailerAngle -= Math.asin(A * Math.sin(this.cabinAngle - this.trailerAngle) / this.trailerLength)
-        this.cabinAngle += Math.asin(this.velocity * Math.sin(steeringAngle) / (this.trailerLength + this.cabinLength))
+        this.cabinAngle += Math.asin(this.velocity * time * Math.sin(steeringAngle) / (this.trailerLength + this.cabinLength))
 
         // adjust cabinangle, s. t. getCabTrailerAngle <= 90 degrees (Math.PI / 2)
         let diff = this.trailerAngle - this.cabinAngle;

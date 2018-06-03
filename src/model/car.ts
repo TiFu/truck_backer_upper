@@ -26,8 +26,8 @@ export class NormalizedCar implements HasState, Limitable, HasLength {
         this.car.randomizePosition(lesson);
     }
 
-    public nextState(steeringSignal: number): boolean {
-        return this.car.nextState(steeringSignal);
+    public nextState(steeringSignal: number, time: number): boolean {
+        return this.car.nextState(steeringSignal, time);
     }
 
     public getOriginalState(): nnMath.Vector {
@@ -42,14 +42,24 @@ export class NormalizedCar implements HasState, Limitable, HasLength {
         return stateVector;
     }
 }
-export class Car implements HasState, HasLength {
+export class Car implements HasState, Limitable, HasLength {
     private maxAngle: Angle = 30 / 180 * Math.PI;
     private velocity: number = -1;
     private carLength: number = 5;
     private lastSteeringAngle = 0;
+    private limited: boolean = false;
 
-    public constructor(private axle: Point, private angle: Angle) {
+    public constructor(private axle: Point, private angle: Angle, private limits: Array<StraightLine>) {
     }
+
+    // TODO: implement that car respects limits!
+    public setLimited(limited:  boolean) {
+        this.limited = limited;
+    }
+
+    public setLimits(limits: Array<StraightLine>) {
+        this.limits = limits;
+    }  
 
     public getLength() {
         return this.carLength;
@@ -105,8 +115,8 @@ export class Car implements HasState, HasLength {
         return [first, second, third, fourth];
     }
 
-    public nextState(steeringSignal: number) {
-        this.nextTimeStep(steeringSignal);
+    public nextState(steeringSignal: number, time: number = 1) {
+        this.nextTimeStep(steeringSignal, time);
         return this.canContinue();
     }
 
@@ -118,13 +128,14 @@ export class Car implements HasState, HasLength {
         return back.x > 0 && front.x > 0 && back.x < 100 && Math.abs(back.y) < 50 && front.x < 100 && Math.abs(front.y) < 50 ;
     }
 
-    public nextTimeStep(steeringSignal: number) {
+    public nextTimeStep(steeringSignal: number, time: number) {
+
         let steeringAngle = steeringSignal * this.maxAngle;
         this.lastSteeringAngle = steeringAngle
 
-        let dAngle = steeringAngle;
-        let dX = this.velocity * Math.cos(this.angle + steeringAngle)
-        let dY = this.velocity * Math.sin(this.angle + steeringAngle)
+        let dAngle = time * steeringAngle; // steering angle also changes relative to time
+        let dX = this.velocity * time * Math.cos(this.angle + steeringAngle)
+        let dY = this.velocity * time * Math.sin(this.angle + steeringAngle)
 
         this.axle.x += dX;
         this.axle.y += dY;
