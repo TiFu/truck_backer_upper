@@ -14,7 +14,7 @@ import {createCarControllerLessons} from './neuralnet/lesson';
 
 let world = new World();
 
-let emulator_weights = fs.readFileSync("./car_emulator_weights").toString();
+let emulator_weights = fs.readFileSync("./weights/car_emulator_weights").toString();
 let parsed_emulator_weights = JSON.parse(emulator_weights);
 //emulatorNet.setDebugMode(true);
 let trainTruckEmulator = new TrainTruckEmulator(new NormalizedCar(world.car), carEmulatorNet);
@@ -70,5 +70,5 @@ for (let j = startingLesson; j < lessons.length; j++) {
         }
    }
    // save lesson weights
-   fs.writeFileSync("./car_emulator_controller_weights_" + j, JSON.stringify(carControllerNet.getWeights()));
+   fs.writeFileSync("./weights/car_emulator_controller_weights_" + j, JSON.stringify(carControllerNet.getWeights()));
 }

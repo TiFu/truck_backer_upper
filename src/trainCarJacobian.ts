@@ -36,7 +36,7 @@ console.log("Using starting lesson: " + startingLesson);
 if (startingLesson > 0) {
     try {
         console.log("Loading weights from car_controller_weights_" + (startingLesson - 1));
-        let parsed_controller_weights = JSON.parse(fs.readFileSync("./car_controller_weights_" + (startingLesson - 1)).toString());
+        let parsed_controller_weights = JSON.parse(fs.readFileSync("./weights/car_controller_weights_" + (startingLesson - 1)).toString());
         trainTruckController.getControllerNet().loadWeights(parsed_controller_weights);
     } catch(err) {
         console.log(err);
@@ -70,5 +70,5 @@ for (let j = startingLesson; j < lessons.length; j++) {
         }
    }
    // save lesson weights
-   fs.writeFileSync("./car_controller_weights_" + j, JSON.stringify(carControllerNet.getWeights()));
+   fs.writeFileSync("./weights/car_controller_weights_" + j, JSON.stringify(carControllerNet.getWeights()));
 }

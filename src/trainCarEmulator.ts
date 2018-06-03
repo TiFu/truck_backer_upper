@@ -9,7 +9,7 @@ let world = new World();
 let trainTruckEmulator = new TrainTruckEmulator(new NormalizedCar(world.car), carEmulatorNet, 1);
 
 try {
-    let savedWeights = fs.readFileSync("./car_emulator_weights").toString();
+    let savedWeights = fs.readFileSync("./weights/car_emulator_weights").toString();
     let parsedWeights = JSON.parse(savedWeights);
     trainTruckEmulator.getEmulatorNet().loadWeights(parsedWeights);
 } catch(err) {
@@ -39,7 +39,7 @@ for (let i = 0; i < steps; i++) {
     if ((i > 0 || errorSTep == 1) && i % errorSTep == 0) {
         console.log("[AvgError]", i + ": Avg Error " + errorSum/summedSteps + " / Max " + errorMax + " / High " + highErrors);
         console.log("")
-        fs.writeFileSync("./car_emulator_weights", JSON.stringify(trainTruckEmulator.getEmulatorNet().getWeights()));
+        fs.writeFileSync("./weights/car_emulator_weights", JSON.stringify(trainTruckEmulator.getEmulatorNet().getWeights()));
         let cabAngle = trainTruckEmulator.cabAngleError.reduce((prev: number, next: number) => prev + next, 0) / trainTruckEmulator.cabAngleError.length;            
         let xCab = trainTruckEmulator.xCabError.reduce((prev: number, next: number) => prev + next, 0) / trainTruckEmulator.xCabError.length
         let yCab = trainTruckEmulator.yCabError.reduce((prev: number, next: number) => prev + next, 0) / trainTruckEmulator.yCabError.length
@@ -56,5 +56,5 @@ for (let i = 0; i < steps; i++) {
     }
 }
 
-fs.writeFileSync("./car_emulator_weights", JSON.stringify(trainTruckEmulator.getEmulatorNet().getWeights()));
+fs.writeFileSync("./weights/car_emulator_weights", JSON.stringify(trainTruckEmulator.getEmulatorNet().getWeights()));
 //console.log(trainTruckEmulator.getEmulatorNet().getWeights())
