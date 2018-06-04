@@ -10,3 +10,34 @@
     min-height: 400px;
     min-width: 400px;
 }
+
+.align-right {
+    text-align: right;
+}
+
+.pb {
+    padding-bottom:0.5rem;
+}
+
+.pr {
+    padding-right: 0.5rem;
+}
+
+.pl {
+    padding-left: 0.5rem;
+}
+
+.pt {
+    padding-top: 0.5rem;
+}
+.mb {
+    margin-bottom: 0.5rem !important;
+}
+
+.removeButton {
+    margin-left: 1rem;
+    padding-top: 0rem !important; 
+    padding-bottom: 0rem !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+}

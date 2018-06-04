@@ -1,15 +1,19 @@
 import {Vector, } from './math';
 
-export interface Optimizer {
+export abstract class Optimizer {
     
-    calculateUpdate(weightDerivative: Vector): Vector;
+    public getName() {
+        return this.constructor.name;
+    }
+
+    abstract calculateUpdate(weightDerivative: Vector): Vector;
 
 }
 
-export class SGD implements Optimizer {
+export class SGD extends Optimizer {
 
-    public constructor(private learningRate: number = 0.1) {
-
+    public constructor(public learningRate: number = 0.1) {
+        super();
     }
 
     calculateUpdate(weightDerivative: Vector): Vector {
@@ -17,11 +21,11 @@ export class SGD implements Optimizer {
     }
 }
 
-export class SGDNesterovMomentum implements Optimizer { 
+export class SGDNesterovMomentum extends Optimizer { 
     private moments: Vector;
 
-    public constructor(private learningRate: number = 0.1, private momentum: number = 0.9) {
-
+    public constructor(public learningRate: number = 0.1, public momentum: number = 0.9) {
+        super();
     }
 
     calculateUpdate(weightDerivative: Vector): Vector {

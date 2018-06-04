@@ -45,6 +45,7 @@ export class NormalizedCar implements HasState, Limitable, HasLength {
         return stateVector;
     }
 }
+
 export class Car implements HasState, Limitable, HasLength {
     private maxAngle: Angle = 30 / 180 * Math.PI;
     private velocity: number = -1;

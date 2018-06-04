@@ -1,18 +1,16 @@
 import {Scalar} from './math'
 
-export interface ActivationFunction {
+export abstract class ActivationFunction {
 
-    getName(): string;
-    apply(input: Scalar): Scalar;
-    applyDerivative(input: Scalar): Scalar;
-}
-
-export class Tanh implements ActivationFunction {
-    
-    getName() {
-        return "tanh";
+    public getName(): string {
+        return this.constructor.name;
     }
 
+    public abstract apply(input: Scalar): Scalar;
+    public abstract applyDerivative(input: Scalar): Scalar;
+}
+
+export class Tanh extends ActivationFunction {
     apply(input: Scalar) {
         return Math.tanh(input);
     }
@@ -23,10 +21,7 @@ export class Tanh implements ActivationFunction {
     }
 }
 
-export class Sigmoid implements ActivationFunction {
-    getName() {
-        return "sigmoid"
-    }
+export class Sigmoid extends ActivationFunction {
 
     apply(input: Scalar) {
         return 1 / (1 + Math.exp(-input));
@@ -37,17 +32,15 @@ export class Sigmoid implements ActivationFunction {
     }
 }
 
-export class ReLu implements ActivationFunction {
-    constructor(private epsilon: number) {
+export class ReLu extends ActivationFunction {
+    
+    public constructor(private epsilon: number) {
+        super();
         if (epsilon > 1) {
             throw new Error("ReLu needs an epsilon <= 1");
         }
     }
-
-    getName() {
-        return "relu";
-    }
-
+    
     apply(input: Scalar) {
         return Math.max(input, this.epsilon * input);
     }
@@ -61,11 +54,7 @@ export class ReLu implements ActivationFunction {
     }
 }
 
-export class Linear implements ActivationFunction {
-    getName() {
-        return "linear";
-    }
-
+export class Linear extends ActivationFunction {
     apply(input: Scalar) {
         return input;
     }

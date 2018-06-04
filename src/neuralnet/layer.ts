@@ -32,6 +32,9 @@ export class Layer {
     }
 
     public loadWeights(weights: Array<Array<number>>) {
+        if (weights.length != this.units.length) {
+            throw new Error("Expected " + this.units.length + " weight vectors but got " + weights.length);
+        }
         for (let i = 0; i < this.units.length; i++) {
             this.units[i].loadWeights(weights[i]);
         }

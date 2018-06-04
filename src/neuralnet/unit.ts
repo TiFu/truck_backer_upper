@@ -30,7 +30,7 @@ export class AdalineUnit implements Unit {
     constructor(private inputDim: number, private activation: ActivationFunction, weightInitializer: WeightInitializer, private optimizer: Optimizer) {
         this.fixedWeights = false;
         this.lastInput = []
-        this.weights = weightInitializer(inputDim); // this.getRandomWeights(inputDim + 1, initialWeightRange); // bias
+        this.weights = weightInitializer.initialize(inputDim); // this.getRandomWeights(inputDim + 1, initialWeightRange); // bias
         this.resetAccumulatedWeights();
         //console.log("inputDim: ", inputDim, "weights:", this.weights.length);
     }
@@ -60,7 +60,7 @@ export class AdalineUnit implements Unit {
 
     public setWeights(weights: Vector) {
         if (weights.length != this.weights.length) {
-            throw new Error("Unit#setWeights() needs to use inputDim + 1 as dimension.");
+            throw new Error("Expected " + this.weights.length + " weights including bias weight, but got " + weights.length);
         }
         this.weights = weights;
     }
@@ -69,7 +69,7 @@ export class AdalineUnit implements Unit {
     }
 
     public loadWeights(weights: Array<number>) {
-        this.weights = new Vector(weights);
+        this.setWeights(new Vector(weights));
     }
 
     public getWeights(): Array<number> {

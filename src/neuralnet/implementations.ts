@@ -8,14 +8,14 @@ import { WeightInitializer, TwoLayerInitializer, StaticInitializer, RandomWeight
 
 export var hiddenEmulatorLayer: LayerConfig = {
     neuronCount: 45,
-    weightInitializer: TwoLayerInitializer(0.7, 45),
+    weightInitializer: new TwoLayerInitializer(0.7, 45),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Tanh()
 }
 
 export var outputEmulatorLayer: LayerConfig = {
     neuronCount: 6,
-    weightInitializer: TwoLayerInitializer(0.7, 6),
+    weightInitializer: new TwoLayerInitializer(0.7, 6),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Linear()
 }
@@ -33,17 +33,16 @@ export var emulatorNetConfig: NetConfig = {
 
 export var emulatorNet = new NeuralNet(emulatorNetConfig);
 
-
 export var carHiddenEmulatorLayer: LayerConfig = {
     neuronCount: 45,
-    weightInitializer: TwoLayerInitializer(0.7, 45),
+    weightInitializer: new TwoLayerInitializer(0.7, 45),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Tanh()
 }
 
 export var carOutputEmulatorLayer: LayerConfig = {
     neuronCount: 3,
-    weightInitializer: RandomWeightInitializer(0.01),
+    weightInitializer: new RandomWeightInitializer(0.01),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Linear()
 }
@@ -63,7 +62,7 @@ export var carEmulatorNet = new NeuralNet(carEmulatorNetConfig);
 
 var simpleEmulatorLayer: LayerConfig = {
     neuronCount: 1,
-    weightInitializer: StaticInitializer([1.02, 0.98, 0.1]), // we're off by 0.1
+    weightInitializer: new StaticInitializer([1.02, 0.98, 0.1]), // we're off by 0.1
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Tanh()
 }
@@ -81,14 +80,14 @@ export var simpleEmulatorNet = new NeuralNet(simpleEmulatorNetConfig);
 
 export var hiddenControllerLayer: LayerConfig = {
     neuronCount: 26,
-    weightInitializer: TwoLayerInitializer(0.7, 26),
+    weightInitializer: new TwoLayerInitializer(0.7, 26),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Tanh()
 }
 
 export var outputControllerLayer: LayerConfig = {
     neuronCount: 1,
-    weightInitializer: TwoLayerInitializer(0.7, 1),
+    weightInitializer: new TwoLayerInitializer(0.7, 1),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Tanh() // [-1, 1]
 }
@@ -107,14 +106,14 @@ export var controllerNet = new NeuralNet(controllerNetConfig);
 
 export var hiddenSimpleControllerLayer: LayerConfig = {
     neuronCount: 3,
-    weightInitializer: StaticInitializer([0.1, -0.1]),
+    weightInitializer: new StaticInitializer([0.1, -0.1]),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Tanh()
 }
 
 export var outputSimpleControllerLayer: LayerConfig = {
     neuronCount: 1,
-    weightInitializer: StaticInitializer([0.3, -0.1, 0.25, -0.15]),
+    weightInitializer: new StaticInitializer([0.3, -0.1, 0.25, -0.15]),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Tanh() // [-1, 1]
 }
@@ -138,14 +137,14 @@ export var simpleControllerNet = new NeuralNet(simpleControllerNetConfig);
 export var hiddenCarControllerLayer: LayerConfig = {
     neuronCount: 26,
 //    weightInitializer: RandomWeightInitializer(0.1),
-    weightInitializer: TwoLayerInitializer(0.7, 26),
+    weightInitializer: new TwoLayerInitializer(0.7, 26),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Tanh()
 }
 
 export var outputCarControllerLayer: LayerConfig = {
     neuronCount: 1,
-    weightInitializer: RandomWeightInitializer(0.1),
+    weightInitializer: new RandomWeightInitializer(0.1),
 //    weightInitializer: TwoLayerInitializer(0.7, 1),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Tanh() // [-1, 1]

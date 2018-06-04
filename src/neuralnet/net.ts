@@ -65,6 +65,9 @@ export class NeuralNet {
     }
 
     public loadWeights(weights: Array<Array<Array<number>>>) {
+        if (this.layers.length != weights.length) {
+            throw new Error("Invalid number of layers!");
+        }
         for (let i = 0; i < this.layers.length; i++) {
             this.layers[i].loadWeights(weights[i]);
         }

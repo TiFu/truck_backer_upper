@@ -3,12 +3,15 @@ import {Point} from '../math'
 import {Dock} from '../model/world';
 import { getCiphers } from 'crypto';
 
-export interface ErrorFunction {
-    getError(is: Vector, should: Vector): Scalar;
-    getErrorDerivative(is: Vector, sholud:Vector): Vector;
+export abstract class ErrorFunction {
+    public getName() {
+        return this.constructor.name;
+    }
+    abstract getError(is: Vector, should: Vector): Scalar;
+    abstract getErrorDerivative(is: Vector, sholud:Vector): Vector;
 }
 
-export class MSE implements ErrorFunction {
+export class MSE extends ErrorFunction {
 
     public getError(is: Vector, should: Vector): Scalar {
         let diff = 0;
@@ -25,10 +28,11 @@ export class MSE implements ErrorFunction {
     }
 }
 
-export class WeightedMSE implements ErrorFunction {
+export class WeightedMSE extends ErrorFunction {
     private weightSum: number;
 
     public constructor(private weights: Vector) {
+        super();
         this.weightSum = weights.entries.reduce((prev, next) => prev + next, 0);
     }
 
@@ -46,12 +50,12 @@ export class WeightedMSE implements ErrorFunction {
     }
 }
 
-export interface ControllerError {
-    getError(finalState: Vector): Scalar;
-    getErrorDerivative(finalState: Vector): Vector;
+export abstract class ControllerError extends ErrorFunction {
+    abstract getError(finalState: Vector): Scalar;
+    abstract getErrorDerivative(finalState: Vector): Vector;
 }
 
-export class SimpleControllerError implements ControllerError {
+export class SimpleControllerError extends ControllerError {
     public getError(finalState: Vector): Scalar {
         return (0 - finalState.entries[0]) * (0 - finalState.entries[0]);
     }
@@ -61,12 +65,13 @@ export class SimpleControllerError implements ControllerError {
     }
 }
 
-export class TruckControllerError implements ControllerError {
+export class TruckControllerError extends ControllerError {
     public angleError: Array<number>;
     public yError: Array<number>;
     public errors: Array<number>;
 
     public constructor(private dock: Point) {
+        super();
         this.angleError = [];
         this.yError = [];
         this.errors = [];
@@ -114,12 +119,13 @@ export class TruckControllerError implements ControllerError {
     }
 }
 
-export class CarControllerError implements ControllerError {
+export class CarControllerError extends ControllerError {
     public angleError: Array<number>;
     public yError: Array<number>;
     public errors: Array<number>;
 
     public constructor(private dock: Point) {
+        super();
         this.angleError = [];
         this.yError = [];
         this.errors = [];
