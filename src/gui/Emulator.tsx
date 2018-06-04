@@ -136,11 +136,19 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
         this.setState({ network: this.getDefaultNetConfig()})
     }
 
-    public onNetworkChange(net: NetConfig) {
+    public onNetworkChange(net: NetConfig, keepWeights: boolean) {
         console.log("New network received!");
         console.log(net);
         console.log(net.layerConfigs);
-        this.setState({ network: net});
+        let nn = this.state.nn;
+        if (keepWeights && this.state.nn) {
+            let weights = this.state.nn.getWeights();
+            nn = new NeuralNet(net);
+            nn.loadWeights(weights);
+        } else {
+            nn = undefined;
+        }
+        this.setState({ network: net, nn: nn});
     }
 
     public render() {
@@ -185,6 +193,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
               </div>
             }
         }
+
         return <div className="container">
                 {loadingModal}
                 <div className="row">

@@ -18,7 +18,7 @@ export interface NetworkCreatorProps {
     weightInitializers: {[key: string]: WeightInitializer};
     activations: { [key: string]: ActivationFunction}
     network: NetConfig;
-    onChange: (config: NetConfig) => void;
+    onChange: (config: NetConfig, keepWeights: boolean) => void;
 }
 
 export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
@@ -35,14 +35,14 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
         } else {
             network.layerConfigs.splice(index, 1);
         }
-        this.props.onChange(network);
+        this.props.onChange(network, false);
     }
 
     private handleInputsChanged(e: React.ChangeEvent<HTMLInputElement>) {
         let network = this.props.network;
         try {
             network.inputs = Number.parseInt(e.currentTarget.value);
-            this.props.onChange(network);
+            this.props.onChange(network, false);
         } catch (e) {
             console.log(e);
         }
@@ -51,12 +51,12 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
     private handleOptimizerChanged(e: React.ChangeEvent<HTMLSelectElement>) {
         let network = this.props.network;
         network.optimizer = this.props.optimizers[e.currentTarget.value];
-        this.props.onChange(network);
+        this.props.onChange(network, true);
     }
     private handleErrorFunctionChanged(e: React.ChangeEvent<HTMLSelectElement>) {
         let network = this.props.network;
         network.errorFunction = this.props.errorFunctions[e.currentTarget.value];
-        this.props.onChange(network);
+        this.props.onChange(network, true);
     }
 
     private handleAddLayer(e: any) {
@@ -71,7 +71,7 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
         }
         console.log("added layer!");
         console.log(network.layerConfigs);
-        this.props.onChange(network);
+        this.props.onChange(network, false);
     }
 
     private handleOptimizerPropertyChanged(index: number, property: any) {
@@ -92,7 +92,7 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
                 network.optimizer = () => new SGDNesterovMomentum(optimizer.learningRate, momentum);
             }
         }
-        this.props.onChange(network);
+        this.props.onChange(network, true);
     }
 
     private getOptimizerEditProperty(optimizer: Optimizer) {
@@ -191,6 +191,9 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
         });
         return <div className="container">
                 <h2>Network Configuration</h2>
+                <div className="alert alert-info" role="alert">
+                    Changes to the <strong>Error Function</strong> and <strong>Optimizer</strong> do <strong>not</strong> reset the network state i.e. weights are preserved.
+                </div>
                 {netComponent}
                 <h3>Layers</h3>
                 <button type="button"  onClick={this.handleAddLayer.bind(this)} className="mb btn btn-success">Add layer</button>
