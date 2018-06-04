@@ -15,6 +15,9 @@ export class NormalizedCar implements HasState, Limitable, HasLength {
 //        this.car.setLimits(limits);
     }
 
+    public getMaxSteeringAngle() {
+        return this.car.getMaxSteeringAngle();
+    }
     public getStateDescription() {
         return this.car.getStateDescription();
     }
@@ -22,7 +25,7 @@ export class NormalizedCar implements HasState, Limitable, HasLength {
     public setLimited(limited: boolean) {
         //this.car.setLimited(limited);
     }
-    public randomizePosition(lesson: Lesson) {
+    public randomizePosition(lesson?: Lesson) {
         this.car.randomizePosition(lesson);
     }
 
@@ -81,6 +84,10 @@ export class Car implements HasState, Limitable, HasLength {
 
     public getBack(): Point {
         return this.axle;
+    }
+
+    public getMaxSteeringAngle(): number {
+        return this.maxAngle;
     }
 
     public getWidth(): number {
@@ -142,13 +149,17 @@ export class Car implements HasState, Limitable, HasLength {
         this.angle += dAngle;
     }
 
-    public randomizePosition(lesson: Lesson): void {
-        let bounds = lesson.getBounds().entries;
-        let tep1 = new Point(bounds[0], bounds[1]);
-        let tep2 = new Point(bounds[2], bounds[3]);
-        let maxAngleTrailer = [bounds[4], bounds[5]];
-        let maxAngleCabin = [bounds[6], bounds[7]];
-        this.randomizeTruckPosition(tep1, tep2, maxAngleTrailer, maxAngleCabin);
+    public randomizePosition(lesson?: Lesson): void {
+        if (lesson) {
+            let bounds = lesson.getBounds().entries;
+            let tep1 = new Point(bounds[0], bounds[1]);
+            let tep2 = new Point(bounds[2], bounds[3]);
+            let maxAngleTrailer = [bounds[4], bounds[5]];
+            let maxAngleCabin = [bounds[6], bounds[7]];
+            this.randomizeTruckPosition(tep1, tep2, maxAngleTrailer, maxAngleCabin);
+        } else {
+            this.randomizeNoLimits();
+        }
     }
 
     // TODO: less duplicated code

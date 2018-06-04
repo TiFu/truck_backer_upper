@@ -5,3 +5,8 @@
 .pad-slider {
     padding: 5px 20px 5px 5px;
 }
+
+.drawingArea {
+    min-height: 400px;
+    min-width: 400px;
+}

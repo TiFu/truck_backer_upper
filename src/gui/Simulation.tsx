@@ -51,7 +51,7 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
         this.setState({driveButtonDisabled: true});
         this.lastTimestamp = performance.now();
         const callback = (cont: boolean) => {
-            this.setState({driveButtonDisabled: false});
+            this.setState({driveButtonDisabled: !cont});
             done(cont);
         }
         window.requestAnimationFrame(this.driveFrameCallback(steeringSignal, 0, callback));
@@ -94,10 +94,15 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
         this.setState({simulationSpeed: value});
     }
 
+    private handleSetRandomPosition(e: any) {
+        this.state.world.movableObject.randomizePosition();
+        this.forceUpdate();
+    }
+
     public render() {
         let marksSteering: any = {};
         for (let i = -1; i <= 1; i += 0.2) {
-            marksSteering[i] = "" + i.toFixed(2);
+            marksSteering[i] = "" + (this.state.world.movableObject.getMaxSteeringAngle() * i * 180 / Math.PI).toFixed(2) ;
         }
         let marksSimulationSpeed: any = { 1: "1", 2: "2"};
         for (let i = 4; i <= 16; i += 4) {
@@ -114,15 +119,16 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
                     <div className="col-sm-6 pad">
                         <div className="col-sm-12 panel panel-default h-100">
                             <div className="form-group pad-slider">
-                                <label htmlFor="formGroupExampleInput">Steering Signal</label>
+                                <label htmlFor="formGroupExampleInput">Steering Angle (in Degree)</label>
                                 <Slider min={-1} max={1} marks={marksSteering}onChange={this.handleSteeringSignalChanged.bind(this)} value={this.state.steeringSignal} step={0.05} />
                             </div>
                             <div className="form-group pad-slider">
                                 <label htmlFor="formGroupExampleInput">Simulation Speed</label>
                                 <Slider min={1} max={16} marks={marksSimulationSpeed}onChange={this.handleSimulationSpeedChanged.bind(this)} value={this.state.simulationSpeed} step={1} />
                             </div>
-                            <div className="h3">
+                            <div className="h3 btn-toolbar">
                             <button type="button" className="btn btn-primary" disabled={this.state.driveButtonDisabled} onClick={this.handleDriveButton.bind(this)} >Drive</button>
+                            <button type="button" className="btn btn-warning" disabled={this.state.driveButtonDisabled} onClick={this.handleSetRandomPosition.bind(this)}>Randomize Position</button>
                             </div>
                         </div>
                     </div>

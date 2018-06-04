@@ -21,7 +21,9 @@ export interface HasState {
     getStateVector(): nnMath.Vector // normalized
     getStateDescription(): string[];
     nextState(input: number, time: number): boolean;
+    getMaxSteeringAngle(): number;
     randomizePosition(lesson: Lesson): void;
+    randomizePosition(): void;
 }
 
 export interface Limitable {
