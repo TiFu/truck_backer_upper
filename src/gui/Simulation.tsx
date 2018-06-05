@@ -128,7 +128,7 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
                             </div>
                             <div className="h3 btn-toolbar">
                             <button type="button" className="btn btn-primary" disabled={this.state.driveButtonDisabled} onClick={this.handleDriveButton.bind(this)} >Drive</button>
-                            <button type="button" className="btn btn-warning" disabled={this.state.driveButtonDisabled} onClick={this.handleSetRandomPosition.bind(this)}>Random Position</button>
+                            <button type="button" className="btn btn-warning" onClick={this.handleSetRandomPosition.bind(this)}>Random Position</button>
                             </div>
                         </div>
                     </div>

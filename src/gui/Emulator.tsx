@@ -1,9 +1,9 @@
 import * as React from 'react'
 import {Simulation} from './Simulation'
-import { Car } from "../model/car";
+import { Car, NormalizedCar } from "../model/car";
 import { Point } from "../math";
 import { Dock } from "../model/world";
-import { Truck} from '../model/truck';
+import { Truck, NormalizedTruck} from '../model/truck';
 import { NetworkCreator } from './NetworkCreator';
 
 import {NetConfig} from '../neuralnet/net';
@@ -14,6 +14,8 @@ import {Tanh, Sigmoid, ActivationFunction, ReLu, Linear} from '../neuralnet/acti
 import {AdalineUnit} from '../neuralnet/unit';
 import { LoadingModal } from './LoadingModal';
 import {NeuralNet} from '../neuralnet/net';
+import {TrainTruckEmulator} from '../neuralnet/train';
+const ReactHighcharts = require('react-highcharts');
 
 interface EmulatorProps {
     object: Car | Truck;
@@ -24,10 +26,22 @@ interface EmulatorState {
     nn: NeuralNet;
     loadingWeights: boolean;
     loadWeightsSuccessful: boolean | null;
-    loadWeightsFailureMsg: string | null
+    loadWeightsFailureMsg: string | null;
+    train: boolean;
+    isTrainedNetwork: boolean;
+    errors: number[];
 }
 
 export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
+    private emulatorTrainer: TrainTruckEmulator;
+    private i = 0;
+    public STEPS_PER_FRAME = 10;
+    public readonly STEPS_PER_ERROR = 100;
+    private lastIteration: number = undefined;
+
+    private errorCache: number[] = [];
+    private errorCount: number;
+    private errorSum: number;
 
     public constructor(props: EmulatorProps) {
         super(props);
@@ -36,13 +50,63 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
             nn: undefined,
             loadingWeights: false,
             loadWeightsSuccessful: null,
-            loadWeightsFailureMsg: null
-
+            loadWeightsFailureMsg: null,
+            isTrainedNetwork: false,
+            train: false,
+            errors: []
         };
     }
 
     public handleTrain() {
+        let nn = this.state.nn;
+        if (!this.state.nn) {
+            nn = new NeuralNet(this.state.network);
+        }
+        this.setState({nn: nn, train: true},() => {
+            // we updated the gui
+            // start animation
+            let normalizedObject = this.props.object instanceof Car ? new NormalizedCar(this.props.object): new NormalizedTruck(this.props.object);
+            this.emulatorTrainer = new TrainTruckEmulator(normalizedObject, this.state.nn, 1);   
+            this.lastIteration = performance.now();     
+            this.errorCache = [];
+            this.errorSum = 0;
+            this.errorCount = 0;
+            requestAnimationFrame(this.trainNeuralNetAniFrame);
+        });
+    }
 
+    private trainNeuralNetAniFrame = this.trainNeuralNetCallback.bind(this);
+    private trainNeuralNetCallback() {
+        let i = 0;
+        for (let i = 0; i < this.STEPS_PER_FRAME; i++) {
+            this.props.object.randomizeNoLimits();
+            let error = this.emulatorTrainer.train(1);
+            this.errorCount++;
+            this.errorSum += error[1];
+
+            if (this.errorCount > 0 && this.errorCount % this.STEPS_PER_ERROR === 0) {
+                console.log("Error: ", this.errorSum/this.STEPS_PER_ERROR, "Count: ", this.errorCache.length * 100);
+                this.errorCache.push(this.errorSum / this.STEPS_PER_ERROR);
+                (this.refs.chart as any).getChart().series[0].addPoint(this.errorSum / this.STEPS_PER_ERROR, true);
+
+                this.errorCount = 0;
+                this.errorSum = 0;
+            }
+        }
+
+
+        // dynamically adjust steps per frame;
+        let duration = performance.now() - this.lastIteration;
+        this.lastIteration = performance.now();
+        if (duration > 1.05 * 1000 / 60) {
+            this.STEPS_PER_FRAME = Math.min(1, this.STEPS_PER_FRAME);
+        } else if (duration < 0.95 * 1000/60){ 
+            this.STEPS_PER_FRAME += 1;
+        }
+
+        if (this.state.train) {
+            requestAnimationFrame(this.trainNeuralNetAniFrame);
+        }
     }
 
     public handleLoadPretrainedWeights() {
@@ -141,17 +205,19 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
         console.log(net);
         console.log(net.layerConfigs);
         let nn = this.state.nn;
+        let errors = this.state.errors;
         if (keepWeights && this.state.nn) {
             let weights = this.state.nn.getWeights();
             nn = new NeuralNet(net);
             nn.loadWeights(weights);
         } else {
             nn = undefined;
+            errors = undefined;
         }
-        this.setState({ network: net, nn: nn});
+        this.setState({ network: net, nn: nn, errors: errors});
     }
 
-    public render() {
+    private renderConfigureEmulator() {
         let mse = new MSE();
         let errorFunctions: { [key: string]: ErrorFunction} = {
         }
@@ -194,19 +260,78 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
             }
         }
 
+        let trainButton = <button type="button"  onClick={this.handleTrain.bind(this)} className="btn btn-primary">Train</button>;
+        if (this.state.train) {
+            trainButton = <button type="button"  disabled={!this.state.train} onClick={this.handleStopTrain.bind(this)} className="btn btn-danger">Stop</button>;
+        }
+        let diagram = undefined;
+        if (this.state.train || this.state.isTrainedNetwork) {
+            diagram = <div className="row">
+            {this.getErrorDiagram()}
+        </div>;
+        }
         return <div className="container">
                 {loadingModal}
                 <div className="row">
                     <div className="h3 btn-toolbar">
-                        <button type="button"  onClick={this.handleTrain.bind(this)} className="btn btn-primary">Train</button>
+                        {trainButton}
                         <button type="button"  onClick={this.handleLoadPretrainedWeights.bind(this)} className="btn btn-warning">Load pretrained weights</button>
                         <button type="button"  onClick={this.handleResetNetwork.bind(this)} className="btn btn-danger">Reset Network</button>
                     </div>
-                    {alert}
+                   {alert}
                 </div>
+                {diagram}
                 <div className="row">
                     <NetworkCreator activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
                 </div>
             </div>
+    }
+
+    public componentWillUnmount() {
+        // stop training if we unmount
+        if (this.state.train) {
+            this.handleStopTrain();
+        }
+    }
+
+    private handleStopTrain() {
+        console.log("pushing error cache");
+        // Temporary HACK: do not duplicate error entries
+     //   this.state.errors.push(...this.errorCache);
+        this.errorCache = [];
+        this.setState({train: false, isTrainedNetwork: true, nn: this.state.nn, errors: this.state.errors});
+    }
+
+    private getErrorDiagram() {
+        let config = {
+            title: {
+                text: "Emulator Error"
+            },
+            plotOptions: {
+                line: {
+                    animation: false
+                }
+            },
+            yAxis: {
+                title: {
+                    text: "Error"
+                }
+            },
+            series: [
+                {
+                    name: "Error",
+                    data: this.state.errors
+                }
+            ]
+        }
+        return <ReactHighcharts
+            config={config}
+            ref="chart"
+        />;
+    }
+
+
+    public render() {
+        return this.renderConfigureEmulator();
     }
 }
