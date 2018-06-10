@@ -258,7 +258,9 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         // i.e. add red square in simulation
 
     public handleResetNetwork() {
-        this.setState({ network: this.getDefaultNetConfig(), nn: undefined})
+        this.setState({ network: this.getDefaultNetConfig(), nn: undefined}, () => {
+            this.props.onControllerTrained(null);
+        })
     }
 
     public onNetworkChange(net: NetConfig, keepWeights: boolean) {

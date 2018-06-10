@@ -203,7 +203,9 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
     }
 
     public handleResetNetwork() {
-        this.setState({ network: this.getDefaultNetConfig()})
+        this.setState({ network: this.getDefaultNetConfig(), nn: undefined}, () => {
+            this.props.onNetworkChange(null);
+        })
     }
 
     public onNetworkChange(net: NetConfig, keepWeights: boolean) {
