@@ -18,7 +18,7 @@ export class TrainTruckEmulator {
     public yTrailerError: number[] = []
 
     private trainedSteps = 0;
-    
+    // TODO: disable data collection?
     public constructor(private plant: HasState, private neuralNet: NeuralNet, private batchSize: number = 1) {
     }
 

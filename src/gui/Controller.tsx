@@ -87,7 +87,6 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         });
     }
 
-
     public handleTrain() {
         // TODO: disable train button, show hover hint!
         if (this.props.emulatorNet === undefined) {
@@ -96,8 +95,10 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         }
 
         let nn = this.state.nn;
-        console.log("creating nn")
-        nn = new NeuralNet(this.state.network);
+        if (!this.state.nn) {
+            console.log("creating nn")
+            nn = new NeuralNet(this.state.network);
+        }
         this.setState({nn: nn, train: true},() => {
             // we updated the gui
             // start animation
@@ -138,8 +139,8 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         }
 
         // TODO: chart disable decimals
-        if (this.currentLessonSteps + this.STEPS_PER_FRAME == this.state.lessons[this.state.currentLessonIndex].samples) {
-            console.log("Setting lesson to " + (this.state.currentLessonIndex + 1))
+        if (this.currentLessonSteps + this.STEPS_PER_FRAME >= this.state.lessons[this.state.currentLessonIndex].samples) {
+            console.error("Setting lesson to " + (this.state.currentLessonIndex + 1))
             this.emulatorController.setLesson(this.state.lessons[this.state.currentLessonIndex + 1]);
             this.currentLessonSteps = 0;
             this.setState({currentLessonIndex: this.state.currentLessonIndex + 1});
@@ -253,30 +254,34 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             ]
         }
     }
+    // TODO: add visualization for training area from TrainController.lastTrainedLesson
+        // i.e. add red square in simulation
 
     public handleResetNetwork() {
-        this.setState({ network: this.getDefaultNetConfig()})
+        this.setState({ network: this.getDefaultNetConfig(), nn: undefined})
     }
 
     public onNetworkChange(net: NetConfig, keepWeights: boolean) {
         let nn = this.state.nn;
         let errors = this.state.errors;
         let isTrained = this.state.isTrainedNetwork;
+        let currentLesson = this.state.currentLessonIndex;
         if (keepWeights && this.state.nn) {
             let weights = this.state.nn.getWeights();
             nn = new NeuralNet(net);
             nn.loadWeights(weights);
         } else {
-            nn = new NeuralNet(net);
+            nn = undefined;
             errors = [];
             isTrained = false;
+            currentLesson = 0;
         }
-        this.setState({ network: net, nn: nn, errors: errors, isTrainedNetwork: isTrained});
+        this.setState({ currentLessonIndex: currentLesson, network: net, nn: nn, errors: errors, isTrainedNetwork: isTrained});
     }
 
     private updateLessons(lessons: Lesson[]) {
         console.log("Updated lessons: ", lessons);
-        this.setState({lessons: lessons});
+        this.setState({lessons: lessons, currentLessonIndex: 0});
     }
 
     private getErrorDiagram() {
@@ -364,7 +369,9 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         }
         let diagram = undefined;
         if (this.state.train || this.state.isTrainedNetwork) {
+            let lesson = this.state.lessons[this.state.currentLessonIndex];
             diagram = <div className="row">
+            Training lesson {lesson.no} for {lesson.samples} samples.
             {this.getErrorDiagram()}
         </div>;
         }
