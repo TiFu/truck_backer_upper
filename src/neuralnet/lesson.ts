@@ -12,10 +12,40 @@ import { SGDNesterovMomentum, Optimizer, SGD } from './optimizers';
 
 export class Lesson {
 
-    public constructor(private truck: HasLength, public no: number, public samples: number, 
-        public x: Range, public y: Range, public trailerAngle: Range, 
-        public cabAngle: Range, public maxSteps: number, public optimizer: () => Optimizer){ 
+    public constructor(public object: HasLength, public no: number, public samples: number, public maxSteps: number, public optimizer: () => Optimizer) {
+    }
+}
 
+export class CarLesson extends Lesson {
+    public constructor(object: HasLength, no: number, samples: number, maxSteps: number, optimizer: () => Optimizer, public x: Range, public y: Range, public angle: Range) {
+        super(object, no, samples, maxSteps, optimizer);
+    }   
+    public getBounds(): Vector {
+        let length = this.object.getLength();
+        let tep1 = new Point(this.x.min * length, this.y.max * length);
+        let tep2 = new Point(this.x.max * length, this.y.min * length);
+        let angle = [this.angle.min, this.angle.max];
+
+        return new Vector(
+            [
+                tep1.x, 
+                tep1.y,
+                tep2.x,
+                tep2.y,
+                angle[0],
+                angle[1],
+            ]
+        );
+    }
+    
+}
+
+export class TruckLesson extends Lesson {
+
+    public constructor(object: HasLength, no: number, samples: number, optimizer: () => Optimizer,
+        public x: Range, public y: Range, public trailerAngle: Range, 
+        public cabAngle: Range, public maxSteps: number){ 
+            super(object, no, samples, maxSteps, optimizer);
     }
 
     public getBoundsDescription(): any {
@@ -32,7 +62,7 @@ export class Lesson {
         }
     }
     public getBounds(): Vector {
-        let length = this.truck.getLength();
+        let length = this.object.getLength();
         let tep1 = new Point(this.x.min * length, this.y.max * length);
         let tep2 = new Point(this.x.max * length, this.y.min * length);
         let maxAngleTrailer = [this.trailerAngle.min, this.trailerAngle.max];
@@ -97,7 +127,7 @@ export function createCarJacobianLessons(truck: HasLength) {
         let trailerR = rangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCountX);
         let cabR = rangeForStep(minCabAngle, maxCabAngle, i, lessonCountX);
         let samples = 10000;
-        lessons.push(new Lesson(truck, i, samples, xR, yR, trailerR, cabR, 2 * xR.max + 50, optimizers[i]));
+        lessons.push(new CarLesson(truck, i, samples, 2 * xR.max + 50, optimizers[i], xR, yR, trailerR));
     }
 //    console.log("Created lessons: ", lessons);
     return lessons;
@@ -125,8 +155,6 @@ export function createCarControllerLessons(truck: HasLength) {
     let maxX = new Range(1, 4);
     let minY = new Range(-0.1, -1);
     let maxY = new Range(0.1, 1);
-    let minCabAngle = new Range(- 30/180*Math.PI,-30 / 180 * Math.PI);
-    let maxCabAngle = new Range(30/180*Math.PI, 30/180*Math.PI);
     let minTrailerAngle = new Range(-30/180 * Math.PI, -180/180*Math.PI);
     let maxTrailerAngle = new Range(30/180 * Math.PI,180/180 * Math.PI);
     let lessonCountX = 12;
@@ -135,9 +163,8 @@ export function createCarControllerLessons(truck: HasLength) {
         let xR = rangeForStep(minX, maxX, i, lessonCountX);
         let yR = rangeForStep(minY, maxY, i, lessonCountX);
         let trailerR = rangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCountX);
-        let cabR = rangeForStep(minCabAngle, maxCabAngle, i, lessonCountX);
         let samples = 10000;
-        lessons.push(new Lesson(truck, i, samples, xR, yR, trailerR, cabR, 2 * xR.max + 50, optimizers[i]));
+        lessons.push(new CarLesson(truck, i, samples, 2 * xR.max + 50, optimizers[i], xR, yR, trailerR));
     }
 //    console.log("Created lessons: ", lessons);
     return lessons;

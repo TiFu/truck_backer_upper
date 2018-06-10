@@ -40,7 +40,7 @@ export class TrainTruckEmulator {
         stateVector = stateVector.getWithNewElement(nextSteeringAngle);
 
         let result = this.neuralNet.forward(stateVector);
-        let retVal = this.plant.nextState(nextSteeringAngle);
+        let retVal = this.plant.nextState(nextSteeringAngle, 1);
 
         let expectedVector = this.plant.getStateVector();
 
@@ -82,6 +82,7 @@ export class TrainTruckEmulator {
 
 // let's not use this for now
 export class TrainController {
+    private lastTrainedLesson: Lesson
     public errors: Array<number> = [];
     public steeringSignals: Array<number> = [];
     public angleError: Array<number> = [];
@@ -95,6 +96,14 @@ export class TrainController {
     private currentLesson: Lesson = null;
 
     public constructor(private world: World, private realPlant: HasState, private controllerNet: NeuralNet, private emulatorNet: Emulator, private errorFunction: ControllerError) {
+    }
+
+    public setPlant(realPlant: HasState) {
+        this.realPlant = realPlant;
+    }
+
+    public setLastTrainedLesson(lesson: Lesson) {
+        this.lastTrainedLesson = lesson;
     }
 
     public getEmulatorNet() {
@@ -114,6 +123,7 @@ export class TrainController {
 
     public setLesson(lesson: Lesson): void {
         this.currentLesson = lesson;
+        this.controllerNet.changeOptimizer(lesson.optimizer);
         this.performedTrainSteps = 0;
         this.maxStepErrors = 0;
     }
@@ -136,6 +146,7 @@ export class TrainController {
 
         this.prepareTruckPosition();
         let error = this.trainStep();
+        this.lastTrainedLesson = this.currentLesson;
         this.performedTrainSteps++;
         return error;
     }
@@ -187,7 +198,7 @@ export class TrainController {
             // derivative depends on output/input
             this.emulatorNet.forward(stateWithSteering);
 
-            canContinue = this.realPlant.nextState(steeringSignal);
+            canContinue = this.realPlant.nextState(steeringSignal, 1);
        //     console.log("[Continue]", canContinue)
             // set the next state
             currentState = this.realPlant.getStateVector();

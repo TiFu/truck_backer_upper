@@ -13,11 +13,12 @@ import { ActivationFunction, Tanh } from '../neuralnet/activation';
 import {AdalineUnit} from '../neuralnet/unit';
 
 export interface NetworkCreatorProps {
-    errorFunctions: { [key: string]: ErrorFunction};
+    errorFunctions?: { [key: string]: ErrorFunction};
     optimizers: {[key: string]: () => Optimizer};
     weightInitializers: {[key: string]: WeightInitializer};
     activations: { [key: string]: ActivationFunction}
     network: NetConfig;
+    showInfo: boolean;
     onChange: (config: NetConfig, keepWeights: boolean) => void;
 }
 
@@ -137,11 +138,26 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
             optimizers.push(<option key={optimizer} value={optimizer}>{optimizer}</option>);
         }
 
-        let errorFunctions = [];
-        let selectedErrorFunction = this.props.network.errorFunction.getName();
-        for (let errorFunction in this.props.errorFunctions) {
-            errorFunctions.push(<option key={errorFunction} value={errorFunction}>{errorFunction}</option>);            
+        let errorFunctionComponent = undefined;
+        if (this.props.errorFunctions !== undefined) {
+            let errorFunctions = [];
+            let selectedErrorFunction = this.props.network.errorFunction.getName();
+            for (let errorFunction in this.props.errorFunctions) {
+                errorFunctions.push(<option key={errorFunction} value={errorFunction}>{errorFunction}</option>);            
+            }
+            errorFunctionComponent = <div className="row pb">
+                <div className="col-sm-3">
+                    <label>Error Function:</label>
+                </div>
+                <div className="col-sm-3 align-right">
+                    <select defaultValue={selectedErrorFunction} className="form-control" 
+                            onChange={this.handleErrorFunctionChanged.bind(this)}>
+                        {errorFunctions}
+                    </select>
+                </div>
+            </div>;
         }
+        
         let netComponent = <div className="container">
             <div className="row pb">
                 <div className="col-sm-3">
@@ -154,17 +170,7 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
                             className="form-control" disabled/>
                 </div>
             </div>
-            <div className="row pb">
-                <div className="col-sm-3">
-                    <label>Error Function:</label>
-                </div>
-                <div className="col-sm-3 align-right">
-                    <select defaultValue={selectedErrorFunction} className="form-control" 
-                            onChange={this.handleErrorFunctionChanged.bind(this)}>
-                        {errorFunctions}
-                    </select>
-                </div>
-            </div>
+            {errorFunctionComponent}
             <div className="row pb">
                 <div className="col-sm-3">
                     <label>Optimizer:</label>
@@ -189,11 +195,16 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
                                 onChange={(layer) => this.onLayerChange(index, layer)}
                                 disableNeuronEdit={index+1 === this.props.network.layerConfigs.length} />
         });
+
+        let info = undefined;
+        if (this.props.showInfo) {
+            info =  <div className="alert alert-info" role="alert">
+                        Changes to the <strong>Error Function</strong> and <strong>Optimizer</strong> do <strong>not</strong> reset the network state i.e. weights are preserved.
+                    </div>;
+        }
         return <div className="container">
                 <h2>Network Configuration</h2>
-                <div className="alert alert-info" role="alert">
-                    Changes to the <strong>Error Function</strong> and <strong>Optimizer</strong> do <strong>not</strong> reset the network state i.e. weights are preserved.
-                </div>
+                {info}
                 {netComponent}
                 <h3>Layers</h3>
                 <button type="button"  onClick={this.handleAddLayer.bind(this)} className="mb btn btn-success">Add layer</button>

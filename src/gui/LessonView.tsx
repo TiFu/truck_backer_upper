@@ -6,7 +6,7 @@ interface LessonViewProps {
     performedTrainSteps: number;
     maxStepViolations: number;
 }
-
+/*
 export class LessonView extends React.Component<LessonViewProps, {}> {
 
     public constructor(props: LessonViewProps) {
@@ -60,4 +60,4 @@ export class LessonView extends React.Component<LessonViewProps, {}> {
                     </Row>
                 </Grid>
     }
-}
+}*/

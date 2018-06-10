@@ -2,7 +2,7 @@ import * as React from 'react'
 import {Simulation} from './Simulation'
 import { Car, NormalizedCar } from "../model/car";
 import { Point } from "../math";
-import { Dock } from "../model/world";
+import { Dock, World } from "../model/world";
 import { Truck, NormalizedTruck} from '../model/truck';
 import { NetworkCreator } from './NetworkCreator';
 
@@ -14,15 +14,24 @@ import {Tanh, Sigmoid, ActivationFunction, ReLu, Linear} from '../neuralnet/acti
 import {AdalineUnit} from '../neuralnet/unit';
 import { LoadingModal } from './LoadingModal';
 import {NeuralNet} from '../neuralnet/net';
-import {TrainTruckEmulator} from '../neuralnet/train';
+import {TrainTruckEmulator, TrainController} from '../neuralnet/train';
+import {CarControllerError, TruckControllerError} from '../neuralnet/error';
+import {NeuralNetEmulator} from '../neuralnet/emulator';
+import { Lesson } from '../neuralnet/lesson';
+import {createCarControllerLessons} from '../neuralnet/lesson';
+import {LayerConfig} from '../neuralnet/net';
+import {LessonsComponent} from './LessonComponent'
+import { ENGINE_METHOD_DIGESTS } from 'constants';
 const ReactHighcharts = require('react-highcharts');
 
-interface EmulatorProps {
+interface ControllerProps {
     object: Car | Truck;
-    onNetworkChange: (nn: NeuralNet) => void;
+    world: World;
+    emulatorNet: NeuralNet;
+    onControllerTrained: (net: TrainController) => void;
 }
 
-interface EmulatorState {
+interface ControllerState {
     network: NetConfig;
     nn: NeuralNet;
     loadingWeights: boolean;
@@ -31,10 +40,12 @@ interface EmulatorState {
     train: boolean;
     isTrainedNetwork: boolean;
     errors: number[];
+    lessons: Lesson[];
+    currentLessonIndex: number;
 }
 
-export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
-    private emulatorTrainer: TrainTruckEmulator;
+export class Controller extends React.Component<ControllerProps, ControllerState> {
+    private emulatorController: TrainController;
     private i = 0;
     public STEPS_PER_FRAME = 10;
     public readonly STEPS_PER_ERROR = 100;
@@ -43,8 +54,9 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
     private errorCache: number[] = [];
     private errorCount: number;
     private errorSum: number;
+    private currentLessonSteps: number = 0;
 
-    public constructor(props: EmulatorProps) {
+    public constructor(props: ControllerProps) {
         super(props);
         this.state = { 
             network: this.getDefaultNetConfig(),
@@ -54,20 +66,43 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
             loadWeightsFailureMsg: null,
             isTrainedNetwork: false,
             train: false,
-            errors: []
+            errors: [],
+            lessons: this.props.object instanceof Car ? createCarControllerLessons(this.props.object) : [],
+            currentLessonIndex: 0
         };
+        this.handleLoadPretrainedWeights();
     }
 
+    private handleResetLessons() {
+        this.setState({ lessons: this.props.object instanceof Car ? createCarControllerLessons(this.props.object) : []})        
+    }
+
+    private handleStopTrain() {
+        console.log("pushing error cache");
+        // Temporary HACK: do not duplicate error entries
+     //   this.state.errors.push(...this.errorCache);
+        this.errorCache = [];
+        this.setState({train: false, isTrainedNetwork: true, nn: this.state.nn, errors: this.state.errors}, () => {
+            this.props.onControllerTrained(this.makeTrainController());
+        });
+    }
+
+
     public handleTrain() {
-        let nn = this.state.nn;
-        if (!this.state.nn) {
-            nn = new NeuralNet(this.state.network);
+        // TODO: disable train button, show hover hint!
+        if (this.props.emulatorNet === undefined) {
+            alert("You need to load emulator weights or train an emulator net before using the controller!");
+            return;
         }
+
+        let nn = this.state.nn;
+        console.log("creating nn")
+        nn = new NeuralNet(this.state.network);
         this.setState({nn: nn, train: true},() => {
             // we updated the gui
             // start animation
-            let normalizedObject = this.props.object instanceof Car ? new NormalizedCar(this.props.object): new NormalizedTruck(this.props.object);
-            this.emulatorTrainer = new TrainTruckEmulator(normalizedObject, this.state.nn, 1);   
+            this.emulatorController = this.makeTrainController();
+            this.emulatorController.setLesson(this.state.lessons[this.state.currentLessonIndex]);
             this.lastIteration = performance.now();     
             this.errorCache = [];
             this.errorSum = 0;
@@ -76,14 +111,21 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
         });
     }
 
+    private makeTrainController(): TrainController {
+        let normalizedObject = this.props.object instanceof Car ? new NormalizedCar(this.props.object): new NormalizedTruck(this.props.object);
+        let error = this.props.object instanceof Car ? new CarControllerError(this.props.world.dock.position) : new TruckControllerError(this.props.world.dock.position)
+        // TODO: offer option to use jacobi matrix if object is car
+        return new TrainController(this.props.world, normalizedObject, this.state.nn, new NeuralNetEmulator(this.props.emulatorNet), error);   
+    }
+
     private trainNeuralNetAniFrame = this.trainNeuralNetCallback.bind(this);
     private trainNeuralNetCallback() {
-        let i = 0;
+
         for (let i = 0; i < this.STEPS_PER_FRAME; i++) {
             this.props.object.randomizeNoLimits();
-            let error = this.emulatorTrainer.train(1);
+            let error = this.emulatorController.trainSingleStep();
             this.errorCount++;
-            this.errorSum += error[1];
+            this.errorSum += error;
 
             if (this.errorCount > 0 && this.errorCount % this.STEPS_PER_ERROR === 0) {
                 console.log("Error: ", this.errorSum/this.STEPS_PER_ERROR, "Count: ", this.errorCache.length * 100);
@@ -95,6 +137,15 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
             }
         }
 
+        // TODO: chart disable decimals
+        if (this.currentLessonSteps + this.STEPS_PER_FRAME == this.state.lessons[this.state.currentLessonIndex].samples) {
+            console.log("Setting lesson to " + (this.state.currentLessonIndex + 1))
+            this.emulatorController.setLesson(this.state.lessons[this.state.currentLessonIndex + 1]);
+            this.currentLessonSteps = 0;
+            this.setState({currentLessonIndex: this.state.currentLessonIndex + 1});
+        } else {
+            this.currentLessonSteps += this.STEPS_PER_FRAME;
+        }
 
         // dynamically adjust steps per frame;
         let duration = performance.now() - this.lastIteration;
@@ -111,9 +162,9 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
     }
 
     public handleLoadPretrainedWeights() {
-        let weightName = "car_emulator_weights";
+        let weightName = "car_controller_weights_11";
         if (this.props.object instanceof Truck) {
-            weightName = "truck_emulator_weights";
+            weightName = "truck_controller_weights_11";
         }
         $.ajax({
             url: "weights/" + weightName,
@@ -129,8 +180,9 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
                     this.setState({
                         loadingWeights: false, 
                         nn: neuralNet, 
-                        loadWeightsSuccessful: true });
-                    this.props.onNetworkChange(neuralNet);
+                        loadWeightsSuccessful: true }, () => {
+                            this.props.onControllerTrained(this.makeTrainController());
+                        });
                 } catch (e) {
                     this.setState({
                         network: network,
@@ -149,55 +201,55 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
     }
 
     private getCarNet() {
-        const carHiddenEmulatorLayer = {
-            neuronCount: 45,
-            weightInitializer: new TwoLayerInitializer(0.7, 45),
+        const hiddenCarControllerLayer: LayerConfig = {
+            neuronCount: 26,
+        //    weightInitializer: RandomWeightInitializer(0.1),
+            weightInitializer: new TwoLayerInitializer(0.7, 26),
             unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
             activation: new Tanh()
         }
         
-        const carOutputEmulatorLayer = {
-            neuronCount: 3,
-            weightInitializer: new RandomWeightInitializer(0.01),
+        const outputCarControllerLayer: LayerConfig = {
+            neuronCount: 1,
+            weightInitializer: new RandomWeightInitializer(0.1),
+        //    weightInitializer: TwoLayerInitializer(0.7, 1),
             unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
-            activation: new Linear()
+            activation: new Tanh() // [-1, 1]
         }
         
         return {
-            inputs: 4,
-            optimizer: () => new SGDNesterovMomentum(0.00001, 0.9), // start with 0.1, then 0.01 then 0.001
-            errorFunction: new MSE(),
+            inputs: 3,
+            optimizer: () => new SGDNesterovMomentum(0.0001, 0.9),
+            errorFunction: new MSE(), // ignored
             layerConfigs: [
-                carHiddenEmulatorLayer,
-                carOutputEmulatorLayer
+                hiddenCarControllerLayer,
+                outputCarControllerLayer
             ]
         }
-        
     }
 
     private getTruckNet(): NetConfig {
-        const hiddenEmulatorLayer = {
-            neuronCount: 45,
-            weightInitializer: new TwoLayerInitializer(0.7, 45),
+        const hiddenControllerLayer: LayerConfig = {
+            neuronCount: 26,
+            weightInitializer: new TwoLayerInitializer(0.7, 26),
             unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
             activation: new Tanh()
         }
         
-        const outputEmulatorLayer = {
-            neuronCount: 6,
-            weightInitializer: new TwoLayerInitializer(0.7, 6),
+        const outputControllerLayer: LayerConfig = {
+            neuronCount: 1,
+            weightInitializer: new TwoLayerInitializer(0.7, 1),
             unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
-            activation: new Linear()
+            activation: new Tanh() // [-1, 1]
         }
         
         return {
-            inputs: 7,
-            // TODO: was trained with 0.1 then 0.01 after improvement stops => basically decay
-            optimizer: () => new SGD(0.01), //new SGDNesterovMomentum(0.1, 0.9),
-            errorFunction: new MSE(),
+            inputs: 6,
+            optimizer: () => new SGD(0.8),
+            errorFunction: new MSE(), // ignored
             layerConfigs: [
-                hiddenEmulatorLayer,
-                outputEmulatorLayer
+                hiddenControllerLayer,
+                outputControllerLayer
             ]
         }
     }
@@ -210,24 +262,64 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
         let nn = this.state.nn;
         let errors = this.state.errors;
         let isTrained = this.state.isTrainedNetwork;
-
         if (keepWeights && this.state.nn) {
             let weights = this.state.nn.getWeights();
             nn = new NeuralNet(net);
             nn.loadWeights(weights);
         } else {
-            nn = undefined;
-            errors = undefined;
+            nn = new NeuralNet(net);
+            errors = [];
             isTrained = false;
         }
         this.setState({ network: net, nn: nn, errors: errors, isTrainedNetwork: isTrained});
     }
 
-    private renderConfigureEmulator() {
-        let mse = new MSE();
-        let errorFunctions: { [key: string]: ErrorFunction} = {
+    private updateLessons(lessons: Lesson[]) {
+        console.log("Updated lessons: ", lessons);
+        this.setState({lessons: lessons});
+    }
+
+    private getErrorDiagram() {
+        let config = {
+            title: {
+                text: "Controller Error"
+            },
+            plotOptions: {
+                line: {
+                    animation: false
+                }
+            },
+            yAxis: {
+                title: {
+                    text: "Error"
+                }
+            },
+            series: [
+                {
+                    name: "Error",
+                    data: this.state.errors
+                }
+            ]
         }
-        errorFunctions[mse.getName()] = mse;
+        return <ReactHighcharts
+            config={config}
+            ref="chart"
+        />;
+    }
+
+    private renderController() {
+        let mse = undefined;
+        if (this.props.object instanceof Car) {
+            mse = new CarControllerError(this.props.world.dock.position);
+        } else if (this.props.object instanceof Truck) {
+            mse = new TruckControllerError(this.props.world.dock.position);
+        }
+
+        let errorFunctions: { [key: string]: ErrorFunction} = undefined;
+        if (mse != undefined) {
+            errorFunctions = {};
+            errorFunctions[mse.getName()] = mse;
+        }
 
         let optimizers: { [key: string]: () => Optimizer} = {};
         let sgd = new SGD(0.5);
@@ -276,6 +368,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
             {this.getErrorDiagram()}
         </div>;
         }
+        // TODO: add accordion
         return <div className="container">
                 {loadingModal}
                 <div className="row">
@@ -283,62 +376,22 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
                         {trainButton}
                         <button type="button"  onClick={this.handleLoadPretrainedWeights.bind(this)} className="btn btn-warning">Load pretrained weights</button>
                         <button type="button"  onClick={this.handleResetNetwork.bind(this)} className="btn btn-danger">Reset Network</button>
+                        <button type="button"  onClick={this.handleResetLessons.bind(this)} className="btn btn-danger">Reset Lessons</button>
                     </div>
                    {alert}
                 </div>
                 {diagram}
                 <div className="row">
-                    <NetworkCreator showInfo={true} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
+                    <LessonsComponent object={this.props.object} lessons={this.state.lessons} onChange={this.updateLessons.bind(this)}/>
+                </div>
+                <div className="row">
+                    <NetworkCreator showInfo={false} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
                 </div>
             </div>
     }
 
-    public componentWillUnmount() {
-        // stop training if we unmount
-        if (this.state.train) {
-            this.handleStopTrain();
-        }
-    }
-
-    private handleStopTrain() {
-        console.log("pushing error cache");
-        // Temporary HACK: do not duplicate error entries
-     //   this.state.errors.push(...this.errorCache);
-        this.errorCache = [];
-        this.setState({train: false, isTrainedNetwork: true, nn: this.state.nn, errors: this.state.errors});
-        this.props.onNetworkChange(this.state.nn);
-    }
-
-    private getErrorDiagram() {
-        let config = {
-            title: {
-                text: "Emulator Error"
-            },
-            plotOptions: {
-                line: {
-                    animation: false
-                }
-            },
-            yAxis: {
-                title: {
-                    text: "Error"
-                }
-            },
-            series: [
-                {
-                    name: "Error",
-                    data: this.state.errors
-                }
-            ]
-        }
-        return <ReactHighcharts
-            config={config}
-            ref="chart"
-        />;
-    }
-
-
     public render() {
-        return this.renderConfigureEmulator();
+        console.log("Lesson Count: " + this.state.lessons.length);
+        return this.renderController();
     }
 }
