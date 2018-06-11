@@ -9,6 +9,7 @@ import {Controller} from './Controller';
 import {NeuralNet} from '../neuralnet/net';
 import { TrainController } from '../neuralnet/train';
 import{Truck, NormalizedTruck} from '../model/truck';
+import {HowItWorks} from './HowItWorks';
 
 export interface MainComponentState {
     emulatorNet: NeuralNet;
@@ -46,7 +47,7 @@ export class MainComponent extends React.Component<{}, MainComponentState> {
 
         return <div className="container">
                 <div className="page-header">
-                    <h1>Truck Backer Upper</h1>
+                    <h1>{"Nguyen & Widrow's "} Truck Backer Upper</h1>
                 </div>
                 <div className="row">
                     <div className="col-sm-12">
@@ -60,6 +61,9 @@ export class MainComponent extends React.Component<{}, MainComponentState> {
                         </Tab>
                         <Tab eventKey={2} title={"Controller"}>
                             <Controller onControllerTrained={this.onControllerNetChanged.bind(this)} emulatorNet={this.state.emulatorNet} world={controllerWorld} object={controllerCar} />
+                        </Tab>
+                        <Tab eventKey={3} title={"How it works"}>
+                            <HowItWorks />
                         </Tab>
                     </Tabs>
                 </div>
