@@ -1,11 +1,14 @@
 import {TrainTruckEmulator} from './neuralnet/train'
-import {World} from './model/world'
+import {World, Dock} from './model/world'
 import {emulatorNet} from './neuralnet/implementations'
 import * as fs from 'fs';
-import {NormalizedTruck} from './model/truck';
+import {NormalizedTruck, Truck} from './model/truck';
+import { Point } from './math';
 
-let world = new World();
-let trainTruckEmulator = new TrainTruckEmulator(new NormalizedTruck(world.truck), emulatorNet, 1);
+let dock = new Dock(new Point(0, 0));
+let truck = new Truck(new Point(0, 0), 0, 0, dock)
+let world = new World(truck, dock);
+let trainTruckEmulator = new TrainTruckEmulator(new NormalizedTruck(truck), emulatorNet, 1);
 
 try {
     let savedWeights = fs.readFileSync("./emulator_weights").toString();
@@ -25,7 +28,7 @@ let highErrors = 0;
 let summedSteps = 0;
 for (let i = 0; i < steps; i++) {
 //    console.log(i + " of " + steps);
-    world.truck.randomizeNoLimits();
+    truck.randomizeNoLimits();
     let lastError2 = trainTruckEmulator.train(epochSteps);
     let lastError = lastError2[1];
 //    console.log("lastError", lastError);
