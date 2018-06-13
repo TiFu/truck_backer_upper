@@ -96,6 +96,11 @@ export class TrainController {
     private currentLesson: Lesson = null;
 
     public constructor(private world: World, private realPlant: HasState, private controllerNet: NeuralNet, private emulatorNet: Emulator, private errorFunction: ControllerError) {
+        console.log("World: ", world);
+        console.log("realPlant: ", realPlant);
+        console.log("controllerNet: ", controllerNet);
+        console.log("emulatorNet", emulatorNet);
+        console.log("error", errorFunction);
     }
 
     public setPlant(realPlant: HasState) {
@@ -124,6 +129,7 @@ export class TrainController {
     public setLesson(lesson: Lesson): void {
         this.currentLesson = lesson;
         this.controllerNet.changeOptimizer(lesson.optimizer);
+        console.log("Using optimizer: ", lesson.optimizer);
         this.performedTrainSteps = 0;
         this.maxStepErrors = 0;
     }
@@ -131,6 +137,7 @@ export class TrainController {
     public getPerformedTrainSteps(): number {
         return this.performedTrainSteps;
     }
+
     public hasNextStep(): boolean {
         return this.performedTrainSteps < this.currentLesson.samples;
     }
@@ -160,6 +167,7 @@ export class TrainController {
     private prepareTruckPosition() {
         // tep1, tep2, maxAngleTrailer, maxAngleCabin
         this.realPlant.randomizePosition(this.currentLesson);
+       // console.log("Real Plant Position: ", this.realPlant.getOriginalState)
     }
 
     private fixEmulator(fix: boolean) {
@@ -169,6 +177,8 @@ export class TrainController {
         }
     }
 
+    // TODO: this is garbage lol
+    // duplicate code
     private normalizeDock(d: Dock) {
         let normX = (d.position.x - 50) / 50
         let normY = (d.position.y) / 50;

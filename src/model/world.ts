@@ -12,6 +12,9 @@ export class Dock {
 
 }
 
+export interface Normalized {
+    getNormalizedDock(dock: Dock): Point;
+}
 export interface HasLength {
     getLength(): number;
 }

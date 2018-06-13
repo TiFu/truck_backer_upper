@@ -33,10 +33,12 @@ export class MainComponent extends React.Component<{}, MainComponentState> {
     }
 
     private onControllerNetChanged(controller: TrainController) {
-        if (this.state.simulationCar instanceof Car) {
-            controller.setPlant(new NormalizedCar(this.state.simulationCar));
-        } else {
-            controller.setPlant(new NormalizedTruck(this.state.simulationCar));            
+        if (controller != null) {
+            if (this.state.simulationCar instanceof Car) {
+                controller.setPlant(new NormalizedCar(this.state.simulationCar));
+            } else {
+                controller.setPlant(new NormalizedTruck(this.state.simulationCar));            
+            }
         }
         this.setState({controller: controller});
     }
@@ -56,14 +58,14 @@ export class MainComponent extends React.Component<{}, MainComponentState> {
                 </div>
                 <div className="row">
                     <Tabs id={"2"} defaultActiveKey={1} animation={false}>
-                        <Tab eventKey={1} title={"Emulator"}>
+                        <Tab eventKey={1} title={"How it works"}>
+                            <HowItWorks />
+                        </Tab>
+                        <Tab eventKey={2} title={"Step 1: Emulator"}>
                             <Emulator object={new Car(new Point(15,15), 0, [])} onNetworkChange={this.onEmulatorNetworkChanged.bind(this)} />                            
                         </Tab>
-                        <Tab eventKey={2} title={"Controller"}>
+                        <Tab eventKey={3} title={"Step 2: Controller"}>
                             <Controller onControllerTrained={this.onControllerNetChanged.bind(this)} emulatorNet={this.state.emulatorNet} world={controllerWorld} object={controllerCar} />
-                        </Tab>
-                        <Tab eventKey={3} title={"How it works"}>
-                            <HowItWorks />
                         </Tab>
                     </Tabs>
                 </div>

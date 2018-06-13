@@ -62,7 +62,7 @@ export class HowItWorks extends React.Component<{}, {}> {
                     - going from simple lessons to more complicated lessons with further distance from the dock and larger angles.
 
                     Even with these modifications the training is unstable - the training success heavily depends on the weight initialization
-                    and the training positions used in the first few lessons.
+                    and the truck positions used in the first few lessons.
                     
                     <h2>References</h2>
                     {"// TODO: Jordan paper, Nguyen Truck and Nguyen initialization of weights, truck model, car model"}

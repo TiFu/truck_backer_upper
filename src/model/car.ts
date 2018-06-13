@@ -1,11 +1,20 @@
 import { Point, scale, minus, plus,  Vector, Angle, getAngle, calculateVector, rotate, StraightLine } from '../math'
 import * as nnMath from '../neuralnet/math' // TODO: union math libraries..
 import {AngleType, HasState, Limitable, HasLength} from './world'
-import {Lesson} from '../neuralnet/lesson'
+import {Lesson, CarLesson} from '../neuralnet/lesson'
+import {Dock} from '../model/world';
+import * as math from '../math';
+import {Normalized} from '../model/world';
 
-export class NormalizedCar implements HasState, Limitable, HasLength {
+export class NormalizedCar implements Normalized, HasState, Limitable, HasLength {
     public constructor(private car: Car) {
 
+    }
+
+    public getNormalizedDock(dock: Dock): math.Point {
+        let x=  (dock.position.x - 50)  / 50;
+        let y = dock.position.y / 50;
+        return new math.Point(x, y);
     }
 
     public getLength() {
@@ -151,7 +160,7 @@ export class Car implements HasState, Limitable, HasLength {
     }
 
     public randomizePosition(lesson?: Lesson): void {
-        if (lesson) {
+        if (lesson && lesson instanceof CarLesson) {
             let bounds = lesson.getBounds().entries;
             let tep1 = new Point(bounds[0], bounds[1]);
             let tep2 = new Point(bounds[2], bounds[3]);

@@ -47,7 +47,7 @@ interface ControllerState {
 export class Controller extends React.Component<ControllerProps, ControllerState> {
     private emulatorController: TrainController;
     private i = 0;
-    public STEPS_PER_FRAME = 10;
+    public STEPS_PER_FRAME = 1;
     public readonly STEPS_PER_ERROR = 100;
     private lastIteration: number = undefined;
 
@@ -114,7 +114,11 @@ export class Controller extends React.Component<ControllerProps, ControllerState
 
     private makeTrainController(): TrainController {
         let normalizedObject = this.props.object instanceof Car ? new NormalizedCar(this.props.object): new NormalizedTruck(this.props.object);
-        let error = this.props.object instanceof Car ? new CarControllerError(this.props.world.dock.position) : new TruckControllerError(this.props.world.dock.position)
+        console.log("Object: ", normalizedObject);
+        let dock = normalizedObject.getNormalizedDock(this.props.world.dock);
+        console.log("dock", dock);
+        let error = this.props.object instanceof Car ? new CarControllerError(dock) : new TruckControllerError(dock)
+        console.log("error", error);
         // TODO: offer option to use jacobi matrix if object is car
         return new TrainController(this.props.world, normalizedObject, this.state.nn, new NeuralNetEmulator(this.props.emulatorNet), error);   
     }
@@ -258,7 +262,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         // i.e. add red square in simulation
 
     public handleResetNetwork() {
-        this.setState({ network: this.getDefaultNetConfig(), nn: undefined}, () => {
+        this.setState({ network: this.getDefaultNetConfig(), nn: undefined, loadWeightsSuccessful: null}, () => {
             this.props.onControllerTrained(null);
         })
     }
