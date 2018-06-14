@@ -3,7 +3,7 @@ import {Simulation} from './Simulation'
 import { Car } from "../model/car";
 import { Truck } from '../model/truck';
 
-import { Point } from "../math";
+import { Point, toDeg, toRad } from "../math";
 import { Dock } from "../model/world";
 import {Emulator} from './Emulator';
 import {Tab, Tabs} from 'react-bootstrap';
@@ -119,7 +119,7 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
                 additionalProperties.push(
                     <td key={"y_" + Math.random()}> [ {l.y.min.toFixed(2).toString()}, {l.y.max.toFixed(2).toString()} ]</td>);
                 additionalProperties.push(
-                    <td key={"angle_" + Math.random()}> [ {l.angle.min.toFixed(2).toString()}, {l.angle.max.toFixed(2).toString()} ]</td>);
+                    <td key={"angle_" + Math.random()}> [ {toDeg(l.angle.min).toFixed(2).toString()}, {toDeg(l.angle.max).toFixed(2).toString()} ]</td>);
             } else if (l instanceof TruckLesson) {
                 // TODO: implement truck lesson
             }
@@ -184,8 +184,8 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
             x.max = this.props.lesson.x.max;
             y.min = this.props.lesson.y.min;
             y.max = this.props.lesson.y.max;
-            angle.min = this.props.lesson.angle.min;
-            angle.max = this.props.lesson.angle.max;
+            angle.min = toDeg(this.props.lesson.angle.min);
+            angle.max = toDeg(this.props.lesson.angle.max);
         }
 
         this.state = {
@@ -250,7 +250,8 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
         if (this.props.lesson instanceof CarLesson) {
             this.props.lesson.x = this.state.x;
             this.props.lesson.y = this.state.y;
-            this.props.lesson.angle = this.state.angle;
+            // convert back to radians
+            this.props.lesson.angle = this.state.angle.getScaled(Math.PI / 180);
         }
         this.props.onSave(this.props.lesson);
     }

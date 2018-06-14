@@ -262,7 +262,12 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         // i.e. add red square in simulation
 
     public handleResetNetwork() {
-        this.setState({ network: this.getDefaultNetConfig(), nn: undefined, loadWeightsSuccessful: null}, () => {
+        this.setState({ 
+            network: this.getDefaultNetConfig(), 
+            nn: undefined, 
+            loadWeightsSuccessful: null,
+            errors: []
+        }, () => {
             this.props.onControllerTrained(null);
         })
     }
@@ -303,6 +308,13 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             yAxis: {
                 title: {
                     text: "Error"
+                }
+            },
+            xAxis: {
+                labels: {
+                    formatter: function() {
+                        return (this.value * 100 + 100).toFixed(0);
+                    }
                 }
             },
             series: [

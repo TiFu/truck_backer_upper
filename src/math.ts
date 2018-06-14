@@ -4,6 +4,13 @@ export interface Object2D {
 }
 export type Scalar = number;
 
+export function toDeg(angle: number) {
+    return angle * 180 / Math.PI;
+}
+
+export function toRad(angle: number) {
+    return angle / 180 * Math.PI;
+}
 export class Point implements Object2D {
     constructor(public x: number, public y: number) {
     }

@@ -321,6 +321,13 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
                     animation: false
                 }
             },
+            xAxis: {
+                labels: {
+                    formatter: function() {
+                        return (this.value * 100 + 100).toFixed(0);
+                    }
+                }
+            },
             yAxis: {
                 title: {
                     text: "Error"

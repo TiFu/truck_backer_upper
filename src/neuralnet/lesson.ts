@@ -3,6 +3,10 @@ export class Range {
     public constructor(public min: number,public max: number) {
 
     }
+
+    public getScaled(factor: number) {
+        return new Range(this.min * factor, this.max * factor);
+    }
 }
 import {Point} from '../math';
 import {Vector} from '../neuralnet/math'
@@ -17,13 +21,19 @@ export class Lesson {
 }
 
 export class CarLesson extends Lesson {
-    public constructor(object: HasLength, no: number, samples: number, maxSteps: number, optimizer: () => Optimizer, public x: Range, public y: Range, public angle: Range) {
+    public x: Range;
+    public y: Range;
+
+    public constructor(object: HasLength, no: number, samples: number, maxSteps: number, optimizer: () => Optimizer, x: Range, y: Range, public angle: Range) {
         super(object, no, samples, maxSteps, optimizer);
+        let l = object.getLength();
+        this.x = x.getScaled(l);
+        this.y = y.getScaled(l);
     }   
+
     public getBounds(): Vector {
-        let length = this.object.getLength();
-        let tep1 = new Point(this.x.min * length, this.y.max * length);
-        let tep2 = new Point(this.x.max * length, this.y.min * length);
+        let tep1 = new Point(this.x.min, this.y.max);
+        let tep2 = new Point(this.x.max, this.y.min);
         let angle = [this.angle.min, this.angle.max];
 
         return new Vector(
@@ -41,11 +51,16 @@ export class CarLesson extends Lesson {
 }
 
 export class TruckLesson extends Lesson {
+    public x: Range;
+    public y: Range;
 
     public constructor(object: HasLength, no: number, samples: number, optimizer: () => Optimizer,
-        public x: Range, public y: Range, public trailerAngle: Range, 
+        x: Range, y: Range, public trailerAngle: Range, 
         public cabAngle: Range, public maxSteps: number){ 
             super(object, no, samples, maxSteps, optimizer);
+            let l = object.getLength();
+            this.x = x.getScaled(l);
+            this.y = y.getScaled(l);
     }
 
     public getBoundsDescription(): any {
@@ -63,8 +78,8 @@ export class TruckLesson extends Lesson {
     }
     public getBounds(): Vector {
         let length = this.object.getLength();
-        let tep1 = new Point(this.x.min * length, this.y.max * length);
-        let tep2 = new Point(this.x.max * length, this.y.min * length);
+        let tep1 = new Point(this.x.min, this.y.max);
+        let tep2 = new Point(this.x.max, this.y.min);
         let maxAngleTrailer = [this.trailerAngle.min, this.trailerAngle.max];
         let maxAngleCabin = [this.cabAngle.min, this.cabAngle.max];
 
