@@ -94,6 +94,11 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             return;
         }
 
+        if (this.state.lessons.length == 0) {
+            alert("You need to create at least one lesson!");
+            return;
+        }
+        
         let nn = this.state.nn;
         if (!this.state.nn) {
             console.log("creating nn")

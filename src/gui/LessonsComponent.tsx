@@ -10,6 +10,7 @@ import {Tab, Tabs} from 'react-bootstrap';
 import {Controller} from './Controller';
 import {Lesson, CarLesson, TruckLesson, Range} from '../neuralnet/lesson';
 import { SGD, SGDNesterovMomentum } from '../neuralnet/optimizers';
+import {Optimizer} from '../neuralnet/optimizers';
 
 export interface LessonsProps {
     object: Car | Truck;
@@ -95,6 +96,7 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
         columns.push(<th key="no" scope="col">No.</th>);
         columns.push(<th key="samples" scope="col">Samples</th>)
         columns.push(<th key="max_stesp" scope="col">Max Steps</th>);
+        columns.push(<th key="optimizer" scope="col">Optimizer</th>);
 
         if (this.props.lessons[0] instanceof CarLesson) {
             columns.push(<th key="x" scope="col">x-Range</th>);
@@ -114,6 +116,17 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
             ];
     
             if (l instanceof CarLesson) {
+                let optimizer = l.optimizer();
+                let params = undefined;
+                if (optimizer instanceof SGD) {
+                    params = "learningRate = " + optimizer.learningRate.toString();
+                } else if (optimizer instanceof SGDNesterovMomentum) {
+                    params = "learningRate = " + optimizer.learningRate + ", momentum = " + optimizer.momentum;
+                }
+                additionalProperties.push(
+                    <td key={"optimizer_" + Math.random()}>{optimizer.getName()}({params})</td>
+                );
+
                 additionalProperties.push(
                     <td key={"x_" + Math.random()}> [ {l.x.min.toFixed(2).toString()}, {l.x.max.toFixed(2).toString()} ]</td>);
                 additionalProperties.push(
@@ -171,6 +184,8 @@ interface LessonState {
     x: Range;
     y: Range;
     angle: Range;
+    optimizer: Optimizer;
+    optimizers: {[key: string]: Optimizer};
 }
 
 class LessonEditComponent extends React.Component<LessonProps, LessonState> {
@@ -188,13 +203,22 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
             angle.max = toDeg(this.props.lesson.angle.max);
         }
 
+        let optimizers: any = {
+        }
+        let sgd =new SGD(0.5);
+        let sgdNesterov = new SGDNesterovMomentum(1, 0.9);
+        optimizers[sgd.getName()] = sgd;
+        optimizers[sgdNesterov.getName()] = sgdNesterov;
+
         this.state = {
             no: this.props.lesson.no,
             samples: this.props.lesson.samples,
             maxSteps: this.props.lesson.maxSteps,
             x: x,
             y: y,
-            angle: angle
+            angle: angle,
+            optimizer: this.props.lesson.optimizer(),
+            optimizers: optimizers
         };
     }
 
@@ -247,6 +271,14 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
         this.props.lesson.no = this.state.no;
         this.props.lesson.samples = this.state.samples;
         this.props.lesson.maxSteps = this.state.maxSteps;
+        let optimizerFunction = null;
+        let optimizer = this.state.optimizer
+        if (optimizer instanceof SGD) {
+            this.props.lesson.optimizer = () => new SGD((optimizer as SGD).learningRate);
+        } else if (optimizer instanceof SGDNesterovMomentum) {
+            this.props.lesson.optimizer = () => new SGDNesterovMomentum((optimizer as SGDNesterovMomentum).learningRate, (optimizer as SGDNesterovMomentum).momentum);
+        }
+
         if (this.props.lesson instanceof CarLesson) {
             this.props.lesson.x = this.state.x;
             this.props.lesson.y = this.state.y;
@@ -260,6 +292,97 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
         this.props.onCancel();
     }
 
+    private handleOptimizerPropertyChanged(index: number, property: any) {
+        let sampleOptimizer = this.state.optimizer;
+
+        if (sampleOptimizer instanceof SGD) {
+            if (index === 0) {
+                let lr = Number.parseFloat(property.currentTarget.value);
+                sampleOptimizer.learningRate = lr;
+            }
+        } else if (sampleOptimizer instanceof SGDNesterovMomentum){
+            let optimizer = sampleOptimizer as SGDNesterovMomentum;
+            if (index === 0) {
+                let lr = Number.parseFloat(property.currentTarget.value)
+                sampleOptimizer.learningRate = lr;
+            } else if (index === 1) {
+                let momentum = Number.parseFloat(property.currentTarget.value)
+                sampleOptimizer.momentum = momentum;
+            }
+        }
+        this.setState({optimizer: sampleOptimizer});
+    }
+
+    private handleOptimizerChanged(e: React.ChangeEvent<HTMLSelectElement>) {
+        let optimizer = this.state.optimizers[e.currentTarget.value];
+        this.setState({optimizer: optimizer});
+    }
+    
+    private getOptimizerEditProperty(optimizer: Optimizer) {
+        let optimizerProps = undefined;
+        if (optimizer instanceof SGD) {
+            optimizerProps = [
+                    <div key="learning_rate2" className="row pb">
+                        <div className="col-sm-4 pt">
+                            <label htmlFor="learningRate" className="pl pr">Learning Rate:</label>
+                        </div>
+                        <div className="col-sm-8">
+                            <input defaultValue={optimizer.learningRate.toString()} id="learningRate" type="text" onBlur={(e) => this.handleOptimizerPropertyChanged(0, e)} className="form-control"/>
+                        </div>
+                    </div>
+            ]
+        } else if (optimizer instanceof SGDNesterovMomentum) {
+            optimizerProps = [<div key="learning_rate" className="row pb">
+                    <div className="col-sm-4 pt">
+                        <label htmlFor="learningRate" className="pl pr">Learning Rate:</label>
+                    </div>
+                    <div className="col-sm-8">
+                        <input defaultValue={optimizer.learningRate.toString()} id="learningRate" type="text" onBlur={(e) => this.handleOptimizerPropertyChanged(0, e)} className="form-control"/>
+                    </div>
+                </div>,
+
+                <div key="momentum" className="row pb">
+                    <div className="col-sm-4 pt">
+                        <label htmlFor="momentum" className="pl pr">Momentum:</label>
+                    </div>
+                    <div className="col-sm-8">
+                        <input defaultValue={optimizer.momentum.toString()} id="momentum" type="text" onBlur={(e) => this.handleOptimizerPropertyChanged(1, e)} className="form-control"/>
+                    </div>
+                </div>
+            ]
+        }
+
+        let optimizers = [];
+        let selectedOptimizer = this.state.optimizer.getName();
+        for (let optimizer in this.state.optimizers) {
+            optimizers.push(<option key={optimizer} value={optimizer}>{optimizer}</option>);
+        }
+
+        let optimizerSelect = <select defaultValue={selectedOptimizer} className="form-control" 
+            onChange={this.handleOptimizerChanged.bind(this)}>
+            {optimizers}
+        </select>
+
+
+        return <div className="row pb">
+            <div className="col-sm-4 pt">
+                <label htmlFor="optimizer" className="pl pr">Optimizer: </label>
+            </div>
+            <div className="col-sm-8 pt">
+                <div className="row pb">
+                    <div className="col-sm-4 pt">
+                        <label htmlFor="optimizer_method" className="pl pr">Method: </label>
+                    </div>
+                    <div className="col-sm-8 pt">
+                        {optimizerSelect}
+                    </div>
+                </div>
+                {optimizerProps}
+            </div>
+        </div>
+    }
+
+    // TODO: how to have less copy & paste for optimizer?
     public render() {
         let additionalProperties = [];
         if (this.props.lesson instanceof CarLesson) {
@@ -354,6 +477,7 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
                             <input defaultValue={Math.floor(this.props.lesson.maxSteps).toString()} id="maxSteps" type="text" onBlur={this.handleMaxStepsChanged.bind(this)} className="form-control"/>
                         </div>
                     </div>
+                    {this.getOptimizerEditProperty(this.state.optimizer)}
                     {additionalProperties}
                  </div>
             </div>
