@@ -20,6 +20,7 @@ export interface NetworkCreatorProps {
     network: NetConfig;
     showInfo: boolean;
     onChange: (config: NetConfig, keepWeights: boolean) => void;
+    showOptimizer: boolean;
 }
 
 export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
@@ -157,7 +158,26 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
                 </div>
             </div>;
         }
-        
+
+        let optimizerComponent = <div className="row pb">
+            <div className="col-sm-3">
+                <label>Optimizer:</label>
+            </div>
+            <div className="col-sm-3 align-right">
+                <select defaultValue={selectedOptimizer} className="form-control" 
+                        onChange={this.handleOptimizerChanged.bind(this)}>
+                    {optimizers}
+                </select>
+            </div>
+            <div className="col-sm-6">
+                {this.getOptimizerEditProperty(this.props.network.optimizer())}
+            </div>
+        </div>
+
+        if (!this.props.showOptimizer) {
+            optimizerComponent = undefined;
+        }   
+             
         let netComponent = <div className="container">
             <div className="row pb">
                 <div className="col-sm-3">
@@ -171,20 +191,7 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
                 </div>
             </div>
             {errorFunctionComponent}
-            <div className="row pb">
-                <div className="col-sm-3">
-                    <label>Optimizer:</label>
-                </div>
-                <div className="col-sm-3 align-right">
-                    <select defaultValue={selectedOptimizer} className="form-control" 
-                            onChange={this.handleOptimizerChanged.bind(this)}>
-                        {optimizers}
-                    </select>
-                </div>
-                <div className="col-sm-6">
-                    {this.getOptimizerEditProperty(this.props.network.optimizer())}
-                </div>
-            </div>
+            {optimizerComponent}
         </div>;
 
         let layers = this.props.network.layerConfigs.map((l: LayerConfig, index: number) => {

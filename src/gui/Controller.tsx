@@ -410,7 +410,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                     <LessonsComponent object={this.props.object} lessons={this.state.lessons} onChange={this.updateLessons.bind(this)}/>
                 </div>
                 <div className="row">
-                    <NetworkCreator showInfo={false} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
+                    <NetworkCreator showOptimizer={false} showInfo={false} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
                 </div>
             </div>
     }

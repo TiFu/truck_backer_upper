@@ -290,7 +290,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
                 </div>
                 {diagram}
                 <div className="row">
-                    <NetworkCreator showInfo={true} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
+                    <NetworkCreator showOptimizer={true} showInfo={true} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
                 </div>
             </div>
     }
