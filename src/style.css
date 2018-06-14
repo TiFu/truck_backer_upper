@@ -34,6 +34,10 @@
     margin-bottom: 0.5rem !important;
 }
 
+.mr {
+    margin-right: 0.5rem !important;
+}
+
 .removeButton {
     margin-left: 1rem;
     padding-top: 0rem !important; 

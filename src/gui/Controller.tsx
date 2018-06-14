@@ -20,7 +20,7 @@ import {NeuralNetEmulator} from '../neuralnet/emulator';
 import { Lesson } from '../neuralnet/lesson';
 import {createCarControllerLessons} from '../neuralnet/lesson';
 import {LayerConfig} from '../neuralnet/net';
-import {LessonsComponent} from './LessonComponent'
+import {LessonsComponent} from './LessonsComponent'
 import { ENGINE_METHOD_DIGESTS } from 'constants';
 const ReactHighcharts = require('react-highcharts');
 
