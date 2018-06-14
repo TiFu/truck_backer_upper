@@ -98,7 +98,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             alert("You need to create at least one lesson!");
             return;
         }
-        
+
         let nn = this.state.nn;
         if (!this.state.nn) {
             console.log("creating nn")
@@ -123,6 +123,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         let dock = normalizedObject.getNormalizedDock(this.props.world.dock);
         console.log("dock", dock);
         let error = this.props.object instanceof Car ? new CarControllerError(dock) : new TruckControllerError(dock)
+        error.setSaveErrors(false);
         console.log("error", error);
         // TODO: offer option to use jacobi matrix if object is car
         return new TrainController(this.props.world, normalizedObject, this.state.nn, new NeuralNetEmulator(this.props.emulatorNet), error);   

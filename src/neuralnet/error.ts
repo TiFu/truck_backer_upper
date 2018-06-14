@@ -53,6 +53,7 @@ export class WeightedMSE extends ErrorFunction {
 export abstract class ControllerError extends ErrorFunction {
     abstract getError(finalState: Vector): Scalar;
     abstract getErrorDerivative(finalState: Vector): Vector;
+    abstract setSaveErrors(saveErrors: boolean): void;
 }
 
 export class SimpleControllerError extends ControllerError {
@@ -63,12 +64,17 @@ export class SimpleControllerError extends ControllerError {
     public getErrorDerivative(finalState: Vector): Vector {
         return new Vector([- 2 * (0 - finalState.entries[0])]);
     }
+
+    public setSaveErrors(saveErrors: boolean) {
+    }
 }
 
 export class TruckControllerError extends ControllerError {
     public angleError: Array<number>;
     public yError: Array<number>;
     public errors: Array<number>;
+
+    private saveErrors: boolean = true;
 
     public constructor(private dock: Point) {
         super();
@@ -77,6 +83,9 @@ export class TruckControllerError extends ControllerError {
         this.errors = [];
     }
 
+    public setSaveErrors(saveErrors: boolean) {
+        this.saveErrors = saveErrors;
+    }
     public getErrorDerivative(finalState: Vector): Vector {
         let xTrailer = finalState.entries[3];
         let yTrailer = finalState.entries[4];
@@ -101,20 +110,18 @@ export class TruckControllerError extends ControllerError {
         let xDiff = Math.max(xTrailer, -1) - this.dock.x
         let yDiff = yTrailer - this.dock.y
         let thetaDiff = thetaTrailer - 0
-        console.log("[Err] Trailer ", xTrailer, yTrailer, thetaTrailer);
-        console.log("[Err] Dock Position", this.dock.x, this.dock.y);
-        console.log("[Err] Calculated Error: ", xDiff, yDiff, thetaDiff);
-        // We input the final state in emulator output space => angle / Math.PI and y divided by 50
-        this.angleError.push(Math.abs(thetaDiff * Math.PI))
-        this.yError.push(Math.abs(yDiff * 50))
 
-        if (Math.abs(thetaTrailer) > Math.PI) {
-            console.log("Needs angle correction!!!");
-            console.log("Trailer Angle: ", thetaTrailer / Math.PI * 180);
+        // We input the final state in emulator output space => angle / Math.PI and y divided by 50
+
+        if (this.saveErrors) {
+            this.angleError.push(Math.abs(thetaDiff * Math.PI))
+            this.yError.push(Math.abs(yDiff * 50))
         }
         
         let error =  xDiff * xDiff + yDiff * yDiff + thetaDiff * thetaDiff;
-        this.errors.push(error);
+        if (this.saveErrors) {
+            this.errors.push(error);
+        }
         return error;
     }
 }
@@ -124,11 +131,17 @@ export class CarControllerError extends ControllerError {
     public yError: Array<number>;
     public errors: Array<number>;
 
+    private saveErrors: boolean = true;
+
     public constructor(private dock: Point) {
         super();
         this.angleError = [];
         this.yError = [];
         this.errors = [];
+    }
+
+    public setSaveErrors(saveErrors: boolean) {
+        this.saveErrors = saveErrors;
     }
 
     public getErrorDerivative(finalState: Vector): Vector {
@@ -155,20 +168,17 @@ export class CarControllerError extends ControllerError {
         let xDiff = Math.max(xTrailer, -1) - this.dock.x
         let yDiff = yTrailer - this.dock.y
         let thetaDiff = thetaTrailer - 0
-    //    console.log("[Err] Trailer ", xTrailer, yTrailer, thetaTrailer);
-    //    console.log("[Err] Dock Position", this.dock.x, this.dock.y);
-   //     console.log("[Err] Calculated Error: ", xDiff, yDiff, thetaDiff);
-        // We input the final state in emulator output space => angle / Math.PI and y divided by 50
-        this.angleError.push(Math.abs(thetaDiff * Math.PI))
-        this.yError.push(Math.abs(yDiff * 50))
 
-        if (Math.abs(thetaTrailer) > Math.PI) {
-            console.log("Needs angle correction!!!");
-            console.log("Trailer Angle: ", thetaTrailer / Math.PI * 180);
+        // We input the final state in emulator output space => angle / Math.PI and y divided by 50
+        if (this.saveErrors) {
+            this.angleError.push(Math.abs(thetaDiff * Math.PI))
+            this.yError.push(Math.abs(yDiff * 50))
         }
-        
+    
         let error =  xDiff * xDiff + yDiff * yDiff + thetaDiff * thetaDiff;
-        this.errors.push(error);
+        if (this.saveErrors) {
+            this.errors.push(error);
+        }
         return error;
     }
 }
