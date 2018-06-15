@@ -64,7 +64,7 @@ export class NormalizedTruck implements Normalized,  HasState, Limitable, HasLen
 
 
 export class Truck implements HasState, Limitable, HasLength {
-    public velocity = 3; // m/sec
+    public velocity = 1; // m/sec
     public maxSteeringAngle = Math.PI / 180 * 70 // 70 degree
     public trailerLength = 14;
     public cabinLength = 6;
