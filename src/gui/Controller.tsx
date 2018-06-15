@@ -74,7 +74,9 @@ export class Controller extends React.Component<ControllerProps, ControllerState
     }
 
     private handleResetLessons() {
-        this.setState({ lessons: this.props.object instanceof Car ? createCarControllerLessons(this.props.object) : []})        
+        this.setState({ lessons: this.props.object instanceof Car ? createCarControllerLessons(this.props.object) : []}, () => {
+            console.log("[state] reset lessons");
+        })        
     }
 
     private handleStopTrain() {
@@ -84,6 +86,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         this.errorCache = [];
         this.setState({train: false, isTrainedNetwork: true, nn: this.state.nn, errors: this.state.errors}, () => {
             this.props.onControllerTrained(this.makeTrainController());
+            console.log("[state] stop train");
         });
     }
 
@@ -107,6 +110,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         this.setState({nn: nn, train: true},() => {
             // we updated the gui
             // start animation
+            console.log("[state] handle train");
             this.emulatorController = this.makeTrainController();
             this.emulatorController.setLesson(this.state.lessons[this.state.currentLessonIndex]);
             this.lastIteration = performance.now();     
@@ -139,7 +143,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             this.errorSum += error;
 
             if (this.errorCount > 0 && this.errorCount % this.STEPS_PER_ERROR === 0) {
-                console.log("Error: ", this.errorSum/this.STEPS_PER_ERROR, "Count: ", this.errorCache.length * 100);
+                console.log("Error: ", this.errorSum/this.STEPS_PER_ERROR, "Count: ", this.currentLessonSteps);
                 this.errorCache.push(this.errorSum / this.STEPS_PER_ERROR);
                 (this.refs.chart as any).getChart().series[0].addPoint(this.errorSum / this.STEPS_PER_ERROR, true);
 
@@ -153,7 +157,9 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             console.error("Setting lesson to " + (this.state.currentLessonIndex + 1))
             this.emulatorController.setLesson(this.state.lessons[this.state.currentLessonIndex + 1]);
             this.currentLessonSteps = 0;
-            this.setState({currentLessonIndex: this.state.currentLessonIndex + 1});
+            this.setState({currentLessonIndex: this.state.currentLessonIndex + 1}, () => {
+                console.log("[state] next lesson");
+            });
         } else {
             this.currentLessonSteps += this.STEPS_PER_FRAME;
         }
@@ -182,7 +188,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             dataType: "text",
             mimeType: "application/json",
             success: (data) => {
-                let network = this.state.network;
+                let network = this.getDefaultNetConfig();
                 let neuralNet = new NeuralNet(network);
 
                 try {
@@ -191,8 +197,10 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                     this.setState({
                         loadingWeights: false, 
                         nn: neuralNet, 
+                        network: network,
                         loadWeightsSuccessful: true }, () => {
                             this.props.onControllerTrained(this.makeTrainController());
+                            console.log("[state] loaded weights");
                         });
                 } catch (e) {
                     this.setState({
@@ -201,6 +209,8 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                         nn: null,
                         loadWeightsSuccessful: false,
                         loadWeightsFailureMsg: "" + e
+                    }, () => {
+                        console.log("[state] failed to load weights");
                     })
                 }
             }
@@ -274,6 +284,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             loadWeightsSuccessful: null,
             errors: []
         }, () => {
+            console.log("[state] reset network");
             this.props.onControllerTrained(null);
         })
     }
@@ -293,14 +304,30 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             isTrained = false;
             currentLesson = 0;
         }
-        this.setState({ currentLessonIndex: currentLesson, network: net, nn: nn, errors: errors, isTrainedNetwork: isTrained});
+        this.setState({ currentLessonIndex: currentLesson, network: net, nn: nn, errors: errors, isTrainedNetwork: isTrained},
+        () => {
+            console.log("[state] network changed")
+        });
     }
 
     private updateLessons(lessons: Lesson[]) {
         console.log("Updated lessons: ", lessons);
-        this.setState({lessons: lessons, currentLessonIndex: 0});
+        let newIndex = this.state.currentLessonIndex < lessons.length ? this.state.currentLessonIndex : lessons.length - 1;
+        if (this.emulatorController)
+            this.emulatorController.setLesson(lessons[newIndex]);
+        console.log("New Index: ", newIndex);
+        this.setState({lessons: lessons, currentLessonIndex: newIndex}, () => {
+            console.log("[state] Updated state", this.state.currentLessonIndex, newIndex);
+        });
     }
 
+    private setCurrentLesson(index: number) {
+        if (this.emulatorController)
+            this.emulatorController.setLesson(this.state.lessons[index]);
+        this.setState({currentLessonIndex: index}, () => {
+            console.log("[state] updated current lesson", index);
+        })
+    }
     private getErrorDiagram() {
         let config = {
             title: {
@@ -376,11 +403,11 @@ export class Controller extends React.Component<ControllerProps, ControllerState
 
         if (this.state.loadWeightsSuccessful !== null) {
             if (this.state.loadWeightsSuccessful) {
-                alert = <div className="alert alert-success" role="alert">
-                <strong>Weights loaded!</strong>
+                alert = <div className="row alert alert-success" role="alert">
+                <strong>Network loaded!</strong>
               </div>
             } else {
-                alert = <div className="alert alert-danger" role="alert">
+                alert = <div className="row alert alert-danger" role="alert">
                 <strong>Failed to load weights!</strong> Make sure that the network has 4
                  inputs, 45 neurons in the hidden layer and 3 outputs.<br />{this.state.loadWeightsFailureMsg}
               </div>
@@ -395,25 +422,28 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         if (this.state.train || this.state.isTrainedNetwork) {
             let lesson = this.state.lessons[this.state.currentLessonIndex];
             diagram = <div className="row">
+            <div className="col-sm-12">
             Training lesson {lesson.no} for {lesson.samples} samples.
             {this.getErrorDiagram()}
+            </div>
         </div>;
         }
+        console.log("Current Lesson Index: ", this.state.currentLessonIndex);
         // TODO: add accordion
         return <div className="container">
                 {loadingModal}
                 <div className="row">
                     <div className="h3 btn-toolbar">
                         {trainButton}
-                        <button type="button"  onClick={this.handleLoadPretrainedWeights.bind(this)} className="btn btn-warning">Load pretrained weights</button>
+                        <button type="button"  onClick={this.handleLoadPretrainedWeights.bind(this)} className="btn btn-warning">Load pretrained network</button>
                         <button type="button"  onClick={this.handleResetNetwork.bind(this)} className="btn btn-danger">Reset Network</button>
                         <button type="button"  onClick={this.handleResetLessons.bind(this)} className="btn btn-danger">Reset Lessons</button>
                     </div>
-                   {alert}
                 </div>
+                {alert}
                 {diagram}
                 <div className="row">
-                    <LessonsComponent object={this.props.object} lessons={this.state.lessons} onChange={this.updateLessons.bind(this)}/>
+                    <LessonsComponent onSelectRow={this.setCurrentLesson.bind(this)} activeLessonIndex={this.state.currentLessonIndex} object={this.props.object} lessons={this.state.lessons} onChange={this.updateLessons.bind(this)}/>
                 </div>
                 <div className="row">
                     <NetworkCreator showOptimizer={false} showInfo={false} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />

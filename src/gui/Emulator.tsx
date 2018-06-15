@@ -120,7 +120,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
             dataType: "text",
             mimeType: "application/json",
             success: (data) => {
-                let network = this.state.network;
+                let network = this.getDefaultNetConfig();
                 let neuralNet = new NeuralNet(network);
 
                 try {
@@ -128,6 +128,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
                     console.log("Loaded nn weights");
                     this.setState({
                         loadingWeights: false, 
+                        network: network,
                         nn: neuralNet, 
                         loadWeightsSuccessful: true });
                     this.props.onNetworkChange(neuralNet);
@@ -203,7 +204,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
     }
 
     public handleResetNetwork() {
-        this.setState({ network: this.getDefaultNetConfig(), nn: undefined}, () => {
+        this.setState({ network: this.getDefaultNetConfig(), nn: undefined, loadWeightsSuccessful: null, loadWeightsFailureMsg: null, loadingWeights: false}, () => {
             this.props.onNetworkChange(null);
         })
     }
@@ -222,7 +223,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
             errors = undefined;
             isTrained = false;
         }
-        this.setState({ network: net, nn: nn, errors: errors, isTrainedNetwork: isTrained});
+        this.setState({ network: net, nn: nn, errors: errors, isTrainedNetwork: isTrained, loadWeightsSuccessful: null, loadWeightsFailureMsg: null, loadingWeights: false});
     }
 
     private renderConfigureEmulator() {
@@ -257,11 +258,11 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
 
         if (this.state.loadWeightsSuccessful !== null) {
             if (this.state.loadWeightsSuccessful) {
-                alert = <div className="alert alert-success" role="alert">
-                <strong>Weights loaded!</strong>
+                alert = <div className="row alert alert-success" role="alert">
+                <strong>Network loaded!</strong>
               </div>
             } else {
-                alert = <div className="alert alert-danger" role="alert">
+                alert = <div className="row alert alert-danger" role="alert">
                 <strong>Failed to load weights!</strong> Make sure that the network has 4
                  inputs, 45 neurons in the hidden layer and 3 outputs.<br />{this.state.loadWeightsFailureMsg}
               </div>
@@ -274,21 +275,23 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
         }
         let diagram = undefined;
         if (this.state.train || this.state.isTrainedNetwork) {
-            diagram = <div className="row">
-            {this.getErrorDiagram()}
-        </div>;
+            diagram = this.getErrorDiagram()
         }
         return <div className="container">
                 {loadingModal}
                 <div className="row">
                     <div className="h3 btn-toolbar">
                         {trainButton}
-                        <button type="button"  onClick={this.handleLoadPretrainedWeights.bind(this)} className="btn btn-warning">Load pretrained weights</button>
+                        <button type="button"  onClick={this.handleLoadPretrainedWeights.bind(this)} className="btn btn-warning">Load pretrained Network</button>
                         <button type="button"  onClick={this.handleResetNetwork.bind(this)} className="btn btn-danger">Reset Network</button>
                     </div>
-                   {alert}
                 </div>
-                {diagram}
+                {alert}
+                <div className="row">
+                    <div className="col-sm-12">
+                        {diagram}
+                    </div>
+                </div>
                 <div className="row">
                     <NetworkCreator showOptimizer={true} showInfo={true} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
                 </div>

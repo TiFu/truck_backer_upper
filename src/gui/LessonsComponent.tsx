@@ -15,7 +15,9 @@ import {Optimizer} from '../neuralnet/optimizers';
 export interface LessonsProps {
     object: Car | Truck;
     lessons: Lesson[];
+    activeLessonIndex: number;
     onChange: (lessons: Lesson[]) => void;
+    onSelectRow: (lessonIndex: number) => void;
 }
 
 export interface LessonsState {
@@ -59,7 +61,7 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
         this.setState({addLesson: false, lesson: undefined, lessonIndex: -1});
     }
 
-    private onChange(index: number, lesson: Lesson) {
+    private onChange(e: React.MouseEvent<HTMLElement>, index: number, lesson: Lesson) {
         let lessons = this.props.lessons;
         if (lesson == null) {
             lessons.splice(index, 1);
@@ -70,10 +72,12 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
         } else {
             lessons[index] = lesson;
         }
+        e.stopPropagation();
         this.props.onChange(lessons);
     }
 
-    private editLesson(index: number, lesson: Lesson) {
+    private editLesson(e: React.MouseEvent<HTMLElement>, index: number, lesson: Lesson) {
+        e.stopPropagation();
         this.setState({editLesson: true, lesson: lesson, lessonIndex: index});
     }
 
@@ -139,11 +143,12 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
     
             // TODO: replace onChange with null with onDeleteLesson(index);
             additionalProperties.push(<td key={"buttons_" + Math.random()} className="align-right">
-                    <button type="button" onClick={() => this.editLesson(i, l)} disabled={this.state.editLesson || this.state.addLesson} className="btn btn-warning mr"><span className="fas fa-edit"></span></button>
-                    <button type="button"  onClick={() => this.onChange(i, null)} disabled={this.state.editLesson || this.state.addLesson} className="btn btn-danger"><span className="fas fa-trash-alt"></span></button>
+                    <button type="button" onClick={(e) => this.editLesson(e, i, l)} disabled={this.state.editLesson || this.state.addLesson} className="btn btn-warning mr"><span className="fas fa-edit"></span></button>
+                    <button type="button"  onClick={(e) => this.onChange(e, i, null)} disabled={this.state.editLesson || this.state.addLesson} className="btn btn-danger"><span className="fas fa-trash-alt"></span></button>
                 </td>);
             
-            return <tr key={Math.random()}>
+            let active = this.props.activeLessonIndex == i ? "table-primary" : "";
+            return <tr key={Math.random()} onClick={() => this.props.onSelectRow(i)} className={active}>
                     {additionalProperties}
             </tr>
         })

@@ -1,6 +1,6 @@
 import * as React from "react"
 import * as $ from "jquery"
-import * as bootstrap from "bootstrap";
+//import * as bootstrap from "bootstrap";
 
 // import needed styles
 import 'bootstrap/dist/css/bootstrap.css'
