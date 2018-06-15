@@ -390,6 +390,7 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
             </div>
         </div>
     }
+    // TODO: mark area of current lesson in simulation?
 
     // TODO: how to have less copy & paste for optimizer?
     public render() {
