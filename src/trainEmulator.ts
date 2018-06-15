@@ -11,7 +11,7 @@ let world = new World(truck, dock);
 let trainTruckEmulator = new TrainTruckEmulator(new NormalizedTruck(truck), emulatorNet, 1);
 
 try {
-    let savedWeights = fs.readFileSync("./emulator_weights").toString();
+    let savedWeights = fs.readFileSync("./weights/truck_emulator_weights").toString();
     let parsedWeights = JSON.parse(savedWeights);
     trainTruckEmulator.getEmulatorNet().loadWeights(parsedWeights);
 } catch(err) {
@@ -63,7 +63,7 @@ for (let i = 0; i < steps; i++) {
         console.log("[AvgError]", i + ": Avg Error " + errorSum/summedSteps + " / Max " + errorMax + " / High " + highErrors);
         console.log("[AvgErrorComp]", "Cab Angle: " + cabAngle + " / Trailer Angle: " + trailerAngle + " / xCab: " + xCab + " / yCab: " + yCab + " / xTrailer: " + xTrailer + " / yTrailer: " + yTrailer);
         console.log("")
-        fs.writeFileSync("./emulator_weights", JSON.stringify(trainTruckEmulator.getEmulatorNet().getWeights()));
+        fs.writeFileSync("./weights/truck_emulator_weights", JSON.stringify(trainTruckEmulator.getEmulatorNet().getWeights()));
         errorSum = 0;
         summedSteps = 0;
         highErrors = 0;
@@ -72,5 +72,5 @@ for (let i = 0; i < steps; i++) {
     }
 }
 
-fs.writeFileSync("./emulator_weights", JSON.stringify(trainTruckEmulator.getEmulatorNet().getWeights()));
+fs.writeFileSync("./weights/truck_emulator_weights", JSON.stringify(trainTruckEmulator.getEmulatorNet().getWeights()));
 //console.log(trainTruckEmulator.getEmulatorNet().getWeights())

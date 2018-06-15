@@ -1,6 +1,6 @@
 import {TrainTruckEmulator, TrainController} from './neuralnet/train'
 import {NormalizedTruck} from './model/truck';
-import {World} from './model/world'
+import {World, Dock} from './model/world'
 import {carControllerNet, carEmulatorNet} from './neuralnet/implementations'
 import {NetConfig, NeuralNet} from './neuralnet/net';
 import * as fs from 'fs';
@@ -12,19 +12,22 @@ import * as process from 'process'
 import { NeuralNetEmulator } from './neuralnet/emulator';
 import {createCarControllerLessons} from './neuralnet/lesson';
 
-let world = new World();
+let car = new Car(new Point(15, 15), 0, []);
+let dock = new Dock(new Point(0, 0));
+
+let world = new World(car, dock);
 
 let emulator_weights = fs.readFileSync("./weights/car_emulator_weights").toString();
 let parsed_emulator_weights = JSON.parse(emulator_weights);
 //emulatorNet.setDebugMode(true);
-let trainTruckEmulator = new TrainTruckEmulator(new NormalizedCar(world.car), carEmulatorNet);
+let trainTruckEmulator = new TrainTruckEmulator(new NormalizedCar(car), carEmulatorNet);
 trainTruckEmulator.getEmulatorNet().loadWeights(parsed_emulator_weights);
 
 let normalizedDockPosition = new Point((world.dock.position.x - 50)/ 50, world.dock.position.y / 50);
 let errorFunc = new CarControllerError(normalizedDockPosition);
-let trainTruckController = new TrainController(world, new NormalizedCar(world.car), carControllerNet, new NeuralNetEmulator(carEmulatorNet, new CarEmulator(world.car)), errorFunc);
+let trainTruckController = new TrainController(world, new NormalizedCar(car), carControllerNet, new NeuralNetEmulator(carEmulatorNet), errorFunc);
 
-let lessons = createCarControllerLessons(world.car);
+let lessons = createCarControllerLessons(car);
 
 // start at y dist
 if (process.argv.length < 3) {
@@ -52,7 +55,6 @@ for (let j = startingLesson; j < lessons.length; j++) {
     trainTruckController.setLesson(lesson);
     carControllerNet.changeOptimizer(lesson.optimizer);
 
-    console.log("[Info] Next Lesson: " + lesson.no + " : " + JSON.stringify(lesson.getBoundsDescription()))
     console.log("Optimizer: " + lesson.optimizer);
     for (let i = startingLesson; i < lessons[j].samples; i++) {
         trainTruckController.trainSingleStep();
