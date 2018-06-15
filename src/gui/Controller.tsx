@@ -74,7 +74,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
     }
 
     private handleResetLessons() {
-        this.setState({ lessons: this.props.object instanceof Car ? createCarControllerLessons(this.props.object) : []}, () => {
+        this.setState({ currentLessonIndex: 0, lessons: this.props.object instanceof Car ? createCarControllerLessons(this.props.object) : []}, () => {
             console.log("[state] reset lessons");
         })        
     }
@@ -313,8 +313,10 @@ export class Controller extends React.Component<ControllerProps, ControllerState
     private updateLessons(lessons: Lesson[]) {
         console.log("Updated lessons: ", lessons);
         let newIndex = this.state.currentLessonIndex < lessons.length ? this.state.currentLessonIndex : lessons.length - 1;
+        newIndex = newIndex < 0 ? 0 : newIndex;
         if (this.emulatorController)
             this.emulatorController.setLesson(lessons[newIndex]);
+        
         console.log("New Index: ", newIndex);
         this.setState({lessons: lessons, currentLessonIndex: newIndex}, () => {
             console.log("[state] Updated state", this.state.currentLessonIndex, newIndex);

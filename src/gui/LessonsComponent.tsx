@@ -160,6 +160,10 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
         return <div className="container">
             <h2>Lessons</h2>
             {modal}
+            <div className="alert alert-primary">
+                Click on a row to select a lesson and use it for training. The training
+                algorithm will automatically switch to the next lesson after <i>samples</i> steps.
+            </div>
             <button disabled={this.state.addLesson || this.state.editLesson} type="button"  onClick={this.handleAddLesson.bind(this)} className="btn btn-primary mb">Add Lesson</button>
             <table className="table table-hover">
                 <thead>
@@ -401,7 +405,6 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
                     <span className="pl pr">-</span> 
                     <input defaultValue={this.props.lesson.x.max.toFixed(2).toString()} id="x_max" type="text" onBlur={this.handleXMaxChanged.bind(this)} className="form-control"/>
                     <span className="pl pr"> </span> 
-                    Car Lengths
                 </div>
             </div>
             );
@@ -415,7 +418,6 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
                     <span className="pl pr">-</span> 
                     <input defaultValue={this.props.lesson.y.max.toFixed(2).toString()} id="y_max" type="text" onBlur={this.handleYMaxChanged.bind(this)} className="form-control"/>
                     <span className="pl pr"> </span> 
-                    Car Lengths
                 </div>
             </div>
             );
@@ -429,7 +431,6 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
                     <span className="pl pr">-</span> 
                     <input defaultValue={(this.props.lesson.angle.max * 180 / Math.PI).toFixed(2).toString()} id="angle_max" type="text" onBlur={this.handleAngleMaxChanged.bind(this)} className="form-control"/>
                     <span className="pl pr"> </span> 
-                    degrees
                 </div>
             </div>
             );
@@ -439,33 +440,33 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
 
         let index = undefined;
         if (this.props.edit) {
-            <div className="row pb">
-                <div className="col-sm-10">
-                    <div className="col-sm-4">
-                        <label htmlFor="a" className="pl pr">No: </label>
-                    </div>
-                    <div className="col-sm-8"> 
-                        {this.props.lesson.no}
+                <div className="col-sm-12">
+                    <div className="row pb">
+                        <div className="col-sm-4">
+                            <label htmlFor="a" className="pl pr">No: </label>
+                        </div>
+                        <div className="col-sm-8"> 
+                            {this.props.lesson.no}
+                        </div>
                     </div>
                 </div>
-            </div>;
         } else {
-            index = <div className="row pb">
-                <div className="col-sm-10">
-                    <div className="col-sm-4">
-                        <label htmlFor="a" className="pl pr">Add after: </label>
-                    </div>
-                    <div className="col-sm-8"> 
-                        <input defaultValue={this.props.lesson.no.toString()} id="no" type="text" onBlur={this.handleLessonNoChanged.bind(this)} className="form-control"/>
+            index = <div className="col-sm-12">
+                    <div className="row pb">
+                        <div className="col-sm-4">
+                            <label htmlFor="a" className="pl pr">Add after: </label>
+                        </div>
+                        <div className="col-sm-8"> 
+                            <input defaultValue={this.props.lesson.no.toString()} id="no" type="text" onBlur={this.handleLessonNoChanged.bind(this)} className="form-control"/>
+                        </div>
                     </div>
                 </div>
-            </div>;
         }
         
         let lessonEditComponent = <div className="form pb">
             <div className="row pb">
                 {index}
-                 <div className="col-sm-10">
+                 <div className="col-sm-12">
                     <div className="row pb">
                         <div className="col-sm-4">
                             <label htmlFor="samples" className="pl pr">Samples:</label>
