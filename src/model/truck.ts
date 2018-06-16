@@ -137,8 +137,11 @@ export class Truck implements HasState, Limitable, HasLength {
 
     public setTruckPosition(tep: Point, trailerAngle: Angle, cabinAngle: Angle) {
         this.tep = tep;
+     //   console.log("Tep: ", tep.x, "|", tep.y);
         this.trailerAngle = this.fixAngle(trailerAngle)
+     //   console.log("Trailer: ", this.trailerAngle);
         this.cabinAngle = this.fixAngle(cabinAngle)
+      //  console.log("Cabin: ", this.cabinAngle);
     }
     
     public getTrailerLength(): number {
@@ -274,6 +277,10 @@ export class Truck implements HasState, Limitable, HasLength {
             let tep2 = new Point(bounds[2], bounds[3]);
             let maxAngleTrailer = [bounds[4], bounds[5]];
             let maxAngleCabin = [bounds[6], bounds[7]];
+        /*    console.log("tep1 ", tep1);
+            console.log("tep2", tep2);
+            console.log("trailer ", maxAngleTrailer);
+            console.log("cabin", maxAngleCabin)*/
             this.randomizeTruckPosition(tep1, tep2, maxAngleTrailer, maxAngleCabin);
         } else {
             this.randomizeNoLimits();

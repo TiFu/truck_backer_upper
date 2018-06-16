@@ -79,15 +79,15 @@ export var simpleEmulatorNetConfig: NetConfig = {
 export var simpleEmulatorNet = new NeuralNet(simpleEmulatorNetConfig);
 
 export var hiddenControllerLayer: LayerConfig = {
-    neuronCount: 26,
-    weightInitializer: new TwoLayerInitializer(0.7, 26),
+    neuronCount: 45,
+    weightInitializer: new TwoLayerInitializer(0.7, 45),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Tanh()
 }
 
 export var outputControllerLayer: LayerConfig = {
     neuronCount: 1,
-    weightInitializer: new TwoLayerInitializer(0.7, 1),
+    weightInitializer: new RandomWeightInitializer(0.1),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Tanh() // [-1, 1]
 }
