@@ -187,11 +187,11 @@ export function createCarControllerLessons(truck: HasLength) {
 
 export function createTruckControllerLessons(truck: HasLength) {
     let optimizers: Array<() => Optimizer> = [
-        () => new SGDNesterovMomentum(0.5, 0.9),
-        () => new SGDNesterovMomentum(0.5, 0.9),
-        () => new SGDNesterovMomentum(0.5, 0.9),
-        () => new SGDNesterovMomentum(0.5, 0.9),
-        () => new SGDNesterovMomentum(0.5, 0.9),
+        () => new SGDNesterovMomentum(0.3, 0.9),
+        () => new SGDNesterovMomentum(0.2, 0.9),
+        () => new SGDNesterovMomentum(0.2, 0.9),
+        () => new SGDNesterovMomentum(0.2, 0.9),
+        () => new SGDNesterovMomentum(0.2, 0.9),
         () => new SGDNesterovMomentum(0.25, 0.9),
         () => new SGDNesterovMomentum(0.1, 0.9),
         () => new SGDNesterovMomentum(0.1, 0.9),
@@ -203,14 +203,14 @@ export function createTruckControllerLessons(truck: HasLength) {
     let lessons: Array<TruckLesson> = []
 
     //distance lessons
-    let minX = new Range(0.3, 2);
-    let maxX = new Range(0.6, 4);
+    let minX = new Range(0.2, 2);
+    let maxX = new Range(0.4, 4);
     let minY = new Range(0, 0);
     let maxY = new Range(0, 0);
     let minTrailerAngle = new Range(-0/180 * Math.PI, -0/180*Math.PI);
     let maxTrailerAngle = new Range(0/180 * Math.PI,0/180 * Math.PI);
-    let minCabAngle = new Range(-5/180 * Math.PI, -0/180*Math.PI);
-    let maxCabAngle = new Range(5/180 * Math.PI,0/180 * Math.PI);
+    let minCabAngle = new Range(-30/180 * Math.PI, -30/180*Math.PI);
+    let maxCabAngle = new Range(30/180 * Math.PI,30/180 * Math.PI);
 
     let lessonCountX = 12;
 
@@ -219,7 +219,7 @@ export function createTruckControllerLessons(truck: HasLength) {
         let yR = rangeForStep(minY, maxY, i, lessonCountX);
         let trailerR = rangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCountX);
         let cabR = rangeForStep(minCabAngle, maxCabAngle, i, lessonCountX);
-        let samples = 100000;
+        let samples = 10000;
         lessons.push(new TruckLesson(truck, i, samples,  optimizers[i], xR, yR, trailerR, cabR, 2 * xR.max + 50));
     }
 //    console.log("Created lessons: ", lessons);

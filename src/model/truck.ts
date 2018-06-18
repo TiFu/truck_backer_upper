@@ -373,8 +373,35 @@ export class TruckEmulator implements Emulator {
     }
 
     public backward(gradient: nnMath.Vector): nnMath.Vector {
-        this.input.pop();
-        throw new Error("Truck Emulator backward not implemented yet!");
+        let lastInput = this.input.pop();
+        let unscaleMatrix = new nnMath.Matrix([
+            [50, 0, 0, 0 , 0],
+            [0, 50, 0, 0, 0],
+            [0, 0, Math.PI, 0, 0],
+            [0, 0, 0, Math.PI, 0],
+            [0, 0, 0, 0, 180/70*Math.PI],
+        ]);
+
+        let scaleMatrix = new nnMath.Matrix([
+            [1/50.0, 0, 0, 0],
+            [0, 1/50.0, 0, 0],
+            [0, 0, 1 / Math.PI, 0],
+            [0, 0, 0, 1 / Math.PI],
+        ])
+
+        // TODO: fix
+        let modelMatrix = new nnMath.Matrix([
+            [1, 0, 5, 5, 5],
+            [0, 1, 5, 5, 5],
+            [0, 0, 1, 0, 5],
+            [0, 0, 5, 5, 5]
+        ])
+
+        let scaleError = gradient.multiplyMatrixFromLeft(scaleMatrix);
+        let modelError = scaleError.multiplyMatrixFromLeft(modelMatrix);
+        let inputError = modelError.multiplyMatrixFromLeft(unscaleMatrix);
+
+        return inputError;
     }
 
 }

@@ -195,13 +195,13 @@ export class TrainController {
         this.emulatorInputs = [];
         let i = 0;
 //        let summedSteeringSignal = 0;
-
+   //     console.log("[Start Position]", this.realPlant.getOriginalState().entries);
         // start at current state
         while (canContinue) {
             let currentState = this.realPlant.getStateVector();
         //    console.log("[CurrentState] ", currentState.entries);
             let controllerSignal = this.controllerNet.forward(currentState);
-         //   console.log("[ControllerSignal]", controllerSignal.entries[0]);
+//           console.log("[ControllerSignal]", controllerSignal.entries[0]);
             let steeringSignal = controllerSignal.entries[0];
 
             let stateWithSteering = currentState.getWithNewElement(steeringSignal);
@@ -241,7 +241,8 @@ export class TrainController {
         // performance error i.e. real position - real target
         let controllerDerivative = this.calculateErrorDerivative(finalState, normalizedDock);
         let controllerError = this.calculateError(finalState, normalizedDock);
-//        console.log("[FinalError] ", controllerError);
+   //     console.log("[FinalPosition] ", this.realPlant.getOriginalState().entries);
+     //   console.log("[FinalError] ", controllerError);
   //      console.log("[FinalState] ", finalState.entries[0]);
     //    console.log("[ControllerDerivative] ", controllerDerivative.entries[0])
         let error = this.calculateError(finalState, normalizedDock);

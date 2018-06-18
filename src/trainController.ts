@@ -54,8 +54,11 @@ for (let j = startingLesson; j < lessons.length; j++) {
     trainTruckController.setLesson(lesson);
     controllerNet.changeOptimizer(lesson.optimizer);
 
-    console.log("Optimizer: " + lesson.optimizer);
-    for (let i = startingLesson; i < lessons[j].samples; i++) {
+    console.log("Optimizer: " + lesson.optimizer)
+    ;
+    console.log("Max Steps: " + lesson.maxSteps);
+    for (let i = 0; i < lessons[j].samples; i++) {
+  //      console.log("Step: ", i)
         trainTruckController.trainSingleStep();
         if ((i % 100 == 0 && i > 0) || i == lessons[0].samples - 1) {
             console.log("Step " + i + " of " + lesson.samples);
@@ -69,6 +72,8 @@ for (let j = startingLesson; j < lessons.length; j++) {
             trainTruckController.steeringSignals = [];
             console.log("[Info][AvgError] Lesson: " + lesson.no + ", Step " + i + " of " + lesson.samples + "; Avg error: ", avgError, "Y Distance: " + averageYError + ", Angle: " + averageAngleError / Math.PI *  180)
         }
+//        if (i == 100)
+ //           process.exit();
    }
    // save lesson weights
    fs.writeFileSync("./weights/truck_emulator_controller_weights_" + j, JSON.stringify(controllerNet.getWeights()));

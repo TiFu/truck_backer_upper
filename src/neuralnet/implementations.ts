@@ -87,7 +87,7 @@ export var hiddenControllerLayer: LayerConfig = {
 
 export var outputControllerLayer: LayerConfig = {
     neuronCount: 1,
-    weightInitializer: new RandomWeightInitializer(0.1),
+    weightInitializer: new RandomWeightInitializer(0.01),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Tanh() // [-1, 1]
 }
