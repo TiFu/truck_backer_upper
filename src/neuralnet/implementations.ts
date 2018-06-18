@@ -14,16 +14,16 @@ export var hiddenEmulatorLayer: LayerConfig = {
 }
 
 export var outputEmulatorLayer: LayerConfig = {
-    neuronCount: 6,
+    neuronCount: 4,
     weightInitializer: new TwoLayerInitializer(0.7, 6),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Linear()
 }
 
 export var emulatorNetConfig: NetConfig = {
-    inputs: 7,
+    inputs: 5,
     // TODO: was trained with 0.1 then 0.01 after improvement stops => basically decay
-    optimizer: /*() => new SGD(0.001),*/ () => new SGDNesterovMomentum(0.01, 0.9),
+    optimizer: /*() => new SGD(0.001),*/ () => new SGDNesterovMomentum(0.1, 0.9),
     errorFunction: new MSE(),
     layerConfigs: [
         hiddenEmulatorLayer,

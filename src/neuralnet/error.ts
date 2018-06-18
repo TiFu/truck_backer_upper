@@ -102,9 +102,10 @@ export class TruckControllerError extends ControllerError {
 
     // 3 elements: x trailer y trailer theta trailer at position 3 4 and 5
     public getError(finalState: Vector) {
-        let xTrailer = finalState.entries[3];
-        let yTrailer = finalState.entries[4];
-        let thetaTrailer = finalState.entries[5];
+        let xTrailer = finalState.entries[0];
+        let yTrailer = finalState.entries[1];
+        // 2 is cabin angle
+        let thetaTrailer = finalState.entries[3];
         // IMPORTANT: x = 0 is at -1 because of the x transformation!
         // we just ignore x < 0 This also explains why it tries to drive a circle with max(xTrailer, 0)
         let xDiff = Math.max(xTrailer, -1) - this.dock.x

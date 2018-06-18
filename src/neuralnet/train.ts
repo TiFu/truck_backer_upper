@@ -46,13 +46,11 @@ export class TrainTruckEmulator {
 
         //[cdp.x, cdp.y, this.cabinAngle, this.tep.x, this.tep.y, this.trailerAngle]
         // Record errors
-        this.xCabError.push(Math.abs(expectedVector.entries[0] - result.entries[0]) * 50);
-        this.yCabError.push(Math.abs(expectedVector.entries[1] - result.entries[1]) * 50);
+        this.xTrailerError.push(Math.abs(expectedVector.entries[0] - result.entries[0]) * 50);
+        this.yTrailerError.push(Math.abs(expectedVector.entries[1] - result.entries[1]) * 50);
         this.cabAngleError.push(Math.abs(expectedVector.entries[2] - result.entries[2]) * 180);// * Math.PI * 180 / Math.PI
         if (result.entries.length >= 4) {
-            this.xTrailerError.push(Math.abs(expectedVector.entries[3] - result.entries[3]) * 50);
-            this.yTrailerError.push(Math.abs(expectedVector.entries[4] - result.entries[4]) * 50);
-            this.trailerAngleError.push(Math.abs(expectedVector.entries[5] - result.entries[5]) * 180);
+            this.trailerAngleError.push(Math.abs(expectedVector.entries[3] - result.entries[3]) * 50);
         }
         this.lastError = this.neuralNet.getError(result, expectedVector);
  

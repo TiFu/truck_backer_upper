@@ -55,9 +55,7 @@ export class NormalizedTruck implements Normalized,  HasState, Limitable, HasLen
         stateVector.entries[0] = (stateVector.entries[0] - 50) / 50; // [0,70] -> [-1, 1]
         stateVector.entries[1] = stateVector.entries[1] / 50; // [-25, 25] -> [-1, 1]
         stateVector.entries[2] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
-        stateVector.entries[3] = (stateVector.entries[3] - 50) / 50; // [0,70] -> [-1, 1]
-        stateVector.entries[4] = stateVector.entries[4] / 50; // [-25, 25] -> [-1, 1]
-        stateVector.entries[5] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
+        stateVector.entries[3] /= Math.PI; // [-Math.PI, Math.PI] -> [-1, 1]
         return stateVector;
     }
 }
@@ -92,12 +90,12 @@ export class Truck implements HasState, Limitable, HasLength {
     }
 
     public getStateDescription(): string[] {
-        return [ "Coupling Device Position x", "Coupling Device Position y", "Cabin Angle", "End of Truck x", "End of Truck y", "Trailer Angle"];
+        return [ "End of Truck x", "End of Truck y", "Cabin Angle", "Trailer Angle"];
     }
 
     public getStateVector(): nnMath.Vector {
         let cdp = this.getCouplingDevicePosition();
-        return new nnMath.Vector([cdp.x, cdp.y, this.cabinAngle, this.tep.x, this.tep.y, this.trailerAngle])
+        return new nnMath.Vector([this.tep.x, this.tep.y, this.cabinAngle, this.trailerAngle])
     }
 
     private fixAngle(angle: Angle): Angle {
