@@ -187,18 +187,18 @@ export function createCarControllerLessons(truck: HasLength) {
 
 export function createTruckControllerLessons(truck: HasLength) {
     let optimizers: Array<() => Optimizer> = [
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.01, 0.9),
-        () => new SGDNesterovMomentum(0.01, 0.9),
-        () => new SGDNesterovMomentum(0.001, 0.9),
-        () => new SGDNesterovMomentum(0.001, 0.9),
-        () => new SGDNesterovMomentum(0.00001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9), // didn't work YOLO
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(1, 0.9), // didn't work YOLO
     ]
     let lessons: Array<TruckLesson> = []
 
@@ -209,8 +209,8 @@ export function createTruckControllerLessons(truck: HasLength) {
     let maxY = new Range(0, 0);
     let minTrailerAngle = new Range(-0/180 * Math.PI, -0/180*Math.PI);
     let maxTrailerAngle = new Range(0/180 * Math.PI,0/180 * Math.PI);
-    let minCabAngle = new Range(-0/180 * Math.PI, -0/180*Math.PI);
-    let maxCabAngle = new Range(0/180 * Math.PI,0/180 * Math.PI);
+    let minCabAngle = new Range(-5/180 * Math.PI, -5/180*Math.PI);
+    let maxCabAngle = new Range(5/180 * Math.PI,5/180 * Math.PI);
 
     let lessonCountX = 12;
 
