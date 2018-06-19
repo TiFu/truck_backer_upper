@@ -359,6 +359,10 @@ export class TruckException extends Error {
 export class TruckEmulator implements Emulator {
     private input: nnMath.Vector[];
 
+    public constructor(private truck: Truck) {
+
+    }
+
     public forward(input: nnMath.Vector): void {
         if (!this.input) {
             this.input = [];
@@ -377,7 +381,7 @@ export class TruckEmulator implements Emulator {
             [0, 50, 0, 0, 0],
             [0, 0, Math.PI, 0, 0],
             [0, 0, 0, Math.PI, 0],
-            [0, 0, 0, 0, 180/70*Math.PI],
+            [0, 0, 0, 0, 70/180*Math.PI],
         ]);
 
         let scaleMatrix = new nnMath.Matrix([
@@ -387,18 +391,52 @@ export class TruckEmulator implements Emulator {
             [0, 0, 0, 1 / Math.PI],
         ])
 
+        let unscaledInput = lastInput.multiplyMatrixFromLeft(unscaleMatrix);
+        let u = unscaledInput.entries[4];
+        let x = unscaledInput.entries[0];
+        let y = unscaledInput.entries[1];
+        let c = unscaledInput.entries[2];
+        let t = unscaledInput.entries[3];
+
+        let r = this.truck.velocity;
+        let lt = this.truck.trailerLength;
+        let lc = this.truck.cabinLength;
         // TODO: fix
+        // x, y, cabin, trailer, steering
+        let dxdu = r * Math.sin(u) * Math.cos(c - t) * Math.cos(t);
+        let dxdc = r * Math.cos(u) * Math.sin(c - t) * Math.cos(t);
+        let dxdt = - r * Math.cos(u) * Math.sin(c - t) * Math.cos(t) 
+                   + r * Math.cos(u) * Math.cos(c - t) * Math.sin(t);
+
+        let dydu = r * Math.sin(u) * Math.cos(c - t) * Math.sin(t);
+        let dydc = r * Math.cos(u) * Math.sin(c - t) * Math.sin(t);
+        let dydt = - r * Math.cos(u) * Math.sin(c - t) * Math.sin(t) 
+                   - r * Math.cos(u) * Math.cos(c - t) * Math.cos(t);
+
+        let dtdc = - 1 / Math.sqrt(1 - Math.pow(r * Math.cos(u) * Math.sin(c - t) / lt, 2))
+                    * r * Math.cos(u) * Math.cos(c - t) / lt;
+        let dtdt = 1 + 1 / Math.sqrt(1 - Math.pow(r * Math.cos(u) * Math.sin(c - t) / lt, 2))
+                    * r * Math.cos(u) * Math.cos(c - t) / lt;
+        let dtdu = 1 / Math.sqrt(1 - Math.pow(r * Math.cos(u) * Math.sin(c - t) / lt, 2))
+                    * r * Math.sin(u) * Math.sin(c - t) / lt;
+        
+        let dcdu = 1 / Math.sqrt(1 - Math.pow( r * Math.sin(u) / (lt + lc), 2)) 
+                    * r * Math.cos(u) / (lt + lc);
+
         let modelMatrix = new nnMath.Matrix([
-            [1, 0, 5, 5, 5],
-            [0, 1, 5, 5, 5],
-            [0, 0, 1, 0, 5],
-            [0, 0, 5, 5, 5]
+            [1, 0, dxdc, dxdt, dxdu],//x
+            [0, 1, dydc, dydt, dydu],//y
+            [0, 0, 1, 0, dcdu],//cabin
+            [0, 0, dtdc, dtdt, dtdu]//trailer
         ])
 
+   //     console.log("[Gradient] ", gradient);
         let scaleError = gradient.multiplyMatrixFromLeft(scaleMatrix);
+  //      console.log("[Scale Error] ", scaleError)
         let modelError = scaleError.multiplyMatrixFromLeft(modelMatrix);
+   //     console.log("[Model Error] ", modelError);
         let inputError = modelError.multiplyMatrixFromLeft(unscaleMatrix);
-
+   //     console.log("[InputError] ", inputError);
         return inputError;
     }
 

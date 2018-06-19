@@ -87,9 +87,9 @@ export class TruckControllerError extends ControllerError {
         this.saveErrors = saveErrors;
     }
     public getErrorDerivative(finalState: Vector): Vector {
-        let xTrailer = finalState.entries[3];
-        let yTrailer = finalState.entries[4];
-        let thetaTrailer = finalState.entries[5];
+        let xTrailer = finalState.entries[0];
+        let yTrailer = finalState.entries[1];
+        let thetaTrailer = finalState.entries[3];
 
         // Derivative of SSE
         let xDiff = Math.max(xTrailer,-1) - this.dock.x;
@@ -97,7 +97,7 @@ export class TruckControllerError extends ControllerError {
         let thetaDiff = thetaTrailer - 0;
 
         // first 3 do not matter for the error
-        return new Vector([0, 0, 0, 2 * xDiff, 2 * yDiff, 2 * thetaDiff]);
+        return new Vector([2 * xDiff, 2 * yDiff, 0, 2 * thetaDiff]);
     }
 
     // 3 elements: x trailer y trailer theta trailer at position 3 4 and 5

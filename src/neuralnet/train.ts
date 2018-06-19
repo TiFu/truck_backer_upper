@@ -199,7 +199,7 @@ export class TrainController {
             let currentState = this.realPlant.getStateVector();
         //    console.log("[CurrentState] ", currentState.entries);
             let controllerSignal = this.controllerNet.forward(currentState);
-//           console.log("[ControllerSignal]", controllerSignal.entries[0]);
+     //      console.log("[ControllerSignal]", controllerSignal.entries[0]);
             let steeringSignal = controllerSignal.entries[0];
 
             let stateWithSteering = currentState.getWithNewElement(steeringSignal);
@@ -216,7 +216,7 @@ export class TrainController {
        //     console.log("[NextState]", outputState.entries[0], outputState.entries[1], outputState.entries[2] * 180 / Math.PI)
 
      //       console.log("------- END -------");
-            if (i+1 >= this.currentLesson.maxSteps) {
+            if (canContinue && i+1 >= this.currentLesson.maxSteps) {
                 console.log("[Max Steps] Reached max steps at " + currentState + " with " + this.currentLesson.maxSteps);
                 this.maxStepErrors++;
 /*                if (this.maxStepErrors > 10) {

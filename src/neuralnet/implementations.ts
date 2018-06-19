@@ -93,7 +93,7 @@ export var outputControllerLayer: LayerConfig = {
 }
 
 export var controllerNetConfig: NetConfig = {
-    inputs: 6,
+    inputs: 4,
     optimizer: () => new SGD(0.8),
     errorFunction: new MSE(), // ignored
     layerConfigs: [
