@@ -96,6 +96,10 @@ export class TruckControllerError extends ControllerError {
         let yDiff = yTrailer - this.dock.y;
         let thetaDiff = thetaTrailer - 0;
 
+        if (thetaDiff > 2 * Math.PI) {
+            console.log("[Error] Theta Diff greater than 2 pi!");
+            process.exit();
+        }
         // first 3 do not matter for the error
 /*        if (xDiff > 0) {
             console.log(2 * xDiff);

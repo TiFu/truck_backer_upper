@@ -165,8 +165,8 @@ export class Truck implements HasState, Limitable, HasLength {
         let cfp = this.getCabinFrontPosition();
         let third = minus(cfp, scaled)
         let fourth = plus(cfp, scaled)
-
-        return [first, second, third, fourth]
+        return [this.getCouplingDevicePosition(), cfp];
+//        return [first, second, third, fourth]
     }
 
     public getTrailerCorners() {
@@ -179,7 +179,8 @@ export class Truck implements HasState, Limitable, HasLength {
         let cdp = this.getCouplingDevicePosition()
         let third = minus(cdp, scaled);
         let fourth = plus(cdp, scaled);
-        return [first, second, third, fourth]
+        return [this.tep, this.getCouplingDevicePosition()];
+//        return [first, second, third, fourth]
     }
 
     public getWidth(): number {
@@ -376,12 +377,14 @@ export class TruckEmulator implements Emulator {
 
     public backward(gradient: nnMath.Vector): nnMath.Vector {
         let lastInput = this.input.pop();
+
+        // NOTE: the derivative wrt to the input signal does NOT need to be scaled!
         let unscaleMatrix = new nnMath.Matrix([
             [50, 0, 0, 0 , 0],
             [0, 50, 0, 0, 0],
             [0, 0, Math.PI, 0, 0],
             [0, 0, 0, Math.PI, 0],
-            [0, 0, 0, 0, 70/180*Math.PI],
+            [0, 0, 0, 0, 70/180 * Math.PI],  // TOOD: this is incorrect => outupt is -1, 1, usage is angle
         ]);
 
         let scaleMatrix = new nnMath.Matrix([
@@ -393,7 +396,7 @@ export class TruckEmulator implements Emulator {
 
         let unscaledInput = lastInput.multiplyMatrixFromLeft(unscaleMatrix);
         let u = unscaledInput.entries[4];
-        let x = unscaledInput.entries[0];
+        let x = unscaledInput.entries[0] + 50;
         let y = unscaledInput.entries[1];
         let c = unscaledInput.entries[2];
         let t = unscaledInput.entries[3];

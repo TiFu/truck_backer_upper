@@ -150,7 +150,17 @@ export class AdalineUnit implements Unit {
         // calculate update for current batch
         update = this.optimizer.calculateUpdate(update);
         this.lastUpdate = update;
-   //     console.log("[Update] " + this.lastUpdate.entries);
+/*        let show = false;
+        for (let i = 0; i < update.length; i++) {
+            if (update.entries[i] > 1) {
+                show = true;
+            }
+        }
+        if (show) {
+            console.log("Last Update: ", this.lastUpdate.entries);
+            process.exit()
+        }*/
+        //     console.log("[Update] " + this.lastUpdate.entries);
         this.weights.add(update);
     }
 }

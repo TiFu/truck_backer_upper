@@ -24,6 +24,7 @@ emulatorNet.loadWeights(parsed_emulator_weights);
 
 let normalizedDockPosition = new Point((world.dock.position.x - 50)/ 50, world.dock.position.y / 50);
 let errorFunc = new TruckControllerError(normalizedDockPosition);
+//errorFunc.setSaveErrors(false);
 let trainTruckController = new TrainController(world, new NormalizedTruck(truck), controllerNet, new TruckEmulator(truck), errorFunc);
 
 let lessons = createTruckControllerLessons(truck);
