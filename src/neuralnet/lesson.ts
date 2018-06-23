@@ -108,6 +108,20 @@ function rangeForStep(minR: Range, maxR: Range, step: number, maxSteps: number) 
     return new Range(min, max);
 }
 
+function getQuadraticValueAt(r: Range, step: number, maxSteps: number) {
+    let minC = r.min;
+    let minA = (r.max - minC) / (maxSteps * maxSteps);         // minR.max = a * maxSteps^2 + minC
+    console.log("A: ", minA, "C: ", minC);
+    let min = minA * step * step + minC;
+    return min;
+}
+
+function quadraticRangeForStep(minR: Range, maxR: Range, step: number, maxSteps: number) {
+    let min = getQuadraticValueAt(minR, step, maxSteps - 1);
+    let max = getQuadraticValueAt(maxR, step, maxSteps - 1);
+    return new Range(min, max);
+}
+
 export function createCarJacobianLessons(truck: HasLength) {
     let optimizers: Array<() => Optimizer> = [
         () => new SGDNesterovMomentum(0.75, 0.9),
@@ -138,7 +152,8 @@ export function createCarJacobianLessons(truck: HasLength) {
 
     for (let i = 0; i < lessonCountX; i++) {
         let xR = rangeForStep(minX, maxX, i, lessonCountX);
-        let yR = rangeForStep(minY, maxY, i, lessonCountX);
+        let yR = quadraticRangeForStep(minY, maxY, i, lessonCountX);
+        console.log("y: ", yR.min, yR.max);
         let trailerR = rangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCountX);
         let cabR = rangeForStep(minCabAngle, maxCabAngle, i, lessonCountX);
         let samples = 10000;
@@ -205,8 +220,8 @@ export function createTruckControllerLessons(truck: HasLength) {
     //distance lessons
     let minX = new Range(0.2, 2);
     let maxX = new Range(0.5, 4);
-    let minY = new Range(-0, -0.5); // TODO: quadratic scaling? => should introduce the truck to this kind of deviation and then make it harder
-    let maxY = new Range(0, 0.5);
+    let minY = new Range(-0.1, -0.5); // TODO: quadratic scaling? => should introduce the truck to this kind of deviation and then make it harder
+    let maxY = new Range(0.1, 0.5);
     let minTrailerAngle = new Range(-0/180 * Math.PI, -0/180*Math.PI);
     let maxTrailerAngle = new Range(0/180 * Math.PI,0/180 * Math.PI);
     let minCabAngle = new Range(-10/180 * Math.PI, -10/180*Math.PI);
@@ -216,7 +231,8 @@ export function createTruckControllerLessons(truck: HasLength) {
 
     for (let i = 0; i < lessonCountX; i++) {
         let xR = rangeForStep(minX, maxX, i, lessonCountX);
-        let yR = rangeForStep(minY, maxY, i, lessonCountX);
+        let yR = quadraticRangeForStep(minY, maxY, i, lessonCountX);
+        console.log(yR);
         let trailerR = rangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCountX);
         let cabR = rangeForStep(minCabAngle, maxCabAngle, i, lessonCountX);
         let samples = 10000;
