@@ -210,10 +210,10 @@ export function createTruckControllerLessons(truck: HasLength) {
         () => new SGDNesterovMomentum(1, 0.9),
         () => new SGDNesterovMomentum(1, 0.9),
         () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9), // didn't work YOLO
+        () => new SGDNesterovMomentum(0.01, 0.9),
+        () => new SGDNesterovMomentum(0.001, 0.9),
+        () => new SGDNesterovMomentum(0.01, 0.9),
+        () => new SGDNesterovMomentum(0.01, 0.9), // didn't work YOLO
     ]
     let lessons: Array<TruckLesson> = []
 
@@ -223,8 +223,8 @@ export function createTruckControllerLessons(truck: HasLength) {
     // 1.5 also works but higher error
     let minY = new Range(-0.1, -1.0); // TODO: quadratic scaling? => should introduce the truck to this kind of deviation and then make it harder
     let maxY = new Range(0.1, 1.0);
-    let minTrailerAngle = new Range(-0/180 * Math.PI, -0/180*Math.PI);
-    let maxTrailerAngle = new Range(0/180 * Math.PI,0/180 * Math.PI);
+    let minTrailerAngle = new Range(-0/180 * Math.PI, -50/180*Math.PI);
+    let maxTrailerAngle = new Range(0/180 * Math.PI,50/180 * Math.PI);
     let minCabAngle = new Range(-10/180 * Math.PI, -60/180*Math.PI);
     let maxCabAngle = new Range(10/180 * Math.PI,60/180 * Math.PI);
 
@@ -234,7 +234,7 @@ export function createTruckControllerLessons(truck: HasLength) {
         let xR = rangeForStep(minX, maxX, i, lessonCountX);
         let yR = quadraticRangeForStep(minY, maxY, i, lessonCountX);
         console.log(yR);
-        let trailerR = rangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCountX);
+        let trailerR = quadraticRangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCountX);
         let cabR = quadraticRangeForStep(minCabAngle, maxCabAngle, i, lessonCountX);
         let samples = 10000;
         lessons.push(new TruckLesson(truck, i, samples,  optimizers[i], xR, yR, trailerR, cabR, 2 * xR.max * truck.getLength() + 10));
