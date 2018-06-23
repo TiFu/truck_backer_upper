@@ -220,8 +220,8 @@ export function createTruckControllerLessons(truck: HasLength) {
     //distance lessons
     let minX = new Range(0.2, 2);
     let maxX = new Range(0.5, 4);
-    let minY = new Range(-0.1, -0.5); // TODO: quadratic scaling? => should introduce the truck to this kind of deviation and then make it harder
-    let maxY = new Range(0.1, 0.5);
+    let minY = new Range(-0.1, -1); // TODO: quadratic scaling? => should introduce the truck to this kind of deviation and then make it harder
+    let maxY = new Range(0.1, 1);
     let minTrailerAngle = new Range(-0/180 * Math.PI, -0/180*Math.PI);
     let maxTrailerAngle = new Range(0/180 * Math.PI,0/180 * Math.PI);
     let minCabAngle = new Range(-10/180 * Math.PI, -10/180*Math.PI);
