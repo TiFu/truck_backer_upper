@@ -212,8 +212,8 @@ export function createTruckControllerLessons(truck: HasLength) {
         () => new SGDNesterovMomentum(1, 0.9),
         () => new SGDNesterovMomentum(0.01, 0.9),
         () => new SGDNesterovMomentum(0.001, 0.9),
-        () => new SGDNesterovMomentum(0.01, 0.9),
-        () => new SGDNesterovMomentum(0.01, 0.9), // didn't work YOLO
+        () => new SGDNesterovMomentum(0.001, 0.9),
+        () => new SGDNesterovMomentum(0.0001, 0.9), // didn't work YOLO
     ]
     let lessons: Array<TruckLesson> = []
 
