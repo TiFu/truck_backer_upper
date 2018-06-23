@@ -200,8 +200,8 @@ export class TrainController {
             let currentState = this.realPlant.getStateVector();
         //    console.log("[CurrentState] ", currentState.entries);
             let controllerSignal = this.controllerNet.forward(currentState);
-            if (controllerSignal.entries[0] > 0.9)
-                console.log("[ControllerSignal]", controllerSignal.entries[0]);
+//            if (Math.abs(controllerSignal.entries[0]) > 0.9)
+  //              console.log("[ControllerSignal]", controllerSignal.entries[0]);
             let steeringSignal = controllerSignal.entries[0];
 
             let stateWithSteering = currentState.getWithNewElement(steeringSignal);
