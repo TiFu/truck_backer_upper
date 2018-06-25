@@ -122,6 +122,18 @@ function quadraticRangeForStep(minR: Range, maxR: Range, step: number, maxSteps:
     return new Range(min, max);
 }
 
+export function linearAndQuadraticRangeForStep(minR: Range, maxR: Range, step: number, maxSteps: number, changeAtStep: number) {
+
+    if (step <= changeAtStep) {
+        return quadraticRangeForStep(minR, maxR, step, maxSteps);
+    } else {
+        let newMin = quadraticRangeForStep(minR, maxR, changeAtStep, maxSteps);
+        let newMinR = new Range(newMin.min, minR.max);
+        let newMaxR = new Range(newMin.max, maxR.max);
+        return rangeForStep(newMinR, newMaxR, step - changeAtStep, maxSteps - changeAtStep);
+    }
+}
+
 export function createCarJacobianLessons(truck: HasLength) {
     let optimizers: Array<() => Optimizer> = [
         () => new SGDNesterovMomentum(0.75, 0.9),
@@ -210,7 +222,7 @@ export function createTruckControllerLessons(truck: HasLength) {
         () => new SGDNesterovMomentum(1, 0.9),
         () => new SGDNesterovMomentum(1, 0.9),
         () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(0.01, 0.9),
+        () => new SGDNesterovMomentum(0.01, 0.9), // divergences suck
         () => new SGDNesterovMomentum(0.001, 0.9),
         () => new SGDNesterovMomentum(0.001, 0.9),
         () => new SGDNesterovMomentum(0.0001, 0.9), // didn't work YOLO
@@ -233,9 +245,8 @@ export function createTruckControllerLessons(truck: HasLength) {
     for (let i = 0; i < lessonCountX; i++) {
         let xR = rangeForStep(minX, maxX, i, lessonCountX);
         let yR = quadraticRangeForStep(minY, maxY, i, lessonCountX);
-        console.log(yR);
-        let trailerR = quadraticRangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCountX);
-        let cabR = quadraticRangeForStep(minCabAngle, maxCabAngle, i, lessonCountX);
+        let trailerR = linearAndQuadraticRangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCountX, lessonCountX / 2);
+        let cabR = linearAndQuadraticRangeForStep(minCabAngle, maxCabAngle, i, lessonCountX, lessonCountX / 2);
         let samples = 10000;
         lessons.push(new TruckLesson(truck, i, samples,  optimizers[i], xR, yR, trailerR, cabR, 2 * xR.max * truck.getLength() + 10));
     }
