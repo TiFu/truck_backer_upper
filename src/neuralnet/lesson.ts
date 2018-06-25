@@ -222,10 +222,10 @@ export function createTruckControllerLessons(truck: HasLength) {
         () => new SGDNesterovMomentum(1, 0.9),
         () => new SGDNesterovMomentum(1, 0.9),
         () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(0.01, 0.9), // divergences suck
-        () => new SGDNesterovMomentum(0.001, 0.9),
-        () => new SGDNesterovMomentum(0.001, 0.9),
-        () => new SGDNesterovMomentum(0.0001, 0.9), // didn't work YOLO
+        () => new SGDNesterovMomentum(0.0001, 0.9), // divergences suck
+        () => new SGDNesterovMomentum(0.00001, 0.9),
+        () => new SGD(0.000001),
+        () => new SGD(0.00000001), // didn't work YOLO
     ]
     let lessons: Array<TruckLesson> = []
 
@@ -237,8 +237,8 @@ export function createTruckControllerLessons(truck: HasLength) {
     let maxY = new Range(0.1, 1.0);
     let minTrailerAngle = new Range(-0/180 * Math.PI, -50/180*Math.PI);
     let maxTrailerAngle = new Range(0/180 * Math.PI,50/180 * Math.PI);
-    let minCabAngle = new Range(-10/180 * Math.PI, -60/180*Math.PI);
-    let maxCabAngle = new Range(10/180 * Math.PI,60/180 * Math.PI);
+    let minCabAngle = new Range(-10/180 * Math.PI, -90/180*Math.PI);
+    let maxCabAngle = new Range(10/180 * Math.PI,90/180 * Math.PI);
 
     let lessonCountX = 12;
 
