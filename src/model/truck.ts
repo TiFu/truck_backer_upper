@@ -364,6 +364,10 @@ export class TruckEmulator implements Emulator {
 
     }
 
+    public clearInputs() {
+        this.input = []
+    }
+    
     public forward(input: nnMath.Vector): void {
         if (!this.input) {
             this.input = [];

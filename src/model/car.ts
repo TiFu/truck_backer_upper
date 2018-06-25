@@ -224,6 +224,10 @@ export class CarEmulator implements Emulator {
 
     }
 
+    public clearInputs() {
+        this.input = []
+    }
+    
     public setNotTrainable(trainable: boolean): void {
 
     }

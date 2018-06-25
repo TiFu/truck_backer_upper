@@ -92,6 +92,12 @@ export class NeuralNet {
             layer.updateWithAccumulatedWeights();
         }        
     }
+
+    public clearLastInput() {
+        for (let layer of this.layers) {
+            layer.clearInputs();
+        }
+    }
     
     public forward(input: Vector): Vector {
         let nextInput = input;

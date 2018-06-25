@@ -8,6 +8,8 @@ export interface Emulator {
     backward(error: Vector): Vector;
 
     setNotTrainable(trainable: boolean): void;
+
+    clearInputs(): void;
 }
 
 // TODO: chart: multiply x-axis by 100
@@ -17,6 +19,9 @@ export class NeuralNetEmulator implements Emulator{
 
     }
 
+    public clearInputs() {
+        this.net.clearInputs();
+    }
     public setNotTrainable(notTrainable: boolean): void {
         this.net.fixWeights(notTrainable);
     }

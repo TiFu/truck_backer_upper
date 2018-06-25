@@ -220,6 +220,8 @@ export class TrainController {
      //       console.log("------- END -------");
             if (canContinue && i+1 >= this.currentLesson.maxSteps) {
                 console.log("[Max Steps] Reached max steps at " + currentState + " with " + this.currentLesson.maxSteps);
+                this.controllerNet.clearInputs();
+                this.emulatorNet.clearInputs();
                 this.maxStepErrors++;
 /*                if (this.maxStepErrors > 10) {
                     process.exit();
