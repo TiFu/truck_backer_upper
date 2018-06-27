@@ -225,7 +225,7 @@ export function createTruckControllerLessons(truck: HasLength) {
         () => new SGD(0.0001), // divergences suck
         () => new SGD(0.0001),
         () => new SGD(0.00000001),
-        () => new SGD(0.000000000), // didn't work YOLO
+        () => new SGD(0.0000000001), // didn't work YOLO
     ]
     let lessons: Array<TruckLesson> = []
 
