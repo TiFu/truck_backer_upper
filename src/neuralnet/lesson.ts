@@ -215,12 +215,12 @@ export function createCarControllerLessons(truck: HasLength) {
 export function createTruckControllerLessons(truck: HasLength) {
     let optimizers: Array<() => Optimizer> = [
         () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(1, 0.9),
+        () => new SGDNesterovMomentum(0.1, 0.9),
+        () => new SGDNesterovMomentum(0.1, 0.9),
+        () => new SGDNesterovMomentum(0.1, 0.9),
+        () => new SGDNesterovMomentum(0.1, 0.9),
+        () => new SGDNesterovMomentum(0.1, 0.9),
+        () => new SGDNesterovMomentum(0.1, 0.9),
         () => new SGD(0.01),
         () => new SGD(0.0001), // divergences suck
         () => new SGD(0.0001),

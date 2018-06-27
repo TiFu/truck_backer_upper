@@ -104,7 +104,7 @@ export class TruckControllerError extends ControllerError {
 /*        if (xDiff > 0) {
             console.log(2 * xDiff);
         }*/
-        return new Vector([0, 2 * yDiff, 0, 2 * thetaDiff]);
+        return new Vector([0, 10 * 2 * yDiff, 0, 2 * thetaDiff]);
     }
 
     // 3 elements: x trailer y trailer theta trailer at position 3 4 and 5
