@@ -51,6 +51,7 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
         this.setState({driveButtonDisabled: true});
         this.lastTimestamp = performance.now();
         const callback = (cont: boolean) => {
+            console.log("[Truck Driving] ", cont);
             if (cont) {
                 done(cont);
             } else {
@@ -90,7 +91,7 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
     }
 
     private handleDriveButton(e: any) {
-        this.drive(this.state.steeringSignal, () => {});
+        this.drive(this.state.steeringSignal, (cont: boolean) => { this.setState({driveButtonDisabled: !cont}) });
     }
     private handleSteeringSignalChanged(value: number) {
         this.setState({steeringSignal: value})

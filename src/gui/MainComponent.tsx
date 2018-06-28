@@ -21,7 +21,7 @@ export class MainComponent extends React.Component<{}, MainComponentState> {
 
     public constructor(props: {}) {
         super(props)
-        this.state = {emulatorNet: undefined, controller: undefined, simulationCar: new Car(new Point(15, 15), 0, [])};
+        this.state = {emulatorNet: undefined, controller: undefined, simulationCar: new Truck(new Point(15, 15), 0, 0, new Dock(new Point(0,0)), [])};
     }
 
     private toDeg(radians: number): number {
@@ -43,8 +43,15 @@ export class MainComponent extends React.Component<{}, MainComponentState> {
         this.setState({controller: controller});
     }
 
+    public getObject(): Truck | Car {
+        if (this.state.simulationCar instanceof Car) {
+            return  new Car(new Point(15,15), 0, []);
+        } else {
+            return new Truck(new Point(15, 15), 0, 0, new Dock(new Point(0,0)), [])
+        }
+    }
     public render() {
-        let controllerCar = new Car(new Point(15,15), 0, []);
+        let controllerCar = this.getObject();
         let controllerWorld = new World(controllerCar, new Dock(new Point(0, 0)));
 
         return <div className="container">
@@ -62,7 +69,7 @@ export class MainComponent extends React.Component<{}, MainComponentState> {
                             <HowItWorks />
                         </Tab>
                         <Tab eventKey={2} title={"Step 1: Emulator"}>
-                            <Emulator object={new Car(new Point(15,15), 0, [])} onNetworkChange={this.onEmulatorNetworkChanged.bind(this)} />                            
+                            <Emulator object={this.getObject()} onNetworkChange={this.onEmulatorNetworkChanged.bind(this)} />                            
                         </Tab>
                         <Tab eventKey={3} title={"Step 2: Controller"}>
                             <Controller onControllerTrained={this.onControllerNetChanged.bind(this)} emulatorNet={this.state.emulatorNet} world={controllerWorld} object={controllerCar} />

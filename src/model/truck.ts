@@ -165,8 +165,8 @@ export class Truck implements HasState, Limitable, HasLength {
         let cfp = this.getCabinFrontPosition();
         let third = minus(cfp, scaled)
         let fourth = plus(cfp, scaled)
-        return [this.getCouplingDevicePosition(), cfp];
-//        return [first, second, third, fourth]
+//        return [this.getCouplingDevicePosition(), cfp];
+        return [first, second, third, fourth]
     }
 
     public getTrailerCorners() {
@@ -179,8 +179,8 @@ export class Truck implements HasState, Limitable, HasLength {
         let cdp = this.getCouplingDevicePosition()
         let third = minus(cdp, scaled);
         let fourth = plus(cdp, scaled);
-        return [this.tep, this.getCouplingDevicePosition()];
-//        return [first, second, third, fourth]
+//        return [this.tep, this.getCouplingDevicePosition()];
+        return [first, second, third, fourth]
     }
 
     public getWidth(): number {
@@ -259,8 +259,8 @@ export class Truck implements HasState, Limitable, HasLength {
     }
        // TODO: add check that truck is not too far away from area
     private isTruckNotAtDock() {
-        let truckCorners = this.getTruckCorners();
-        let trailerCorners = this.getTrailerCorners();
+        let truckCorners = [this.getCouplingDevicePosition(), this.getCabinFrontPosition()]; //this.getTruckCorners();
+        let trailerCorners = [this.tep, this.getCouplingDevicePosition() ]; //this.getTrailerCorners();
         let a = this.dock.position;
         let b = plus(a, this.dock.dockDirection);
 

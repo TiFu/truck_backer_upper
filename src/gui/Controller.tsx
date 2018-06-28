@@ -18,7 +18,7 @@ import {TrainTruckEmulator, TrainController} from '../neuralnet/train';
 import {CarControllerError, TruckControllerError} from '../neuralnet/error';
 import {NeuralNetEmulator} from '../neuralnet/emulator';
 import { Lesson } from '../neuralnet/lesson';
-import {createCarControllerLessons} from '../neuralnet/lesson';
+import {createCarControllerLessons, createTruckControllerLessons} from '../neuralnet/lesson';
 import {LayerConfig} from '../neuralnet/net';
 import {LessonsComponent} from './LessonsComponent'
 import { ENGINE_METHOD_DIGESTS } from 'constants';
@@ -67,14 +67,14 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             isTrainedNetwork: false,
             train: false,
             errors: [],
-            lessons: this.props.object instanceof Car ? createCarControllerLessons(this.props.object) : [],
+            lessons: this.props.object instanceof Car ? createCarControllerLessons(this.props.object) : createTruckControllerLessons(this.props.object),
             currentLessonIndex: 0
         };
         this.handleLoadPretrainedWeights();
     }
 
     private handleResetLessons() {
-        this.setState({ currentLessonIndex: 0, lessons: this.props.object instanceof Car ? createCarControllerLessons(this.props.object) : []}, () => {
+        this.setState({ currentLessonIndex: 0, lessons: this.props.object instanceof Car ? createCarControllerLessons(this.props.object) : createTruckControllerLessons(this.props.object)}, () => {
             console.log("[state] reset lessons");
         })        
     }
@@ -181,7 +181,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
     public handleLoadPretrainedWeights() {
         let weightName = "car_controller_weights_11";
         if (this.props.object instanceof Truck) {
-            weightName = "truck_controller_weights_11";
+            weightName = "truck_emulator_controller_weights_11";
         }
         $.ajax({
             url: "weights/" + weightName,
@@ -251,8 +251,8 @@ export class Controller extends React.Component<ControllerProps, ControllerState
 
     private getTruckNet(): NetConfig {
         const hiddenControllerLayer: LayerConfig = {
-            neuronCount: 26,
-            weightInitializer: new TwoLayerInitializer(0.7, 26),
+            neuronCount: 45,
+            weightInitializer: new TwoLayerInitializer(0.7, 45),
             unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
             activation: new Tanh()
         }
@@ -265,7 +265,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         }
         
         return {
-            inputs: 6,
+            inputs: 4,
             optimizer: () => new SGD(0.8),
             errorFunction: new MSE(), // ignored
             layerConfigs: [
@@ -367,10 +367,11 @@ export class Controller extends React.Component<ControllerProps, ControllerState
 
     private renderController() {
         let mse = undefined;
+        let normalizedDockPosition = new Point((this.props.world.dock.position.x - 50)/ 50, this.props.world.dock.position.y / 50);
         if (this.props.object instanceof Car) {
-            mse = new CarControllerError(this.props.world.dock.position);
+            mse = new CarControllerError(normalizedDockPosition);
         } else if (this.props.object instanceof Truck) {
-            mse = new TruckControllerError(this.props.world.dock.position);
+            mse = new TruckControllerError(normalizedDockPosition);
         }
 
         let errorFunctions: { [key: string]: ErrorFunction} = undefined;

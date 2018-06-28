@@ -436,7 +436,7 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
             </div>
             );
         } else if (this.props.lesson instanceof TruckLesson) {
-
+            // TODO: parameter settings
         }
 
         let index = undefined;
