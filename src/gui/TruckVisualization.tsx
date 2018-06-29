@@ -11,6 +11,7 @@ interface TruckVisualizationProps {
      wheelOffset: number;
      cordSystemTransformer: CoordinateSystemTransformation
 }
+
 export class TruckVisualization extends React.Component<TruckVisualizationProps, {}> {
 
     public constructor(props: TruckVisualizationProps) {

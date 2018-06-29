@@ -36,7 +36,7 @@ export class BoxVisualization extends React.Component<BoxVisualizationProps, {}>
 
         
         return  <Group>
-                    <Line points={rectanglePoints} stroke={this.props.color} />
+                    <Line closed={true} points={rectanglePoints} stroke={this.props.color} />
                 </Group>
     }
 }

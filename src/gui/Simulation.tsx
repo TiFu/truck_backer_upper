@@ -2,6 +2,7 @@ declare var require: any; // trust me require exists
 import * as React from 'react'
 import WorldVisualization from "./WorldVisualization"
 import {World} from '../model/world'
+import {toDeg, toRad} from '../math';
 import {TrainTruckEmulator, TrainController} from '../neuralnet/train'
 import {emulatorNet, controllerNet, carControllerNet} from '../neuralnet/implementations'
 import {Point, Vector, scalarProduct} from '../math'
@@ -28,6 +29,8 @@ interface SimulationState {
      steeringSignal: number;
      simulationSpeed: number;
      driveButtonDisabled: boolean;
+     cabAngle: number;
+     trailerAngle: number;
 }
 
 export class Simulation extends React.Component<SimulationProps, SimulationState> {
@@ -39,11 +42,20 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
         super(props)
         if (Simulation.instance) throw Error("Already instantiated")
         else Simulation.instance = this;
+
+        let cabAngle = undefined;
+        let trailerAngle = undefined;
+        if (this.props.object instanceof Truck) {
+            cabAngle = toDeg(this.props.object.getTruckAngle());
+            trailerAngle = toDeg(this.props.object.getTrailerAngle());
+        }
         this.state = {
             world: new World(this.props.object, this.props.dock), 
             steeringSignal: 0, 
             simulationSpeed: 4,
-            driveButtonDisabled: false
+            driveButtonDisabled: false,
+            cabAngle: cabAngle,
+            trailerAngle: trailerAngle
         };
     }
 
@@ -117,6 +129,78 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
         })
     }
 
+    private getTruckAngleSettings() {
+        if (this.props.object instanceof Car) {
+            return undefined;
+        } 
+        return <div className="form-group">
+            <div className="form-inline">
+                <div className="row mb w-100">
+                    <div className="col-6">
+                        <label htmlFor="formGroupExampleInput" className="float-left">Trailer Angle</label>
+                    </div>
+                    <div className="col-6">
+                        <input defaultValue={toDeg(this.props.object.getTrailerAngle()).toString()} id="learningRate" type="text" onBlur={(e) => this.handleTrailerAngleChanged(e)} className="form-control ml float-right"/>
+                    </div>
+                </div>
+            </div>        
+            <div className="form-inline">
+                <div className="row mb w-100">
+                    <div className="col-6">
+                        <label htmlFor="formGroupExampleInput" className="float-left">Cabin Angle (rel. to Trailer)</label>
+                    </div>
+                    <div className="col-6">
+                        <input  defaultValue={toDeg(this.props.object.getTruckAngle()).toString()} id="learningRate" type="text" onBlur={(e) => this.handleCabinAngleChanged(e)} className="form-control ml float-right"/>
+                    </div>
+                </div>
+            </div>
+           <div className="form-inline">
+                <div className="row w-100">
+                    <div className="col-12">
+                        <button type="button" className="btn btn-primary float-right" disabled={this.state.driveButtonDisabled} onClick={this.handleChangeTruckAngle.bind(this)} >Change Angles</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    private handleChangeTruckAngle() {
+        if (this.props.object instanceof Truck) {
+            this.props.object.setTruckPosition(
+                this.props.object.getTrailerEndPosition(),
+                toRad(this.state.trailerAngle),
+                toRad(this.state.trailerAngle + Math.max(-90, Math.min(this.state.cabAngle, 90)))
+            )
+            this.forceUpdate();
+        }
+    }
+
+    private handleTrailerAngleChanged(e: React.ChangeEvent<HTMLInputElement>) {
+        this.setState({
+            trailerAngle: Number.parseFloat(e.currentTarget.value)
+        })
+    }
+
+    private handleCabinAngleChanged(e: React.ChangeEvent<HTMLInputElement>) {
+        this.setState({
+            cabAngle: Number.parseFloat(e.currentTarget.value)
+        })
+    }
+
+    private handlePositionChange(translation: Point) {
+
+        if (this.props.object instanceof Car) {
+            // no op
+            // TODO: implement
+        } else if (this.props.object instanceof Truck) {
+            let truck = this.props.object;
+            let tep = truck.getTrailerEndPosition();
+            tep.x += translation.x;
+            tep.y += translation.y;
+            this.props.object.setTruckPosition(tep, truck.getTrailerAngle(), truck.getTruckAngle());
+        }
+        this.forceUpdate();
+    }
     public render() {
         let marksSteering: any = {};
         for (let i = -1; i <= 1; i += 0.2) {
@@ -132,7 +216,7 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
                 <div className="row">
                     <div className="col-sm-6 pad">
                         <div className="col-sm-12 panel panel-default">
-                            <WorldVisualization world={this.state.world} />
+                            <WorldVisualization world={this.state.world} onObjectMoved={this.handlePositionChange.bind(this)} />
                         </div>
                     </div>
                     <div className="col-sm-6 pad">
@@ -152,6 +236,11 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
                                     <button type="button" className="btn btn-warning" onClick={this.handleSetRandomPosition.bind(this)}>Random Position</button>
                                     <button type="button" className="btn btn-primary" disabled={!this.props.controller || this.state.driveButtonDisabled} onClick={this.handleDriveController.bind(this)}>Drive using Controller</button>
                                 </div>
+                                <h3>Truck Orientation</h3>
+                                <div className="alert alert-info">
+                                    Drag & Drop the truck to change its position, then set the angles here. Cabin Angle must be less than +/- 90 degrees
+                                </div>
+                                {this.getTruckAngleSettings()}
                             </div>
                         </div>
                     </div>

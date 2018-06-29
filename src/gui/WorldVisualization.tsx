@@ -14,7 +14,12 @@ import {CoordinateSystemTransformation} from './CoordinateSystemTransformation'
 import {Vector} from '../math'
 import { Car } from '../model/car';
 
-export default class WorldVisualization extends React.Component<{ world: World}, {}> {
+interface WorldVisualizationProps {
+    world: World, 
+    onObjectMoved: (translation: Point) => void
+}
+
+export default class WorldVisualization extends React.Component<WorldVisualizationProps, {}> {
     private static idCounter = 1;
     canvasWidth: number
     canvasHeight: number
@@ -22,7 +27,7 @@ export default class WorldVisualization extends React.Component<{ world: World},
     private internalHegiht: number = 110;
     private id: number;
 
-    public constructor(props: { world: World}) {
+    public constructor(props: WorldVisualizationProps) {
         super(props);
         this.canvasWidth = 500
         this.canvasHeight = 400
@@ -40,7 +45,7 @@ export default class WorldVisualization extends React.Component<{ world: World},
 
     private visualizeMovableObject(movableObject: any, cst: CoordinateSystemTransformation) {
         if (this.props.world.movableObject instanceof Truck) {
-            return <TruckTrailerVisualization cordSystemTransformer={cst} truck={movableObject}/>;
+            return <TruckTrailerVisualization cordSystemTransformer={cst} truck={movableObject} onTruckPositionChanged={this.props.onObjectMoved}  />;
         } else if (this.props.world.movableObject instanceof Car) {
             return <CarVisualization cordSystemTransformer={cst} car={movableObject} wheelOffset={0.2} />
         } else {

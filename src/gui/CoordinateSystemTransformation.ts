@@ -17,6 +17,10 @@ export class CoordinateSystemTransformation {
     }
 
     public mapIntoOldCordSystem(p: Point): Point {
-        return minus(mapPoint(p, 1 / this.scaleFactorX, this.scaleFactorY), this.nullPoint);
+        return mapPoint(minus(p, this.nullPoint), 1 / this.scaleFactorX, 1 / this.scaleFactorY);
+    }
+
+    public mapVectorIntoOldCordSystem(p: Point): Point {
+        return mapPoint(p, 1/  this.scaleFactorX, 1 / this.scaleFactorY);
     }
 }
