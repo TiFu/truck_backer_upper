@@ -28,7 +28,7 @@ interface SimulationState {
      world: World;
      steeringSignal: number;
      simulationSpeed: number;
-     driveButtonDisabled: boolean;
+     isDriving: boolean;
      cabAngle: number;
      trailerAngle: number;
 }
@@ -53,21 +53,20 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
             world: new World(this.props.object, this.props.dock), 
             steeringSignal: 0, 
             simulationSpeed: 4,
-            driveButtonDisabled: false,
+            isDriving: false,
             cabAngle: cabAngle,
             trailerAngle: trailerAngle
         };
     }
 
     public drive(steeringSignal: number, done: (cont: boolean) => void) {
-        this.setState({driveButtonDisabled: true});
+        this.setState({isDriving: true});
         this.lastTimestamp = performance.now();
         const callback = (cont: boolean) => {
-            console.log("[Truck Driving] ", cont);
             if (cont) {
                 done(cont);
             } else {
-                this.setState({driveButtonDisabled: false}, () => {
+                this.setState({isDriving: false}, () => {
                     done(cont);
                 });    
             }
@@ -88,11 +87,11 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
         totalTime += delta;
         this.onFrame(true);
 
-        if (totalTime < stepLength && cont && this.state.driveButtonDisabled) {
+        if (totalTime < stepLength && cont && this.state.isDriving) {
             this.lastTimestamp = performance.now();
             window.requestAnimationFrame(this.driveFrameCallback(steeringSignal, totalTime, done));
         } else {
-            done(cont && this.state.driveButtonDisabled);
+            done(cont && this.state.isDriving);
         }
     }
 
@@ -103,7 +102,7 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
     }
 
     private handleDriveButton(e: any) {
-        this.drive(this.state.steeringSignal, (cont: boolean) => { this.setState({driveButtonDisabled: !cont}) });
+        this.drive(this.state.steeringSignal, (cont: boolean) => { this.setState({isDriving: !cont}) });
     }
     private handleSteeringSignalChanged(value: number) {
         this.setState({steeringSignal: value})
@@ -115,7 +114,7 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
     private handleSetRandomPosition(e: any) {
         this.state.world.movableObject.randomizePosition();
 //        this.forceUpdate();
-        this.setState({driveButtonDisabled: false})
+        this.setState({isDriving: false})
     }
 
     private handleDriveController() {
@@ -157,7 +156,7 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
            <div className="form-inline">
                 <div className="row w-100">
                     <div className="col-12">
-                        <button type="button" className="btn btn-primary float-right" disabled={this.state.driveButtonDisabled} onClick={this.handleChangeTruckAngle.bind(this)} >Change Angles</button>
+                        <button type="button" className="btn btn-primary float-right" disabled={this.state.isDriving} onClick={this.handleChangeTruckAngle.bind(this)} >Change Angles</button>
                     </div>
                 </div>
             </div>
@@ -195,11 +194,17 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
         } else if (this.props.object instanceof Truck) {
             let truck = this.props.object;
             let tep = truck.getTrailerEndPosition();
+            let oldTep = new Point(tep.x, tep.y);
             tep.x += translation.x;
             tep.y += translation.y;
             this.props.object.setTruckPosition(tep, truck.getTrailerAngle(), truck.getTruckAngle());
+            console.log("Updated truck position! to " + tep + " from " + oldTep);
         }
         this.forceUpdate();
+    }
+
+    public handleStopDriving() {
+        this.setState({isDriving: false})
     }
     public render() {
         let marksSteering: any = {};
@@ -216,7 +221,7 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
                 <div className="row">
                     <div className="col-sm-6 pad">
                         <div className="col-sm-12 panel panel-default">
-                            <WorldVisualization world={this.state.world} onObjectMoved={this.handlePositionChange.bind(this)} />
+                            <WorldVisualization draggable={!this.state.isDriving} world={this.state.world} onObjectMoved={this.handlePositionChange.bind(this)} />
                         </div>
                     </div>
                     <div className="col-sm-6 pad">
@@ -232,9 +237,10 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
                                     <Slider min={1} max={maxSimSpeed} marks={marksSimulationSpeed}onChange={this.handleSimulationSpeedChanged.bind(this)} value={this.state.simulationSpeed} step={1} />
                                 </div>
                                 <div className="h3 btn-toolbar">
-                                    <button type="button" className="btn btn-primary" disabled={this.state.driveButtonDisabled} onClick={this.handleDriveButton.bind(this)} >Manual Drive</button>
+                                    <button type="button" className="btn btn-primary" disabled={this.state.isDriving} onClick={this.handleDriveButton.bind(this)} >Manual Drive</button>
                                     <button type="button" className="btn btn-warning" onClick={this.handleSetRandomPosition.bind(this)}>Random Position</button>
-                                    <button type="button" className="btn btn-primary" disabled={!this.props.controller || this.state.driveButtonDisabled} onClick={this.handleDriveController.bind(this)}>Drive using Controller</button>
+                                    <button type="button" className="btn btn-primary" disabled={!this.props.controller || this.state.isDriving} onClick={this.handleDriveController.bind(this)}>Drive using Controller</button>
+                                    <button type="button" className="btn btn-danger" disabled={!this.state.isDriving} onClick={this.handleStopDriving.bind(this)}>Stop</button>
                                 </div>
                                 <h3>Truck Orientation</h3>
                                 <div className="alert alert-info">

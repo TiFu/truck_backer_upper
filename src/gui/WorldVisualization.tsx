@@ -17,6 +17,7 @@ import { Car } from '../model/car';
 interface WorldVisualizationProps {
     world: World, 
     onObjectMoved: (translation: Point) => void
+    draggable: boolean
 }
 
 export default class WorldVisualization extends React.Component<WorldVisualizationProps, {}> {
@@ -45,7 +46,7 @@ export default class WorldVisualization extends React.Component<WorldVisualizati
 
     private visualizeMovableObject(movableObject: any, cst: CoordinateSystemTransformation) {
         if (this.props.world.movableObject instanceof Truck) {
-            return <TruckTrailerVisualization cordSystemTransformer={cst} truck={movableObject} onTruckPositionChanged={this.props.onObjectMoved}  />;
+            return <TruckTrailerVisualization draggable={this.props.draggable} cordSystemTransformer={cst} truck={movableObject} onTruckPositionChanged={this.props.onObjectMoved}  />;
         } else if (this.props.world.movableObject instanceof Car) {
             return <CarVisualization cordSystemTransformer={cst} car={movableObject} wheelOffset={0.2} />
         } else {

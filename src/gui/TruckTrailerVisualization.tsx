@@ -14,6 +14,7 @@ interface TruckTrailerVisualizationProps {
      truck: Truck;
      cordSystemTransformer: CoordinateSystemTransformation
      onTruckPositionChanged: (translation: Point) => void
+     draggable: boolean
 }
 
 interface TruckTrailerVisualizationState {
@@ -46,6 +47,7 @@ export class TruckTrailerVisualization extends React.Component<TruckTrailerVisua
     }
 
     private handleDragStart(e: any) {
+        console.log("Started dragging!");
         this.setState({
             startX: e.target.children[0].x(),
             startY: e.target.children[0].y()
@@ -55,7 +57,7 @@ export class TruckTrailerVisualization extends React.Component<TruckTrailerVisua
 
     public render() {
         
-        return <Group onDragStart={this.handleDragStart.bind(this)} onDragEnd={this.updateTruckPosition.bind(this)} draggable>
+        return <Group onDragStart={this.handleDragStart.bind(this)} onDragEnd={this.updateTruckPosition.bind(this)} draggable={this.props.draggable}>
             <TruckVisualization cordSystemTransformer={this.props.cordSystemTransformer} truck={this.props.truck} wheelOffset={0.2} />
             <TrailerVisualization cordSystemTransformer={this.props.cordSystemTransformer} truck={this.props.truck} wheelOffset={0.2} />
             <CouplingDeviceVisualization cordSystemTransformer={this.props.cordSystemTransformer} truck={this.props.truck} />
