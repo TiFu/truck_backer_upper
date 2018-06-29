@@ -3,8 +3,6 @@
     - Implemented neural network training
         - Emulator learns very well
     - Implemented Backpropagation through time for controller
-        - can swap between Emulator and Jacobi-Matrix of Truck Model
-            - to eliminate uncertainty caused by error in emulator
         - tested a huge amount of different lessons/hyperparameters
             - increasing the difficulty of the task is hard because of unstabilities of training
                 - net can easily diverge so that the truck learns to either steer full left or full right
@@ -14,12 +12,17 @@
             - different network architectures
             - Implemented WeightInitialization according to paper by Nguyen & Widrow
             - different learning rates
-    - Important: Model for Truck + Jacobian Matrix (and not emulator)
-        - not sure how well it will perform => didn't have time to implement the truck visualization yet
+    - Important: Model for Truck
         - Error in y-Direction: 0.11 with 1 degree uncertainty
             - Reference to Paper: 0.6 with 7 degrees
-            - same model does not train with emulator => emulator has some error in derivatives
-                - higher instability causing the model to diverge
+            - high instability => training easily diverges to -1/1 for steering signal
+                - no training afterwards because output neuron of controller saturated
+            - Current Ideas:
+                - use same angle for truck and trailer after initial lessons
+                    - might be what they did in the paper
+            - Remaining Tasks
+                - implement rest of GUI
+                - make training more stable
 - parameter
     - network architecture
         - neuron conut in hidden layer
