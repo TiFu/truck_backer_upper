@@ -34,6 +34,15 @@
     margin-bottom: 0.5rem !important;
 }
 
+.mt-large {
+    margin-top: 20px !important;
+}
+.mt {
+    margin-top: 0.5rem !important;
+}
+.ml {
+    margin-left: 0.5rem !important;
+}
 .mr {
     margin-right: 0.5rem !important;
 }

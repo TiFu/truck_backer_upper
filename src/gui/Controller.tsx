@@ -42,6 +42,8 @@ interface ControllerState {
     errors: number[];
     lessons: Lesson[];
     currentLessonIndex: number;
+    weightLessonIndex: number;
+    loadedLessonWeights: number;
 }
 
 export class Controller extends React.Component<ControllerProps, ControllerState> {
@@ -68,7 +70,9 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             train: false,
             errors: [],
             lessons: this.props.object instanceof Car ? createCarControllerLessons(this.props.object) : createTruckControllerLessons(this.props.object),
-            currentLessonIndex: 0
+            currentLessonIndex: 0,
+            weightLessonIndex: 11,
+            loadedLessonWeights: -1
         };
         this.handleLoadPretrainedWeights();
     }
@@ -180,8 +184,9 @@ export class Controller extends React.Component<ControllerProps, ControllerState
 
     public handleLoadPretrainedWeights() {
         let weightName = "car_controller_weights_11";
+        let lessonIndex = this.state.weightLessonIndex;
         if (this.props.object instanceof Truck) {
-            weightName = "truck_emulator_controller_weights_11";
+            weightName = "truck_emulator_controller_weights_" + this.state.weightLessonIndex;
         }
         $.ajax({
             url: "weights/" + weightName,
@@ -198,7 +203,8 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                         loadingWeights: false, 
                         nn: neuralNet, 
                         network: network,
-                        loadWeightsSuccessful: true }, () => {
+                        loadWeightsSuccessful: true,
+                        loadedLessonWeights: lessonIndex }, () => {
                             this.props.onControllerTrained(this.makeTrainController());
                             console.log("[state] loaded weights");
                         });
@@ -365,6 +371,11 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         />;
     }
 
+    private handleLessonWeightIndexChanged(e: React.ChangeEvent<HTMLSelectElement>) {
+        this.setState({
+            weightLessonIndex: Number.parseInt(e.currentTarget.value)
+        })
+    }
     private renderController() {
         let mse = undefined;
         let normalizedDockPosition = new Point((this.props.world.dock.position.x - 50)/ 50, this.props.world.dock.position.y / 50);
@@ -407,7 +418,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         if (this.state.loadWeightsSuccessful !== null) {
             if (this.state.loadWeightsSuccessful) {
                 alert = <div className="row alert alert-success" role="alert">
-                <strong>Network loaded!</strong>
+                <strong>Network for lesson {this.state.loadedLessonWeights} loaded!</strong>
               </div>
             } else {
                 alert = <div className="row alert alert-danger" role="alert">
@@ -417,6 +428,11 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             }
         }
 
+        let alertInstability = <div className="row alert alert-warning" role="alert">
+            The training is not very stable - the truck might diverge during the earlier lessons and learn to drive 
+            hard left or hard right only. This depends on the random weight initialization and the chosen random starting 
+            positions during training.
+        </div>
         let trainButton = <button type="button"  onClick={this.handleTrain.bind(this)} className="btn btn-primary">Train</button>;
         if (this.state.train) {
             trainButton = <button type="button"  disabled={!this.state.train} onClick={this.handleStopTrain.bind(this)} className="btn btn-danger">Stop</button>;
@@ -433,17 +449,33 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         }
         console.log("Current Lesson Index: ", this.state.currentLessonIndex);
         // TODO: add accordion
+        let lessonOptions = [];
+        for (let i = 0; i <= 11; i++){ 
+            lessonOptions.push(
+                <option value={i}>{i}</option>
+            )
+        }
+
         return <div className="container">
                 {loadingModal}
-                <div className="row">
-                    <div className="h3 btn-toolbar">
+                <div className="row mt-large">
+                    <div className="btn-toolbar form-inline">
                         {trainButton}
-                        <button type="button"  onClick={this.handleLoadPretrainedWeights.bind(this)} className="btn btn-warning">Load pretrained network</button>
                         <button type="button"  onClick={this.handleResetNetwork.bind(this)} className="btn btn-danger">Reset Network</button>
-                        <button type="button"  onClick={this.handleResetLessons.bind(this)} className="btn btn-danger">Reset Lessons</button>
+                        <button type="button"  onClick={this.handleResetLessons.bind(this)} className="btn btn-danger mr">Reset Lessons</button>
+                    </div>
+                </div>
+                <div className="row mt mb">
+                    <div className="form-inline">
+                        <b>Lesson:</b>
+                        <select className="ml mr form-control" defaultValue={this.state.weightLessonIndex.toString()} onChange={this.handleLessonWeightIndexChanged.bind(this)}>
+                            {lessonOptions}
+                        </select>
+                        <button type="button"  onClick={this.handleLoadPretrainedWeights.bind(this)} className="btn btn-warning">Load pretrained network</button>
                     </div>
                 </div>
                 {alert}
+                {alertInstability}
                 {diagram}
                 <div className="row">
                     <LessonsComponent onSelectRow={this.setCurrentLesson.bind(this)} activeLessonIndex={this.state.currentLessonIndex} object={this.props.object} lessons={this.state.lessons} onChange={this.updateLessons.bind(this)}/>
