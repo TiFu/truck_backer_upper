@@ -123,7 +123,8 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
             marksSteering[i] = "" + (this.state.world.movableObject.getMaxSteeringAngle() * i * 180 / Math.PI).toFixed(2) ;
         }
         let marksSimulationSpeed: any = { 1: "1", 2: "2"};
-        for (let i = 4; i <= 16; i += 4) {
+        let maxSimSpeed = 64;
+        for (let i = 4; i <= maxSimSpeed; i += 4) {
             marksSimulationSpeed[i] = "" + i.toFixed(0);
         }
         return <div>
@@ -144,7 +145,7 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
                                 </div>
                                 <div className="form-group pad-slider">
                                     <label htmlFor="formGroupExampleInput">Simulation Speed</label>
-                                    <Slider min={1} max={16} marks={marksSimulationSpeed}onChange={this.handleSimulationSpeedChanged.bind(this)} value={this.state.simulationSpeed} step={1} />
+                                    <Slider min={1} max={maxSimSpeed} marks={marksSimulationSpeed}onChange={this.handleSimulationSpeedChanged.bind(this)} value={this.state.simulationSpeed} step={1} />
                                 </div>
                                 <div className="h3 btn-toolbar">
                                     <button type="button" className="btn btn-primary" disabled={this.state.driveButtonDisabled} onClick={this.handleDriveButton.bind(this)} >Manual Drive</button>
