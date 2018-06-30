@@ -20,22 +20,29 @@ interface TruckTrailerVisualizationProps {
 interface TruckTrailerVisualizationState {
     startX: number
     startY: number
+    konvaX: number
+    konvaY: number
 }
 export class TruckTrailerVisualization extends React.Component<TruckTrailerVisualizationProps, TruckTrailerVisualizationState> {
+    private group: React.RefObject<Group>;
 
     public constructor(props: TruckTrailerVisualizationProps) {
         super(props)
+        this.group = React.createRef();
         this.state = {
             startX: undefined,
-            startY: undefined
+            startY: undefined,
+            konvaX: 0,
+            konvaY: 0
         }
     }
 
 
     private updateTruckPosition(e: any) {
-        let endX = e.target.children[0].x();
-        let endY = e.target.children[0].y();
-
+        let absPos = e.target.children[1].getAbsolutePosition();
+        let endX = absPos["x"];
+        let endY = absPos["y"];
+        console.log("End ", endX, endY)
         let startPoint = new Point(this.state.startX, this.state.startY);
         let endPoint = new Point(endX, endY);
         let groupTranslation = minus(endPoint, startPoint);
@@ -43,21 +50,27 @@ export class TruckTrailerVisualization extends React.Component<TruckTrailerVisua
         // map back into old cord sys
         let translation = this.props.cordSystemTransformer.mapVectorIntoOldCordSystem(groupTranslation);
 
+        this.setState({konvaX: e.target.x(), konvaY: e.target.y()})
         this.props.onTruckPositionChanged(translation);
     }
 
+    public componentWillReceiveProps() {
+        this.setState({konvaX: 0, konvaY: 0});
+    }
+
     private handleDragStart(e: any) {
-        console.log("Started dragging!");
+        let absPos = e.target.children[1].getAbsolutePosition();
+        console.log("Begin: ", e.target.x(), e.target.y())
         this.setState({
-            startX: e.target.children[0].x(),
-            startY: e.target.children[0].y()
+            startX: absPos["x"],
+            startY: absPos["y"],
+            konvaX: e.target.x(),
+            konvaY: e.target.y()
         })
     }
 
-
     public render() {
-        
-        return <Group onDragStart={this.handleDragStart.bind(this)} onDragEnd={this.updateTruckPosition.bind(this)} draggable={this.props.draggable}>
+        return <Group x={this.state.konvaX} y={this.state.konvaY} ref={this.group} onDragStart={this.handleDragStart.bind(this)} onDragEnd={this.updateTruckPosition.bind(this)} draggable={this.props.draggable}>
             <TruckVisualization cordSystemTransformer={this.props.cordSystemTransformer} truck={this.props.truck} wheelOffset={0.2} />
             <TrailerVisualization cordSystemTransformer={this.props.cordSystemTransformer} truck={this.props.truck} wheelOffset={0.2} />
             <CouplingDeviceVisualization cordSystemTransformer={this.props.cordSystemTransformer} truck={this.props.truck} />
