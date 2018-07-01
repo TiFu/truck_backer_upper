@@ -194,13 +194,15 @@ export class TrainController {
         let i = 0;
 //        let summedSteeringSignal = 0;
         let outputState = this.realPlant.getOriginalState();
-      //  console.log("[Start Position]", outputState.entries[0], outputState.entries[1], outputState.entries[2] * 180 / Math.PI, outputState.entries[3] * 180 / Math.PI)
+  //      console.log("[Start Position]", outputState.entries[0], outputState.entries[1], outputState.entries[2] * 180 / Math.PI, outputState.entries[3] * 180 / Math.PI)
         // start at current state
+        let positions = [];
         while (canContinue) {
             let currentState = this.realPlant.getStateVector();
+            positions.push(this.realPlant.getOriginalState());
         //    console.log("[CurrentState] ", currentState.entries);
             let controllerSignal = this.controllerNet.forward(currentState);
-//            if (Math.abs(controllerSignal.entries[0]) > 0.9)
+//            if (Math.abs(controllerSignal.entries[0]) > 0.9 && Math.random() > 0.95)
   //              console.log("[ControllerSignal]", controllerSignal.entries[0]);
             let steeringSignal = controllerSignal.entries[0];
 
@@ -220,6 +222,18 @@ export class TrainController {
      //       console.log("------- END -------");
             if (canContinue && i+1 >= this.currentLesson.maxSteps) {
                 console.log("[Max Steps] Reached max steps at " + currentState + " with " + this.currentLesson.maxSteps);
+            //    console.log("Trajectory: ");
+                let trajectoryString = "";
+                let i = 0;
+                for (let position of positions) {
+                    if (i % 1 == 0) {
+                        trajectoryString += "(" + position.entries[0] + ", " + position.entries[1] + ", ";
+                        trajectoryString += (position.entries[2] / Math.PI * 180) + ", " + (position.entries[3] / Math.PI * 180);
+                        trajectoryString += ")\n";
+                        trajectoryString += " => ";
+                    }
+                }
+             //   console.log(trajectoryString);
                 this.controllerNet.clearInputs();
                 this.emulatorNet.clearInputs();
                 this.maxStepErrors++;

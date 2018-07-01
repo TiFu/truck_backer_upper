@@ -111,7 +111,6 @@ function rangeForStep(minR: Range, maxR: Range, step: number, maxSteps: number) 
 function getQuadraticValueAt(r: Range, step: number, maxSteps: number) {
     let minC = r.min;
     let minA = (r.max - minC) / (maxSteps * maxSteps);         // minR.max = a * maxSteps^2 + minC
-    console.log("A: ", minA, "C: ", minC);
     let min = minA * step * step + minC;
     return min;
 }
@@ -212,21 +211,102 @@ export function createCarControllerLessons(truck: HasLength) {
     return lessons;
 }
 
+function toRad(deg: number) {
+    return deg / 180 * Math.PI;
+}
+
+export function createTruckControllerLessonsReworked(truck: HasLength) {
+    return [
+        new TruckLesson(truck, 0, 10000, () => new SGDNesterovMomentum(0.01, 0.9), 
+                new Range(0.2,0.5), new Range(-0.1,0.1), 
+                new Range(toRad(0),toRad(0)), new Range(toRad(-10),toRad(10)), 60),
+
+        new TruckLesson(truck, 1, 10000, () => new SGDNesterovMomentum(0.1, 0.9), 
+                new Range(0.35,0.8), new Range(-0.1,0.1), 
+                new Range(toRad(-1),toRad(1)), new Range(toRad(-11),toRad(11)), 60),
+
+        new TruckLesson(truck, 2, 10000, () => new SGDNesterovMomentum(0.1, 0.9), 
+                new Range(0.5,1.1), new Range(-0.12,0.12), 
+                new Range(toRad(-3),toRad(3)), new Range(toRad(-12),toRad(12)), 100),
+
+        new TruckLesson(truck, 3, 10000, () => new SGDNesterovMomentum(0.1, 0.9), 
+                new Range(0.5,1.1), new Range(-0.12,0.12), 
+                new Range(toRad(-6.6),toRad(6.6)), new Range(toRad(-16),toRad(16)), 100),
+
+        // inserted 1
+        new TruckLesson(truck, 4, 10000, () => new SGDNesterovMomentum(0.1, 0.9), 
+                new Range(0.7,1.2), new Range(-0.12,0.12), 
+                new Range(toRad(-6.6),toRad(6.6)), new Range(toRad(-16),toRad(16)), 100),
+
+        new TruckLesson(truck, 5, 10000, () => new SGDNesterovMomentum(0.01, 0.9), 
+                new Range(0.5,1.2), new Range(-0.12,0.12), 
+                new Range(toRad(-10),toRad(10)), new Range(toRad(-20),toRad(20)), 100),
+
+        new TruckLesson(truck, 6, 10000, () => new SGDNesterovMomentum(0.01, 0.9), 
+                new Range(0.5,1.2), new Range(-0.15,0.15),
+                new Range(toRad(-10),toRad(10)), new Range(toRad(-20),toRad(20)), 100),
+
+        new TruckLesson(truck, 7, 10000, () => new SGDNesterovMomentum(0.01, 0.9), 
+                new Range(0.5,1.2), new Range(-0.15,0.15),
+                new Range(toRad(-10),toRad(10)), new Range(toRad(-20),toRad(20)), 100),
+
+        new TruckLesson(truck, 8, 10000, () => new SGDNesterovMomentum(0.01, 0.9), 
+                new Range(0.5,1.2), new Range(-0.2,0.2),
+                new Range(toRad(-10),toRad(10)), new Range(toRad(-20),toRad(20)), 100),
+
+        new TruckLesson(truck, 9, 10000, () => new SGDNesterovMomentum(0.001, 0.9), 
+                new Range(0.7,1.3), new Range(-0.2,0.2),
+                new Range(toRad(-10),toRad(10)), new Range(toRad(-20),toRad(20)), 200),
+
+                /*        new TruckLesson(truck, 4, 1000, () => new SGDNesterovMomentum(0.1, 0.9), 
+                new Range(0.7,1.1), new Range(-0.2,0.2), 
+                new Range(toRad(-3),toRad(3)), new Range(toRad(-6),toRad(6)), 100),
+
+        new TruckLesson(truck, 5, 1000, () => new SGDNesterovMomentum(0.1, 0.9), 
+                new Range(0.7,1.1), new Range(-0.2,0.2), 
+                new Range(toRad(-3),toRad(3)), new Range(toRad(-10),toRad(10)), 100),
+
+        new TruckLesson(truck, 6, 1000, () => new SGDNesterovMomentum(0.1, 0.9), 
+                new Range(0.7,1.1), new Range(-0.2,0.2), 
+                new Range(toRad(-6),toRad(6)), new Range(toRad(-10),toRad(10)), 100),
+
+        new TruckLesson(truck, 7, 1000, () => new SGDNesterovMomentum(0.1, 0.9), 
+                new Range(0.7,1.1), new Range(-0.2,0.2), 
+                new Range(toRad(-6),toRad(6)), new Range(toRad(-15),toRad(15)), 100),
+
+        new TruckLesson(truck, 8, 1000, () => new SGDNesterovMomentum(0.1, 0.9), 
+                new Range(0.7,1.1), new Range(-0.2,0.2), 
+                new Range(toRad(-10),toRad(10)), new Range(toRad(-15),toRad(15)), 100),
+
+        new TruckLesson(truck, 9, 1000, () => new SGDNesterovMomentum(0.1, 0.9), 
+                new Range(0.7,1.1), new Range(-0.2,0.2), 
+                new Range(toRad(-15),toRad(15)), new Range(toRad(-20),toRad(20)), 200),
+
+        new TruckLesson(truck, 9, 1000, () => new SGDNesterovMomentum(0.1, 0.9), 
+                new Range(0.7,1.2), new Range(-0.2,0.2), 
+                new Range(toRad(-15),toRad(15)), new Range(toRad(-20),toRad(20)), 200),
+*/
+        ]
+}
+
 export function createTruckControllerLessons(truck: HasLength) {
     let optimizers: Array<() => Optimizer> = [
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGD(0.01),
-        () => new SGD(0.0001), // divergences suck
-        () => new SGD(0.0001),
-        () => new SGD(0.00000001),
-        () => new SGD(0.0000000001), // didn't work YOLO
     ]
+    for (let i = 0; i < 100; i++) {
+        let lr = 0.1;
+        if (i >= 85) {
+            lr = 0.01;
+        }
+        if (i >= 90) {
+            lr = 0.001;
+        }
+        if (i >= 94) {
+            lr = 0.00000001;
+        }
+        optimizers.push(((lr) => {
+            return () => new SGDNesterovMomentum(lr, 0.9);
+        })(lr));
+    }
     let lessons: Array<TruckLesson> = []
 
     //distance lessons
@@ -240,16 +320,20 @@ export function createTruckControllerLessons(truck: HasLength) {
     let minCabAngle = new Range(-10/180 * Math.PI, -90/180*Math.PI);
     let maxCabAngle = new Range(10/180 * Math.PI,90/180 * Math.PI);
 
-    let lessonCountX = 12;
+    let lessonCountX = 100;
 
     for (let i = 0; i < lessonCountX; i++) {
         let xR = rangeForStep(minX, maxX, i, lessonCountX);
-        let yR = quadraticRangeForStep(minY, maxY, i, lessonCountX);
-        let trailerR = linearAndQuadraticRangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCountX, lessonCountX / 2);
-        let cabR = linearAndQuadraticRangeForStep(minCabAngle, maxCabAngle, i, lessonCountX, lessonCountX / 2);
-        let samples = 10000;
-        lessons.push(new TruckLesson(truck, i, samples,  optimizers[i], xR, yR, trailerR, cabR, 2 * xR.max * truck.getLength() + 10));
+        let yR = rangeForStep(minY, maxY, i, lessonCountX);
+        let trailerR = rangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCountX);
+        let cabR = rangeForStep(minCabAngle, maxCabAngle, i, lessonCountX);
+        let samples = 5000;
+        lessons.push(new TruckLesson(truck, i, samples,  optimizers[i], xR, yR, trailerR, cabR, 1000));
     }
-//    console.log("Created lessons: ", lessons);
+
+    for (let lesson of lessons) {
+        console.log(lesson.x.getScaled(1 / truck.getLength()), lesson.y.getScaled(1 / truck.getLength()), lesson.trailerAngle.getScaled(180 / Math.PI), lesson.cabAngle.getScaled(180 / Math.PI))
+    }
+    //    console.log("Created lessons: ", lessons);
     return lessons;
 }

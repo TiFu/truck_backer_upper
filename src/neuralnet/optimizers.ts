@@ -46,4 +46,8 @@ export class SGDNesterovMomentum extends Optimizer {
         // let update = velocity;
         return update;
     }
+
+    public toString(): String {
+        return this.getName() + "(" + this.learningRate + ", " + this.momentum + ")";
+    }
 }
