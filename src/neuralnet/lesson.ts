@@ -294,15 +294,6 @@ export function createTruckControllerLessons(truck: HasLength) {
     ]
     for (let i = 0; i < 100; i++) {
         let lr = 0.1;
-        if (i >= 85) {
-            lr = 0.01;
-        }
-        if (i >= 90) {
-            lr = 0.001;
-        }
-        if (i >= 94) {
-            lr = 0.00000001;
-        }
         optimizers.push(((lr) => {
             return () => new SGDNesterovMomentum(lr, 0.9);
         })(lr));
@@ -320,7 +311,7 @@ export function createTruckControllerLessons(truck: HasLength) {
     let minCabAngle = new Range(-10/180 * Math.PI, -90/180*Math.PI);
     let maxCabAngle = new Range(10/180 * Math.PI,90/180 * Math.PI);
 
-    let lessonCountX = 100;
+    let lessonCountX = 30;
 
     for (let i = 0; i < lessonCountX; i++) {
         let xR = rangeForStep(minX, maxX, i, lessonCountX);

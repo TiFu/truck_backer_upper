@@ -7,15 +7,15 @@ import {Optimizer, SGD, SGDNesterovMomentum} from './optimizers';
 import { WeightInitializer, TwoLayerInitializer, StaticInitializer, RandomWeightInitializer } from './weightinitializer';
 
 export var hiddenEmulatorLayer: LayerConfig = {
-    neuronCount: 45,
-    weightInitializer: new TwoLayerInitializer(0.7, 45),
+    neuronCount: 100,
+    weightInitializer: new RandomWeightInitializer(0.1),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Tanh()
 }
 
 export var outputEmulatorLayer: LayerConfig = {
     neuronCount: 4,
-    weightInitializer: new TwoLayerInitializer(0.7, 6),
+    weightInitializer: new RandomWeightInitializer(0.1),
     unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
     activation: new Linear()
 }
@@ -23,7 +23,7 @@ export var outputEmulatorLayer: LayerConfig = {
 export var emulatorNetConfig: NetConfig = {
     inputs: 5,
     // TODO: was trained with 0.1 then 0.01 after improvement stops => basically decay
-    optimizer: /*() => new SGD(0.001),*/ () => new SGDNesterovMomentum(0.0005, 0.9),
+    optimizer: /*() => new SGD(0.001),*/ () => new SGDNesterovMomentum(0.0001, 0.9),
     errorFunction: new MSE(),
     layerConfigs: [
         hiddenEmulatorLayer,

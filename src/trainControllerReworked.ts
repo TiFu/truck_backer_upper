@@ -27,7 +27,7 @@ let errorFunc = new TruckControllerError(normalizedDockPosition);
 let trainTruckController = new TrainController(world, new NormalizedTruck(truck), controllerNet, new NeuralNetEmulator(emulatorNet), errorFunc);
 
 let lessons = createTruckControllerLessons(truck);
-
+console.log("Lesson Count: " + lessons.length)
 // start at y dist
 if (process.argv.length < 3) {
     console.log("Argument starting lesson needed! Pick value between 0 and " + (lessons.length - 1) );
