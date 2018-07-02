@@ -8,6 +8,8 @@ import { ControllerError } from './error';
 import { emulatorNet } from './implementations';
 import { Emulator } from './emulator';
 
+export type MaxStepListener = (steps: number) => void;
+
 export class TrainTruckEmulator {
     private lastError: number;
     public cabAngleError: number[] = [];
@@ -94,6 +96,7 @@ export class TrainController {
 
     public emulatorInputs: any = [];
     private currentLesson: Lesson = null;
+    private maxStepListeners: Set<MaxStepListener> = new Set<MaxStepListener>();
 
     public constructor(private world: World, private realPlant: HasState, private controllerNet: NeuralNet, private emulatorNet: Emulator, private errorFunction: ControllerError) {
         console.log("World: ", world);
@@ -101,6 +104,17 @@ export class TrainController {
         console.log("controllerNet: ", controllerNet);
         console.log("emulatorNet", emulatorNet);
         console.log("error", errorFunction);
+    }
+
+
+    public addMaxStepListener(listener: MaxStepListener) {
+        this.maxStepListeners.add(listener);
+    }
+
+    private informListeners(steps: number) {
+        for (let listener of this.maxStepListeners) {
+            listener(steps);
+        }
     }
 
     public setPlant(realPlant: HasState) {
@@ -217,29 +231,14 @@ export class TrainController {
             // set the next state
             currentState = this.realPlant.getStateVector();
             outputState = this.realPlant.getOriginalState();
-     //       console.log("[NextState]", outputState.entries[0], outputState.entries[1], outputState.entries[2] * 180 / Math.PI, outputState.entries[3] * 180 / Math.PI)
 
-     //       console.log("------- END -------");
             if (canContinue && i+1 >= this.currentLesson.maxSteps) {
                 console.log("[Max Steps] Reached max steps at " + currentState + " with " + this.currentLesson.maxSteps);
-            //    console.log("Trajectory: ");
-                let trajectoryString = "";
-                let i = 0;
-                for (let position of positions) {
-                    if (i % 1 == 0) {
-                        trajectoryString += "(" + position.entries[0] + ", " + position.entries[1] + ", ";
-                        trajectoryString += (position.entries[2] / Math.PI * 180) + ", " + (position.entries[3] / Math.PI * 180);
-                        trajectoryString += ")\n";
-                        trajectoryString += " => ";
-                    }
-                }
-             //   console.log(trajectoryString);
+                this.informListeners(i);
                 this.controllerNet.clearInputs();
                 this.emulatorNet.clearInputs();
                 this.maxStepErrors++;
-/*                if (this.maxStepErrors > 10) {
-                    process.exit();
-                }*/
+
                 return;
             }
             i++;

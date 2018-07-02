@@ -436,7 +436,7 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
             optimizers.push(<option key={optimizer} value={optimizer}>{optimizer}</option>);
         }
 
-        let optimizerSelect = <select defaultValue={selectedOptimizer} className="form-control" 
+        let optimizerSelect = <select defaultValue={selectedOptimizer} className="select form-control" 
             onChange={this.handleOptimizerChanged.bind(this)}>
             {optimizers}
         </select>

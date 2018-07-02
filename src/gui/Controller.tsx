@@ -44,6 +44,7 @@ interface ControllerState {
     currentLessonIndex: number;
     weightLessonIndex: number;
     loadedLessonWeights: number;
+    maxStepErrors: number;
 }
 
 export class Controller extends React.Component<ControllerProps, ControllerState> {
@@ -73,7 +74,8 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             lessons: this.props.object instanceof Car ? createCarControllerLessons(this.props.object) : createTruckControllerLessons(this.props.object),
             currentLessonIndex: 0,
             weightLessonIndex: Controller.MAX_LESSON,
-            loadedLessonWeights: -1
+            loadedLessonWeights: -1,
+            maxStepErrors: 0
         };
         this.handleLoadPretrainedWeights();
     }
@@ -84,14 +86,26 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         })        
     }
 
-    private handleStopTrain() {
-        console.log("pushing error cache");
+    private handleStopTrain(errorMsg: string = undefined) {
         // Temporary HACK: do not duplicate error entries
      //   this.state.errors.push(...this.errorCache);
         this.errorCache = [];
-        this.setState({train: false, isTrainedNetwork: true, nn: this.state.nn, errors: this.state.errors}, () => {
-            this.props.onControllerTrained(this.makeTrainController());
-            console.log("[state] stop train");
+        let success = errorMsg === undefined;
+        this.setState({train: false, isTrainedNetwork: success, nn: this.state.nn, errors: this.state.errors}, () => {
+            if (success) {
+                this.props.onControllerTrained(this.makeTrainController());
+            } else {
+                alert("Error: " + errorMsg);
+            }
+        });
+    }
+
+    public handleMaxStepErrors(steps: number){ 
+        this.setState({maxStepErrors: this.state.maxStepErrors + 1}, () => {
+            console.log("Max Step Errors: " + this.state.maxStepErrors);
+            if (this.state.maxStepErrors >= 90) {
+                this.handleStopTrain("The truck diverged and did not find the dock!");
+            }    
         });
     }
 
@@ -112,11 +126,13 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             console.log("creating nn")
             nn = new NeuralNet(this.state.network);
         }
-        this.setState({nn: nn, train: true},() => {
+
+        this.setState({nn: nn, train: true, maxStepErrors: 0},() => {
             // we updated the gui
             // start animation
             console.log("[state] handle train");
-            this.emulatorController = this.makeTrainController();
+            let ctrl = this.makeTrainController();
+            this.emulatorController = ctrl;
             this.emulatorController.setLesson(this.state.lessons[this.state.currentLessonIndex]);
             this.lastIteration = performance.now();     
             this.errorCache = [];
@@ -135,7 +151,9 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         error.setSaveErrors(false);
         console.log("error", error);
         // TODO: offer option to use jacobi matrix if object is car
-        return new TrainController(this.props.world, normalizedObject, this.state.nn, new NeuralNetEmulator(this.props.emulatorNet), error);   
+        let ctrl = new TrainController(this.props.world, normalizedObject, this.state.nn, new NeuralNetEmulator(this.props.emulatorNet), error);   
+        ctrl.addMaxStepListener(this.handleMaxStepErrors.bind(this));
+        return ctrl;
     }
 
     private trainNeuralNetAniFrame = this.trainNeuralNetCallback.bind(this);
@@ -144,31 +162,48 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         for (let i = 0; i < this.STEPS_PER_FRAME; i++) {
             this.props.object.randomizeNoLimits();
             let error = this.emulatorController.trainSingleStep();
-            this.errorCount++;
-            this.errorSum += error;
+            if (error) {
+                this.errorCount++;
+                this.errorSum += error;
+            }
 
             if (this.errorCount > 0 && this.errorCount % this.STEPS_PER_ERROR === 0) {
-                console.log("Error: ", this.errorSum/this.STEPS_PER_ERROR, "Count: ", this.currentLessonSteps);
-                this.errorCache.push(this.errorSum / this.STEPS_PER_ERROR);
-                (this.refs.chart as any).getChart().series[0].addPoint(this.errorSum / this.STEPS_PER_ERROR, true);
+                console.log("Error: ", this.errorSum/this.errorCount, "Count: ", this.currentLessonSteps);
+                this.errorCache.push(this.errorSum / this.errorCount);
+                (this.refs.chart as any).getChart().series[0].addPoint(this.errorSum / this.errorCount, true);
 
                 this.errorCount = 0;
                 this.errorSum = 0;
             }
         }
-
         // TODO: chart disable decimals
         if (this.currentLessonSteps + this.STEPS_PER_FRAME >= this.state.lessons[this.state.currentLessonIndex].samples) {
             console.error("Setting lesson to " + (this.state.currentLessonIndex + 1))
-            this.emulatorController.setLesson(this.state.lessons[this.state.currentLessonIndex + 1]);
-            this.currentLessonSteps = 0;
-            this.setState({currentLessonIndex: this.state.currentLessonIndex + 1}, () => {
-                console.log("[state] next lesson");
-            });
+            // end training
+            if (this.state.lessons.length >= this.state.currentLessonIndex + 1) {
+                this.handleStopTrain();
+                return;
+            } else {
+                this.emulatorController.setLesson(this.state.lessons[this.state.currentLessonIndex + 1]);
+                this.currentLessonSteps = 0;
+                this.setState({currentLessonIndex: this.state.currentLessonIndex + 1, maxStepErrors: 0}, () => {
+                    console.log("[state] next lesson");
+                    this.trainNextStep();
+                });
+            }
         } else {
             this.currentLessonSteps += this.STEPS_PER_FRAME;
+            if (this.currentLessonSteps % 100 === 0) {
+                this.setState({maxStepErrors: 0}, () => {
+                    this.trainNextStep()
+                });
+            } else {
+                this.trainNextStep()
+            }
         }
+    }
 
+    private trainNextStep(): void {
         // dynamically adjust steps per frame;
         let duration = performance.now() - this.lastIteration;
         this.lastIteration = performance.now();
@@ -180,7 +215,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
 
         if (this.state.train) {
             requestAnimationFrame(this.trainNeuralNetAniFrame);
-        }
+        }        
     }
 
     public handleLoadPretrainedWeights() {
@@ -469,7 +504,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                 <div className="row mt mb">
                     <div className="form-inline">
                         <b>Lesson:</b>
-                        <select className="ml mr form-control" defaultValue={this.state.weightLessonIndex.toString()} onChange={this.handleLessonWeightIndexChanged.bind(this)}>
+                        <select className="ml mr select form-control" defaultValue={this.state.weightLessonIndex.toString()} onChange={this.handleLessonWeightIndexChanged.bind(this)}>
                             {lessonOptions}
                         </select>
                         <button type="button"  onClick={this.handleLoadPretrainedWeights.bind(this)} className="btn btn-warning">Load pretrained network</button>

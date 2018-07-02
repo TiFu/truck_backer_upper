@@ -11,6 +11,10 @@
     min-width: 400px;
 }
 
+.select {
+    height:34px !important;
+}
+
 .align-right {
     text-align: right;
 }

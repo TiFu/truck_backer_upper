@@ -151,7 +151,7 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
                     <label>Error Function:</label>
                 </div>
                 <div className="col-sm-3 align-right">
-                    <select defaultValue={selectedErrorFunction} className="form-control" 
+                    <select defaultValue={selectedErrorFunction} className="select form-control" 
                             onChange={this.handleErrorFunctionChanged.bind(this)}>
                         {errorFunctions}
                     </select>
@@ -164,7 +164,7 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
                 <label>Optimizer:</label>
             </div>
             <div className="col-sm-3 align-right">
-                <select defaultValue={selectedOptimizer} className="form-control" 
+                <select defaultValue={selectedOptimizer} className="select form-control" 
                         onChange={this.handleOptimizerChanged.bind(this)}>
                     {optimizers}
                 </select>
@@ -196,7 +196,7 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
 
         let layers = this.props.network.layerConfigs.map((l: LayerConfig, index: number) => {
             console.log("Rendering layer with ", l.neuronCount, "neurons!")
-            return <LayerCreator key={Math.random() * 100} layer={l} 
+            return <LayerCreator id={index} key={Math.random() * 100} layer={l} 
                                 weightInitializers={this.props.weightInitializers} 
                                 activations={this.props.activations}
                                 onChange={(layer) => this.onLayerChange(index, layer)}
@@ -215,12 +215,27 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
                 {netComponent}
                 <h3>Layers</h3>
                 <button type="button"  onClick={this.handleAddLayer.bind(this)} className="mb btn btn-success">Add layer</button>
-                {layers}
+                <table className="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Layer</th>
+                                <th>Neurons</th>
+                                <th>Activation</th>
+                                <th>Weight Initializer</th>
+                                <th>Weight Initializer Parameters</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {layers}
+                        </tbody>
+                </table>
             </div>
     }
 }
 
 interface LayerCreatorProps {
+    id: number
     layer: LayerConfig
     weightInitializers: {[key: string]: WeightInitializer};
     activations: { [key: string]: ActivationFunction}
@@ -283,15 +298,23 @@ class LayerCreator extends React.Component<LayerCreatorProps, {}> {
     }
     public getWeightInitializerProps(weightInitializer: WeightInitializer) {
         if (weightInitializer instanceof TwoLayerInitializer) {
-            return <span>
-                <label htmlFor="overlap" className="pl pr">Overlap:</label>        
-                <input defaultValue={weightInitializer.overlap.toString()} id="overlap" type="text" onBlur={this.handleWeightInitializerPropsChanged.bind(this)} className="form-control"/>
-                </span>
+            return <div className="row">
+                        <div className="col-4">
+                            <label htmlFor="overlap" className="pl pr">Overlap:</label>        
+                        </div>
+                        <div className="col-8">
+                            <input defaultValue={weightInitializer.overlap.toString()} id="overlap" type="text" onBlur={this.handleWeightInitializerPropsChanged.bind(this)} className="form-control"/>
+                        </div>
+                    </div>
         } else if (weightInitializer instanceof RandomWeightInitializer) {
-            return <span>
-                <label htmlFor="range" className="pl pr">Range:</label>        
-                <input defaultValue={weightInitializer.weightRange.toString()} id="range" type="text" onBlur={this.handleWeightInitializerPropsChanged.bind(this)} className="form-control"/>
-                </span>
+            return <div className="row">
+                    <div className="col-4">
+                        <label htmlFor="range" className="pl pr">Range:</label>        
+                    </div>
+                    <div className="col-8">
+                        <input defaultValue={weightInitializer.weightRange.toString()} id="range" type="text" onBlur={this.handleWeightInitializerPropsChanged.bind(this)} className="form-control"/>
+                    </div>
+                </div>
         }
     }
     public render() {
@@ -308,14 +331,15 @@ class LayerCreator extends React.Component<LayerCreatorProps, {}> {
         }
         let button = undefined;
         if (!this.props.disableNeuronEdit) {
-            button = <button type="button"  onClick={this.handleRemoveLayer.bind(this)} className="removeButton btn btn-danger">-</button>;
+            button = <button type="button"  onClick={this.handleRemoveLayer.bind(this)} className="btn btn-danger"><span className="fas fa-trash-alt"></span></button>;
         }
-        return <div className="form-inline pb">
-            <label htmlFor="email" className="pl pr">Neurons:</label> <input defaultValue={this.props.layer.neuronCount.toString()} id="email" type="text" onBlur={this.handleNeuronCountChanged.bind(this)} disabled={this.props.disableNeuronEdit} className="form-control"/>
-            <label htmlFor="activation" className="pl pr">Activation:</label> <select defaultValue={selectedActivation} id="activation" onChange={this.handleActivationChanged.bind(this)} className="form-control">{activations}</select>
-            <label htmlFor="weight" className="pl pr">Weight Initializer:</label><select defaultValue={selectedInitializer} id="weight" onChange={this.handleWeightInitializerChanged.bind(this)} className="form-control">{initializers}</select>        
-            {this.getWeightInitializerProps(this.props.layer.weightInitializer)}
-            {button}
-        </div>
+        return <tr>
+                <td>{this.props.id}</td>
+                <td><input defaultValue={this.props.layer.neuronCount.toString()} id="email" type="text" onBlur={this.handleNeuronCountChanged.bind(this)} disabled={this.props.disableNeuronEdit} className="form-control"/></td>
+                <td><select defaultValue={selectedActivation} id="activation" onChange={this.handleActivationChanged.bind(this)} className="select form-control">{activations}</select></td>
+                <td><select defaultValue={selectedInitializer} id="weight" onChange={this.handleWeightInitializerChanged.bind(this)} className="select form-control">{initializers}</select></td>
+                <td>{this.getWeightInitializerProps(this.props.layer.weightInitializer)}</td>
+                <td>{button}</td>
+            </tr>
     }
 }
