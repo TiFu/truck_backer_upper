@@ -43,9 +43,14 @@ export class HowItWorks extends React.Component<{}, {}> {
                     The result of the second step is a controller which is capable of steering
                     the truck to the dock. The controller is a neural net which 
                     maps the state of the truck to an appropriate steering signal. 
+                    <br/>
+                    <figure className="figure">
+                        <img src="./controller.svg" className="col-12 figure-img " />
+                        <figcaption className="figure-caption"><big><b>Figure 1</b> Forward Pass</big></figcaption>
+                    </figure>
+                    <br /><br />
 
                     Each iteration of the training process follows the same schema (see figure 1):
-
                     <ol>
                         <li>Freeze the weights of the emulator net</li>
                         <li>Place the truck at a random position wrt to the current difficulty<sup>3</sup></li>

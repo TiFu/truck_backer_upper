@@ -4,7 +4,7 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "watch": "mkdir -p bin/weights && cp -r src/weights/* bin/weights/ && webpack --watch"
+    "watch": "mkdir -p bin/weights && cp -r src/weights/* bin/weights/ && cp src/**/*.svg ./bin/ && webpack --watch"
   },
   "author": "Tino Fuhrmann",
   "license": "GPL-3.0",
