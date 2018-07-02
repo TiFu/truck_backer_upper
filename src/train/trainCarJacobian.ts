@@ -1,33 +1,31 @@
-import {TrainTruckEmulator, TrainController} from './neuralnet/train'
-import {NormalizedTruck} from './model/truck';
-import {World, Dock} from './model/world'
-import {carControllerNet, carEmulatorNet} from './neuralnet/implementations'
-import {NetConfig, NeuralNet} from './neuralnet/net';
+import {TrainTruckEmulator, TrainController} from './../neuralnet/train'
+import {NormalizedTruck, Truck} from './../model/truck';
+import {World, Dock} from './../model/world'
+import {carControllerNet} from './../neuralnet/implementations'
+import {NetConfig, NeuralNet} from './../neuralnet/net';
 import * as fs from 'fs';
-import {Vector} from './neuralnet/math'
-import {TruckControllerError, CarControllerError} from './neuralnet/error';
-import {Point} from './math';
-import {CarEmulator, NormalizedCar, Car} from './model/car';
+import {Vector} from './../neuralnet/math'
+import {TruckControllerError, CarControllerError} from './../neuralnet/error';
+import {Point} from './../math';
+import {CarEmulator, NormalizedCar, Car} from './../model/car';
 import * as process from 'process'
-import { NeuralNetEmulator } from './neuralnet/emulator';
-import {createCarControllerLessons} from './neuralnet/lesson';
-
 let car = new Car(new Point(15, 15), 0, []);
 let dock = new Dock(new Point(0, 0));
-
 let world = new World(car, dock);
 
-let emulator_weights = fs.readFileSync("./weights/car_emulator_weights").toString();
+let emulator_weights = fs.readFileSync("./../emulator_weights").toString();
 let parsed_emulator_weights = JSON.parse(emulator_weights);
 //emulatorNet.setDebugMode(true);
-let trainTruckEmulator = new TrainTruckEmulator(new NormalizedCar(car), carEmulatorNet);
-trainTruckEmulator.getEmulatorNet().loadWeights(parsed_emulator_weights);
+//let trainTruckEmulator = new TrainTruckEmulator(new Normali(car), emulatorNet);
+//trainTruckEmulator.getEmulatorNet().loadWeights(parsed_emulator_weights);
 
 let normalizedDockPosition = new Point((world.dock.position.x - 50)/ 50, world.dock.position.y / 50);
 let errorFunc = new CarControllerError(normalizedDockPosition);
-let trainTruckController = new TrainController(world, new NormalizedCar(car), carControllerNet, new NeuralNetEmulator(carEmulatorNet), errorFunc);
+let trainTruckController = new TrainController(world, new NormalizedCar(car), carControllerNet , new CarEmulator(car), errorFunc);
 
-let lessons = createCarControllerLessons(car);
+import {createCarJacobianLessons} from './../neuralnet/lesson';
+import { NeuralNetEmulator } from './../neuralnet/emulator';
+let lessons = createCarJacobianLessons(car);
 
 // start at y dist
 if (process.argv.length < 3) {
@@ -38,8 +36,8 @@ console.log("Using starting lesson: " + startingLesson);
 
 if (startingLesson > 0) {
     try {
-        console.log("Loading weights from car_emulator_controller_weights_" + (startingLesson - 1));
-        let parsed_controller_weights = JSON.parse(fs.readFileSync("./car_emulator_controller_weights_" + (startingLesson - 1)).toString());
+        console.log("Loading weights from car_controller_weights_" + (startingLesson - 1));
+        let parsed_controller_weights = JSON.parse(fs.readFileSync("./../weights/car_controller_weights_" + (startingLesson - 1)).toString());
         trainTruckController.getControllerNet().loadWeights(parsed_controller_weights);
     } catch(err) {
         console.log(err);
@@ -55,10 +53,9 @@ for (let j = startingLesson; j < lessons.length; j++) {
     trainTruckController.setLesson(lesson);
     carControllerNet.changeOptimizer(lesson.optimizer);
 
-    console.log("Optimizer: " + lesson.optimizer);
     for (let i = startingLesson; i < lessons[j].samples; i++) {
         trainTruckController.trainSingleStep();
-        if ((i % 100 == 0 && i > 0) || i == lessons[0].samples - 1) {
+        if ((i + 100) > lessons[j].samples && (i % 100 == 0 && i > 0) || i == lessons[j].samples - 1) {
             console.log("Step " + i + " of " + lesson.samples);
             let averageYError = errorFunc.yError.reduce((prev, next) => prev + next, 0) / errorFunc.yError.length;
             let averageAngleError = errorFunc.angleError.reduce((prev, next) => prev + next, 0) / errorFunc.angleError.length;
@@ -72,5 +69,5 @@ for (let j = startingLesson; j < lessons.length; j++) {
         }
    }
    // save lesson weights
-   fs.writeFileSync("./weights/car_emulator_controller_weights_" + j, JSON.stringify(carControllerNet.getWeights()));
+   fs.writeFileSync("./../weights/car_controller_weights_" + j, JSON.stringify(carControllerNet.getWeights()));
 }

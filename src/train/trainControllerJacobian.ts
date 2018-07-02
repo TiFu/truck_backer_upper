@@ -1,22 +1,22 @@
-import {TrainTruckEmulator, TrainController} from './neuralnet/train'
-import {World, Dock} from './model/world'
-import {controllerNet, emulatorNet} from './neuralnet/implementations'
-import {NetConfig, NeuralNet} from './neuralnet/net';
+import {TrainTruckEmulator, TrainController} from './../neuralnet/train'
+import {World, Dock} from './../model/world'
+import {controllerNet, emulatorNet} from './../neuralnet/implementations'
+import {NetConfig, NeuralNet} from './../neuralnet/net';
 import * as fs from 'fs';
-import {Vector} from './neuralnet/math'
-import {TruckControllerError} from './neuralnet/error';
-import {Point} from './math';
-import {Truck, NormalizedTruck} from './model/truck';
+import {Vector} from './../neuralnet/math'
+import {TruckControllerError} from './../neuralnet/error';
+import {Point} from './../math';
+import {Truck, NormalizedTruck, TruckEmulator} from './../model/truck';
 import * as process from 'process'
-import { NeuralNetEmulator } from './neuralnet/emulator';
-import {createTruckControllerLessons} from './neuralnet/lesson';
+import { NeuralNetEmulator } from './../neuralnet/emulator';
+import {createTruckControllerLessons} from './../neuralnet/lesson';
 
 let dock = new Dock(new Point(0, 0));
 let truck = new Truck(new Point(15, 15), 0, 0, dock, []);
 
 let world = new World(truck, dock);
 
-let emulator_weights = fs.readFileSync("./weights/truck_emulator_weights").toString();
+let emulator_weights = fs.readFileSync("./../weights/truck_emulator_weights").toString();
 let parsed_emulator_weights = JSON.parse(emulator_weights);
 //emulatorNet.setDebugMode(true);
 //let trainTruckEmulator = new TrainTruckEmulator(new NormalizedTruck(truck), emulatorNet);
@@ -24,7 +24,8 @@ emulatorNet.loadWeights(parsed_emulator_weights);
 
 let normalizedDockPosition = new Point((world.dock.position.x - 50)/ 50, world.dock.position.y / 50);
 let errorFunc = new TruckControllerError(normalizedDockPosition);
-let trainTruckController = new TrainController(world, new NormalizedTruck(truck), controllerNet, new NeuralNetEmulator(emulatorNet), errorFunc);
+//errorFunc.setSaveErrors(false);
+let trainTruckController = new TrainController(world, new NormalizedTruck(truck), controllerNet, new TruckEmulator(truck), errorFunc);
 
 let lessons = createTruckControllerLessons(truck);
 
@@ -38,7 +39,7 @@ console.log("Using starting lesson: " + startingLesson);
 if (startingLesson > 0) {
     try {
         console.log("Loading weights from truck_emulator_controller_weights_" + (startingLesson - 1));
-        let parsed_controller_weights = JSON.parse(fs.readFileSync("./weights/truck_emulator_controller_weights_" + (startingLesson - 1)).toString());
+        let parsed_controller_weights = JSON.parse(fs.readFileSync("./../weights/truck_emulator_controller_weights_" + (startingLesson - 1)).toString());
         trainTruckController.getControllerNet().loadWeights(parsed_controller_weights);
     } catch(err) {
         console.log(err);
@@ -76,5 +77,5 @@ for (let j = startingLesson; j < lessons.length; j++) {
  //           process.exit();
    }
    // save lesson weights
-   fs.writeFileSync("./weights/truck_emulator_controller_weights_" + j, JSON.stringify(controllerNet.getWeights()));
+   fs.writeFileSync("./../weights/truck_emulator_controller_weights_" + j, JSON.stringify(controllerNet.getWeights()));
 }
