@@ -4,23 +4,16 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "watch": "mkdir -p bin/weights && cp -r src/weights/* bin/weights/ && webpack --watch",
-    "test": "mocha --recursive build/tests",
-    "dev-test-watch": "mocha-typescript-watch -o mocha.opts build/tests/neuralnet/layer.js"
+    "watch": "mkdir -p bin/weights && cp -r src/weights/* bin/weights/ && webpack --watch"
   },
   "author": "Tino Fuhrmann",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@types/chai": "^4.0.3",
     "@types/node": "^8.10.17",
-    "chai": "^4.1.1",
     "copy-webpack-plugin": "^4.0.1",
     "css-loader": "^0.28.4",
-    "mocha": "^3.5.0",
-    "mocha-typescript": "^1.1.7",
     "style-loader": "^0.18.2",
     "ts-loader": "^2.3.2",
-    "ts-mocha": "^1.0.3",
     "typescript": "^2.4.2",
     "webpack": "^3.5.4"
   },
