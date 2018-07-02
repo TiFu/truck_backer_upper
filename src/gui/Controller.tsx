@@ -47,6 +47,7 @@ interface ControllerState {
 }
 
 export class Controller extends React.Component<ControllerProps, ControllerState> {
+    public static MAX_LESSON = 19;
     private emulatorController: TrainController;
     private i = 0;
     public STEPS_PER_FRAME = 1;
@@ -71,7 +72,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             errors: [],
             lessons: this.props.object instanceof Car ? createCarControllerLessons(this.props.object) : createTruckControllerLessons(this.props.object),
             currentLessonIndex: 0,
-            weightLessonIndex: 11,
+            weightLessonIndex: Controller.MAX_LESSON,
             loadedLessonWeights: -1
         };
         this.handleLoadPretrainedWeights();
@@ -450,7 +451,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         console.log("Current Lesson Index: ", this.state.currentLessonIndex);
         // TODO: add accordion
         let lessonOptions = [];
-        for (let i = 0; i <= 11; i++){ 
+        for (let i = 0; i <= Controller.MAX_LESSON; i++){ 
             lessonOptions.push(
                 <option value={i}>{i}</option>
             )

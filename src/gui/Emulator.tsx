@@ -178,23 +178,23 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
 
     private getTruckNet(): NetConfig {
         const hiddenEmulatorLayer = {
-            neuronCount: 45,
+            neuronCount: 100,
             weightInitializer: new TwoLayerInitializer(0.7, 45),
             unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
             activation: new Tanh()
         }
         
         const outputEmulatorLayer = {
-            neuronCount: 6,
+            neuronCount: 4,
             weightInitializer: new TwoLayerInitializer(0.7, 6),
             unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
             activation: new Linear()
         }
         
         return {
-            inputs: 7,
+            inputs: 5,
             // TODO: was trained with 0.1 then 0.01 after improvement stops => basically decay
-            optimizer: () => new SGD(0.01), //new SGDNesterovMomentum(0.1, 0.9),
+            optimizer: () => new SGD(0.0001), //new SGDNesterovMomentum(0.1, 0.9),
             errorFunction: new MSE(),
             layerConfigs: [
                 hiddenEmulatorLayer,
