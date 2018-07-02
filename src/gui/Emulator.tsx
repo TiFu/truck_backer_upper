@@ -332,6 +332,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
                 }
             },
             yAxis: {
+                min: 0,
                 title: {
                     text: "Error"
                 }

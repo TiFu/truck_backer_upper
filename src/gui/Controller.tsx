@@ -383,6 +383,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                 }
             },
             yAxis: {
+                min: 0,
                 title: {
                     text: "Error"
                 }
