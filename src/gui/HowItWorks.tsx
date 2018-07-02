@@ -23,54 +23,74 @@ export class HowItWorks extends React.Component<{}, {}> {
                     <h2>How it works</h2>
 
                     <h3>Step 1: Train Emulator</h3>
+                    <p>
+                    In the first step a neural net is used to learn an approximate
+                    model of the truck. 
+                    </p>
+                    
+                    <b>Input</b>
+                    <ul>
+                        <li>(x,y) position of the end of the trailer</li>
+                        <li>Trailer Angle, relative to the x-Axis</li>
+                        <li>Tractor Angle, relative to the x-Axis</li>
+                        <li>Steering Signal</li>
+                    </ul>
+                    
+                    <b>Output</b>
+                    <ul>
+                        <li>(x,y) position of the end of the trailer</li>
+                        <li>Trailer Angle, relative to the x-Axis</li>
+                        <li>Tractor Angle, relative to the x-Axis</li>
+                    </ul>
 
-                    In the first step a neural net is used to generate an approximate
-                    model of the truck/car. It simple maps state (x, y coordinates, angle relative to x-axis) 
-                    plus controll signal (steering signal) to the next state. The standard
-                    backpropagation algorithm is used to train the network. To improve learning speed, 
-                    the inputs and outputs of the network are scaled to {"[-1, 1]"}. 
+                    The backpropagation algorithm is used to train the network.
+                    All inputs and outputs are scaled to {"[-1, 1]"} in order to 
+                    reduce the network error and improve the learning speed.
+
 
                     <h3>Step 2: Train Controller</h3>
 
                     The result of the second step is a controller which is capable of steering
-                    the truck/car to the dock. The controller is a neural net which maps the state
-                    of the object to a steering signal. 
+                    the truck to the dock. The controller is a neural net which 
+                    maps the state of the truck to an appropriate steering signal. 
 
-                    Each iteration of the training process follows the same schema (compare w. figure 1):
+                    Each iteration of the training process follows the same schema (see figure 1):
 
                     <ol>
                         <li>Freeze the weights of the emulator net</li>
-                        <li>Place the truck at a random position wrt to the current difficulty</li>
+                        <li>Place the truck at a random position wrt to the current difficulty<sup>3</sup></li>
                         <li>Forward Pass</li>
                         <ol>
                             <li>Calculate the next steering signal u<sub>i</sub> with the controller</li>
                             <li>Use the actual truck to calculate the next position<sup>1</sup></li>
-                            <li>Repeat steps 2 and 3 until the truck is</li>
-                            <ul>
-                                <li>at the dock</li>
-                                <li><b>or</b> outside the simulated area (x in {"[-100, 100]"}, y in {"[-50, 50]"})</li>
-                            </ul>
+                            <li>Repeat steps 1 and 2 until the truck is at the dock or a maximum number of steps $k$ were performed)</li>
                         </ol>
                         <li>Backward Pass</li>
                         <ol>
-                            <li>Calculate the sum squared error between the final truck position and the dock</li>
-                            <li>Calculate the derivative and use backpropagation to propagate the error through all emulators and controllers</li>
+                            <li>If the maximum number of steps was reached, do not perform backpropagation.</li>
+                            <li>Calculate the sum squared error between the final truck position and the dock<sup>4</sup></li>
+                            <li>Calculate the derivative of the error and use backpropagation through time (BPTT) to propagate the error through all emulators and controllers.</li>
                             <li>Update the weights of the controller</li>
                         </ol>
                     </ol>
 
-                    <sup>1</sup> It's also possible to use the emulator in this step instead of the actual truck model
-                    <sup>2</sup> The emulator network in the backward pass can also be replaced by the Jacobi Matrix of the truck model
+                    <sup>1</sup> It's also possible to use the emulator in this step instead of the actual truck model<br />
+                    <sup>2</sup> The emulator network in the backward pass can also be replaced by the Jacobi Matrix of the truck model.<br />
+                    <sup>3</sup>At the beginning of training the controller produces a random steering signal - therefore the truck can not 
+                        be placed too far away from the dock or it might not reach the dock. Learning has to be performed stepwise 
+                        - going from simple lessons to more complicated lessons with further distance from the dock and larger angles.<br />
+                    <sup>4</sup>The error is the squared distance between the (x,y) coordinate of the trailer and the dock, and between the trailer angle and 0 degrees.
 
-                    At the beginning of training the controller produces a random steering signal - therefore the truck can not 
-                    be placed too far away from the dock or it might not reach the dock. Learning has to be performed stepwise 
-                    - going from simple lessons to more complicated lessons with further distance from the dock and larger angles.
-
-                    Even with these modifications the training is unstable - the training success heavily depends on the weight initialization
-                    and the truck positions used in the first few lessons.
-                    
                     <h2>References</h2>
-                    {"// TODO: Jordan paper, Nguyen Truck and Nguyen initialization of weights, truck model, car model"}
+
+                    <p><b>Basics Distal Teacher: </b>Jordan, Michael I., and David E. Rumelhart. "Forward models: Supervised learning with a distal teacher." Cognitive science 16.3 (1992): 307-354.</p>
+
+                    <p><b>Truck Backer-Upper:</b> Nguyen, Derrick, and Bernard Widrow. "The truck backer-upper: An example of self-learning in neural networks." Advanced neural computers. 1990. 11-19.</p>
+
+                    <p><b>Two Layer Weight Initialization: </b>Nguyen, Derrick, and Bernard Widrow. "Improving the learning speed of 2-layer neural networks by choosing initial values of the adaptive weights." Neural Networks, 1990., 1990 IJCNN International Joint Conference on. IEEE, 1990.</p>
+
+                    <p><b>Truck Model: </b> Schoenauer, Marc, and Edmund Ronald. "Neuro-genetic truck backer-upper controller." Evolutionary Computation, 1994. IEEE World Congress on Computational Intelligence., Proceedings of the First IEEE Conference on. IEEE, 1994.</p>
+
                 </div>
             </div>
         </div>
