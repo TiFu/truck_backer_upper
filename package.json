@@ -37,7 +37,6 @@
     "react-bootstrap": "^0.32.1",
     "react-dom": "^16.4.0",
     "react-highcharts": "^16.0.2",
-    "react-konva": "^1.1.4",
-    "winston": "^2.4.0"
+    "react-konva": "^1.1.4"
   }
 }
