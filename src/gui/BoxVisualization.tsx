@@ -1,8 +1,7 @@
 import * as React from 'react'
-import {Truck} from '../model/truck'
 import {CoordinateSystemTransformation} from './CoordinateSystemTransformation';
-import { Layer, Rect, Stage, Group, Line, Circle} from 'react-konva'
-import {Point, plus, minus, calculateVector, scale} from '../math'
+import { Group, Line} from 'react-konva'
+import {Point} from '../math'
 
 
 interface BoxVisualizationProps{
@@ -25,7 +24,6 @@ export class BoxVisualization extends React.Component<BoxVisualizationProps, {}>
 
     public render() {
         let rectanglePoints: number[] = [];
-        let circles = [];
         for (let i = 0; i < this.props.points.length; i++) {
             let point = this.props.points[i];
             let mapped = this.map(point);

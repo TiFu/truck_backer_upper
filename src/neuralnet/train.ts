@@ -2,7 +2,7 @@ import {World, Dock, HasState} from '../model/world';
 import {NeuralNet} from './net'
 import {Vector} from './math'
 import {Angle, Point} from '../math'
-import {Lesson} from './lesson'
+import {TruckLesson} from './lesson'
 import { ENGINE_METHOD_ALL } from 'constants';
 import { ControllerError } from './error';
 import { emulatorNet } from './implementations';
@@ -84,7 +84,7 @@ export class TrainTruckEmulator {
 
 // let's not use this for now
 export class TrainController {
-    private lastTrainedLesson: Lesson
+    private lastTrainedLesson: TruckLesson
     public errors: Array<number> = [];
     public steeringSignals: Array<number> = [];
     public angleError: Array<number> = [];
@@ -95,7 +95,7 @@ export class TrainController {
     public maxStepErrors = 0;
 
     public emulatorInputs: any = [];
-    private currentLesson: Lesson = null;
+    private currentLesson: TruckLesson = null;
     private maxStepListeners: Set<MaxStepListener> = new Set<MaxStepListener>();
 
     public constructor(private world: World, private realPlant: HasState, private controllerNet: NeuralNet, private emulatorNet: Emulator, private errorFunction: ControllerError) {
@@ -121,7 +121,7 @@ export class TrainController {
         this.realPlant = realPlant;
     }
 
-    public setLastTrainedLesson(lesson: Lesson) {
+    public setLastTrainedLesson(lesson: TruckLesson) {
         this.lastTrainedLesson = lesson;
     }
 
@@ -140,7 +140,7 @@ export class TrainController {
         return controllerSignal.entries[0];
     }
 
-    public setLesson(lesson: Lesson): void {
+    public setLesson(lesson: TruckLesson): void {
         this.currentLesson = lesson;
         this.controllerNet.changeOptimizer(lesson.optimizer);
         console.log("Using optimizer: ", lesson.optimizer);
@@ -156,7 +156,7 @@ export class TrainController {
         return this.performedTrainSteps < this.currentLesson.samples;
     }
 
-    public getCurrentLesson(): Lesson {
+    public getCurrentLesson(): TruckLesson {
         return this.currentLesson;
     }
 

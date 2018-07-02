@@ -1,8 +1,6 @@
 import * as React from 'react'
-import {Simulation} from './Simulation'
-import { Car, NormalizedCar } from "../model/car";
 import { Point } from "../math";
-import { Dock, World } from "../model/world";
+import { World } from "../model/world";
 import { Truck, NormalizedTruck} from '../model/truck';
 import { NetworkCreator } from './NetworkCreator';
 
@@ -14,18 +12,17 @@ import {Tanh, Sigmoid, ActivationFunction, ReLu, Linear} from '../neuralnet/acti
 import {AdalineUnit} from '../neuralnet/unit';
 import { LoadingModal } from './LoadingModal';
 import {NeuralNet} from '../neuralnet/net';
-import {TrainTruckEmulator, TrainController} from '../neuralnet/train';
-import {CarControllerError, TruckControllerError} from '../neuralnet/error';
+import {TrainController} from '../neuralnet/train';
+import {TruckControllerError} from '../neuralnet/error';
 import {NeuralNetEmulator} from '../neuralnet/emulator';
-import { Lesson } from '../neuralnet/lesson';
-import {createCarControllerLessons, createTruckControllerLessons} from '../neuralnet/lesson';
+import { TruckLesson } from '../neuralnet/lesson';
+import {createTruckControllerLessons} from '../neuralnet/lesson';
 import {LayerConfig} from '../neuralnet/net';
 import {LessonsComponent} from './LessonsComponent'
-import { ENGINE_METHOD_DIGESTS } from 'constants';
 const ReactHighcharts = require('react-highcharts');
 
 interface ControllerProps {
-    object: Car | Truck;
+    object: Truck;
     world: World;
     emulatorNet: NeuralNet;
     onControllerTrained: (net: TrainController) => void;
@@ -40,7 +37,7 @@ interface ControllerState {
     train: boolean;
     isTrainedNetwork: boolean;
     errors: number[];
-    lessons: Lesson[];
+    lessons: TruckLesson[];
     currentLessonIndex: number;
     weightLessonIndex: number;
     loadedLessonWeights: number;
@@ -50,7 +47,6 @@ interface ControllerState {
 export class Controller extends React.Component<ControllerProps, ControllerState> {
     public static MAX_LESSON = 19;
     private emulatorController: TrainController;
-    private i = 0;
     public STEPS_PER_FRAME = 1;
     public readonly STEPS_PER_ERROR = 100;
     private lastIteration: number = undefined;
@@ -71,7 +67,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             isTrainedNetwork: false,
             train: false,
             errors: [],
-            lessons: this.props.object instanceof Car ? createCarControllerLessons(this.props.object) : createTruckControllerLessons(this.props.object),
+            lessons: createTruckControllerLessons(this.props.object),
             currentLessonIndex: 0,
             weightLessonIndex: Controller.MAX_LESSON,
             loadedLessonWeights: -1,
@@ -81,7 +77,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
     }
 
     private handleResetLessons() {
-        this.setState({ currentLessonIndex: 0, lessons: this.props.object instanceof Car ? createCarControllerLessons(this.props.object) : createTruckControllerLessons(this.props.object)}, () => {
+        this.setState({ currentLessonIndex: 0, lessons: createTruckControllerLessons(this.props.object)}, () => {
             console.log("[state] reset lessons");
         })        
     }
@@ -100,7 +96,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         });
     }
 
-    public handleMaxStepErrors(steps: number){ 
+    public handleMaxStepErrors(){ 
         this.setState({maxStepErrors: this.state.maxStepErrors + 1}, () => {
             console.log("Max Step Errors: " + this.state.maxStepErrors);
             if (this.state.maxStepErrors >= 90) {
@@ -143,14 +139,14 @@ export class Controller extends React.Component<ControllerProps, ControllerState
     }
 
     private makeTrainController(): TrainController {
-        let normalizedObject = this.props.object instanceof Car ? new NormalizedCar(this.props.object): new NormalizedTruck(this.props.object);
+        let normalizedObject = new NormalizedTruck(this.props.object);
         console.log("Object: ", normalizedObject);
         let dock = normalizedObject.getNormalizedDock(this.props.world.dock);
         console.log("dock", dock);
-        let error = this.props.object instanceof Car ? new CarControllerError(dock) : new TruckControllerError(dock)
+        let error = new TruckControllerError(dock)
         error.setSaveErrors(false);
         console.log("error", error);
-        // TODO: offer option to use jacobi matrix if object is car
+
         let ctrl = new TrainController(this.props.world, normalizedObject, this.state.nn, new NeuralNetEmulator(this.props.emulatorNet), error);   
         ctrl.addMaxStepListener(this.handleMaxStepErrors.bind(this));
         return ctrl;
@@ -219,11 +215,9 @@ export class Controller extends React.Component<ControllerProps, ControllerState
     }
 
     public handleLoadPretrainedWeights() {
-        let weightName = "car_controller_weights_11";
+        let weightName = "truck_emulator_controller_weights_" + this.state.weightLessonIndex;       ;
         let lessonIndex = this.state.weightLessonIndex;
-        if (this.props.object instanceof Truck) {
-            weightName = "truck_emulator_controller_weights_" + this.state.weightLessonIndex;
-        }
+
         $.ajax({
             url: "weights/" + weightName,
             dataType: "text",
@@ -260,35 +254,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
     }
 
     private getDefaultNetConfig() {
-        return this.props.object instanceof Car ? this.getCarNet() : this.getTruckNet();
-    }
-
-    private getCarNet() {
-        const hiddenCarControllerLayer: LayerConfig = {
-            neuronCount: 26,
-        //    weightInitializer: RandomWeightInitializer(0.1),
-            weightInitializer: new TwoLayerInitializer(0.7, 26),
-            unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
-            activation: new Tanh()
-        }
-        
-        const outputCarControllerLayer: LayerConfig = {
-            neuronCount: 1,
-            weightInitializer: new RandomWeightInitializer(0.1),
-        //    weightInitializer: TwoLayerInitializer(0.7, 1),
-            unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
-            activation: new Tanh() // [-1, 1]
-        }
-        
-        return {
-            inputs: 3,
-            optimizer: () => new SGDNesterovMomentum(0.0001, 0.9),
-            errorFunction: new MSE(), // ignored
-            layerConfigs: [
-                hiddenCarControllerLayer,
-                outputCarControllerLayer
-            ]
-        }
+        return this.getTruckNet();
     }
 
     private getTruckNet(): NetConfig {
@@ -352,7 +318,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         });
     }
 
-    private updateLessons(lessons: Lesson[]) {
+    private updateLessons(lessons: TruckLesson[]) {
         console.log("Updated lessons: ", lessons);
         let newIndex = this.state.currentLessonIndex < lessons.length ? this.state.currentLessonIndex : lessons.length - 1;
         newIndex = newIndex < 0 ? 0 : newIndex;
@@ -414,13 +380,8 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         })
     }
     private renderController() {
-        let mse = undefined;
         let normalizedDockPosition = new Point((this.props.world.dock.position.x - 50)/ 50, this.props.world.dock.position.y / 50);
-        if (this.props.object instanceof Car) {
-            mse = new CarControllerError(normalizedDockPosition);
-        } else if (this.props.object instanceof Truck) {
-            mse = new TruckControllerError(normalizedDockPosition);
-        }
+        let mse = new TruckControllerError(normalizedDockPosition);
 
         let errorFunctions: { [key: string]: ErrorFunction} = undefined;
         if (mse != undefined) {

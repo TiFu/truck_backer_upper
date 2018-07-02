@@ -1,8 +1,7 @@
 import { Point, Vector, isLeftOf, plus, StraightLine, Angle, rotate } from '../math'
 import { Truck } from './truck'
-import {Car} from './car'
 import * as nnMath from '../neuralnet/math';
-import {Lesson} from '../neuralnet/lesson'
+import {TruckLesson} from '../neuralnet/lesson'
 export class Dock {
     public dockDirection: Vector;
 
@@ -25,7 +24,7 @@ export interface HasState {
     getStateDescription(): string[];
     nextState(input: number, time: number): boolean;
     getMaxSteeringAngle(): number;
-    randomizePosition(lesson: Lesson): void;
+    randomizePosition(lesson: TruckLesson): void;
     randomizePosition(): void;
 }
 

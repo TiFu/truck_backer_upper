@@ -1,10 +1,8 @@
 import * as React from 'react'
 import {Truck} from '../model/truck'
 import {CoordinateSystemTransformation} from './CoordinateSystemTransformation';
-import { Layer, Rect, Stage, Group, Line, Circle} from 'react-konva'
-import {plus, minus, calculateVector, scale, Point, rotateVector, Angle} from '../math'
-import {BoxVisualization} from './BoxVisualization'
-import {WheelVisualization} from './WheelVisualization'
+import { Group, Line} from 'react-konva'
+import {plus, calculateVector, scale, Point, rotateVector, Angle} from '../math'
 
 interface CouplingDeviceVisualizationProps {
     truck: Truck;

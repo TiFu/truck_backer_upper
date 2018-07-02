@@ -8,56 +8,19 @@ export class Range {
         return new Range(this.min * factor, this.max * factor);
     }
 }
-import {Point} from '../math';
+import {Point, toRad} from '../math';
 import {Vector} from '../neuralnet/math'
 import {Truck} from '../model/truck'
 import {Dock, HasLength} from '../model/world';
 import { SGDNesterovMomentum, Optimizer, SGD } from './optimizers';
 
-export class Lesson {
-
-    public constructor(public object: HasLength, public no: number, public samples: number, public maxSteps: number, public optimizer: () => Optimizer) {
-    }
-}
-
-export class CarLesson extends Lesson {
+export class TruckLesson {
     public x: Range;
     public y: Range;
 
-    public constructor(object: HasLength, no: number, samples: number, maxSteps: number, optimizer: () => Optimizer, x: Range, y: Range, public angle: Range) {
-        super(object, no, samples, maxSteps, optimizer);
-        let l = object.getLength();
-        this.x = x.getScaled(l);
-        this.y = y.getScaled(l);
-    }   
-
-    public getBounds(): Vector {
-        let tep1 = new Point(this.x.min, this.y.max);
-        let tep2 = new Point(this.x.max, this.y.min);
-        let angle = [this.angle.min, this.angle.max];
-
-        return new Vector(
-            [
-                tep1.x, 
-                tep1.y,
-                tep2.x,
-                tep2.y,
-                angle[0],
-                angle[1],
-            ]
-        );
-    }
-    
-}
-
-export class TruckLesson extends Lesson {
-    public x: Range;
-    public y: Range;
-
-    public constructor(object: HasLength, no: number, samples: number, optimizer: () => Optimizer,
+    public constructor(public object: HasLength, public no: number, public samples: number, public optimizer: () => Optimizer,
         x: Range, y: Range, public trailerAngle: Range, 
         public cabAngle: Range, public maxSteps: number){ 
-            super(object, no, samples, maxSteps, optimizer);
             let l = object.getLength();
             this.x = x.getScaled(l);
             this.y = y.getScaled(l);
@@ -131,88 +94,6 @@ export function linearAndQuadraticRangeForStep(minR: Range, maxR: Range, step: n
         let newMaxR = new Range(newMin.max, maxR.max);
         return rangeForStep(newMinR, newMaxR, step - changeAtStep, maxSteps - changeAtStep);
     }
-}
-
-export function createCarJacobianLessons(truck: HasLength) {
-    let optimizers: Array<() => Optimizer> = [
-        () => new SGDNesterovMomentum(0.75, 0.9),
-        () => new SGDNesterovMomentum(0.75, 0.9),
-        () => new SGDNesterovMomentum(0.75, 0.9),
-        () => new SGDNesterovMomentum(0.75, 0.9),
-        () => new SGDNesterovMomentum(0.75, 0.9),
-        () => new SGDNesterovMomentum(0.75, 0.9),
-        () => new SGDNesterovMomentum(0.75, 0.9),
-        () => new SGDNesterovMomentum(0.75, 0.9),
-        () => new SGDNesterovMomentum(0.75, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-        () => new SGDNesterovMomentum(0.1, 0.9),
-    ]
-    let lessons: Array<Lesson> = []
-
-    //distance lessons
-    let minX = new Range(1, 2);
-    let maxX = new Range(1, 4);
-    let minY = new Range(-0.1, -1);
-    let maxY = new Range(0.1, 1);
-    let minCabAngle = new Range(- 30/180*Math.PI,-30 / 180 * Math.PI);
-    let maxCabAngle = new Range(30/180*Math.PI, 30/180*Math.PI);
-    let minTrailerAngle = new Range(-30/180 * Math.PI, -180/180*Math.PI);
-    let maxTrailerAngle = new Range(30/180 * Math.PI,180/180 * Math.PI);
-    let lessonCountX = 12;
-
-    for (let i = 0; i < lessonCountX; i++) {
-        let xR = rangeForStep(minX, maxX, i, lessonCountX);
-        let yR = quadraticRangeForStep(minY, maxY, i, lessonCountX);
-        console.log("y: ", yR.min, yR.max);
-        let trailerR = rangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCountX);
-        let cabR = rangeForStep(minCabAngle, maxCabAngle, i, lessonCountX);
-        let samples = 10000;
-        lessons.push(new CarLesson(truck, i, samples, 2 * xR.max + 50, optimizers[i], xR, yR, trailerR));
-    }
-//    console.log("Created lessons: ", lessons);
-    return lessons;
-}
-
-export function createCarControllerLessons(truck: HasLength) {
-    let optimizers: Array<() => Optimizer> = [
-        () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(1, 0.9),
-        () => new SGDNesterovMomentum(0.01, 0.9), // didn't work YOLO
-    ]
-    let lessons: Array<Lesson> = []
-
-    //distance lessons
-    let minX = new Range(1, 2);
-    let maxX = new Range(1, 4);
-    let minY = new Range(-0.1, -1);
-    let maxY = new Range(0.1, 1);
-    let minTrailerAngle = new Range(-30/180 * Math.PI, -180/180*Math.PI);
-    let maxTrailerAngle = new Range(30/180 * Math.PI,180/180 * Math.PI);
-    let lessonCountX = 12;
-
-    for (let i = 0; i < lessonCountX; i++) {
-        let xR = rangeForStep(minX, maxX, i, lessonCountX);
-        let yR = rangeForStep(minY, maxY, i, lessonCountX);
-        let trailerR = rangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCountX);
-        let samples = 10000;
-        lessons.push(new CarLesson(truck, i, samples, 2 * xR.max + 50, optimizers[i], xR, yR, trailerR));
-    }
-//    console.log("Created lessons: ", lessons);
-    return lessons;
-}
-
-function toRad(deg: number) {
-    return deg / 180 * Math.PI;
 }
 
 export function createTruckControllerLessons(truck: HasLength) {

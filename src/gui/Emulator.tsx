@@ -1,8 +1,4 @@
 import * as React from 'react'
-import {Simulation} from './Simulation'
-import { Car, NormalizedCar } from "../model/car";
-import { Point } from "../math";
-import { Dock } from "../model/world";
 import { Truck, NormalizedTruck} from '../model/truck';
 import { NetworkCreator } from './NetworkCreator';
 
@@ -18,7 +14,7 @@ import {TrainTruckEmulator} from '../neuralnet/train';
 const ReactHighcharts = require('react-highcharts');
 
 interface EmulatorProps {
-    object: Car | Truck;
+    object: Truck;
     onNetworkChange: (nn: NeuralNet) => void;
 }
 
@@ -66,7 +62,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
         this.setState({nn: nn, train: true},() => {
             // we updated the gui
             // start animation
-            let normalizedObject = this.props.object instanceof Car ? new NormalizedCar(this.props.object): new NormalizedTruck(this.props.object);
+            let normalizedObject = new NormalizedTruck(this.props.object);
             this.emulatorTrainer = new TrainTruckEmulator(normalizedObject, this.state.nn, 1);   
             this.lastIteration = performance.now();     
             this.errorCache = [];
@@ -111,10 +107,8 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
     }
 
     public handleLoadPretrainedWeights() {
-        let weightName = "car_emulator_weights";
-        if (this.props.object instanceof Truck) {
-            weightName = "truck_emulator_weights";
-        }
+        let weightName = "truck_emulator_weights";
+
         $.ajax({
             url: "weights/" + weightName,
             dataType: "text",
@@ -146,34 +140,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
     }
 
     private getDefaultNetConfig() {
-        return this.props.object instanceof Car ? this.getCarNet() : this.getTruckNet();
-    }
-
-    private getCarNet() {
-        const carHiddenEmulatorLayer = {
-            neuronCount: 45,
-            weightInitializer: new TwoLayerInitializer(0.7, 45),
-            unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
-            activation: new Tanh()
-        }
-        
-        const carOutputEmulatorLayer = {
-            neuronCount: 3,
-            weightInitializer: new RandomWeightInitializer(0.01),
-            unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
-            activation: new Linear()
-        }
-        
-        return {
-            inputs: 4,
-            optimizer: () => new SGDNesterovMomentum(0.00001, 0.9), // start with 0.1, then 0.01 then 0.001
-            errorFunction: new MSE(),
-            layerConfigs: [
-                carHiddenEmulatorLayer,
-                carOutputEmulatorLayer
-            ]
-        }
-        
+        return this.getTruckNet();
     }
 
     private getTruckNet(): NetConfig {

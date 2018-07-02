@@ -1,9 +1,8 @@
 import { Point, scale, minus, plus,  Vector, Angle, getAngle, calculateVector, rotate, StraightLine, isLeftOf } from '../math'
 import * as nnMath from '../neuralnet/math' // TODO: union math libraries..
 import {Dock, AngleType, HasState, Limitable, HasLength} from './world'
-import {Lesson, TruckLesson} from '../neuralnet/lesson';
+import {TruckLesson} from '../neuralnet/lesson';
 
-import {expect} from 'chai';
 import { Emulator } from '../neuralnet/emulator';
 import {Normalized} from '../model/world';
 import * as math from '../math';
@@ -38,7 +37,7 @@ export class NormalizedTruck implements Normalized,  HasState, Limitable, HasLen
         this.truck.setLimited(limited);
     }
 
-    public randomizePosition(lesson?: Lesson) {
+    public randomizePosition(lesson?: TruckLesson) {
         this.truck.randomizePosition(lesson);
     }
 
@@ -269,7 +268,7 @@ export class Truck implements HasState, Limitable, HasLength {
         return !(truckLeftOf || trailerLeftOf);
     }
 
-    public randomizePosition(lesson?: Lesson): void {
+    public randomizePosition(lesson?: TruckLesson): void {
         if (lesson &&lesson instanceof TruckLesson) {
             let bounds = lesson.getBounds().entries;
             let tep1 = new Point(bounds[0], bounds[1]);

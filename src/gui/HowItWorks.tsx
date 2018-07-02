@@ -1,14 +1,4 @@
 import * as React from 'react'
-import {Simulation} from './Simulation'
-import { Car, NormalizedCar } from "../model/car";
-import { Point } from "../math";
-import { Dock, World } from "../model/world";
-import {Emulator} from './Emulator';
-import {Tab, Tabs} from 'react-bootstrap';
-import {Controller} from './Controller';
-import {NeuralNet} from '../neuralnet/net';
-import { TrainController } from '../neuralnet/train';
-import{Truck, NormalizedTruck} from '../model/truck';
 
 export class HowItWorks extends React.Component<{}, {}> {
 

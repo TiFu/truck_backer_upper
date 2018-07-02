@@ -3,24 +3,15 @@ import * as React from 'react'
 import WorldVisualization from "./WorldVisualization"
 import {World} from '../model/world'
 import {toDeg, toRad} from '../math';
-import {TrainTruckEmulator, TrainController} from '../neuralnet/train'
-import {emulatorNet, controllerNet, carControllerNet} from '../neuralnet/implementations'
-import {Point, Vector, scalarProduct} from '../math'
-const HighCharts = require("react-highcharts");
-import {createCarControllerLessons, createCarJacobianLessons, Lesson} from '../neuralnet/lesson'
-import { TruckControllerError } from '../neuralnet/error';
-import {NormalizedTruck} from '../model/truck';
-import {NeuralNetEmulator} from '../neuralnet/emulator';
-import { NormalizedCar, CarEmulator } from '../model/car';
-import {CarControllerError} from '../neuralnet/error';
-import {Car} from '../model/car';
+import {TrainController} from '../neuralnet/train'
+import {Point} from '../math'
 import {Truck} from '../model/truck';
 import {Dock} from '../model/world';
 import Slider from 'rc-slider';
 
 
 interface SimulationProps {
-    object: Car | Truck;
+    object: Truck;
     dock: Dock;
     controller: TrainController;
 }
@@ -101,7 +92,7 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
         
     }
 
-    private handleDriveButton(e: any) {
+    private handleDriveButton() {
         this.drive(this.state.steeringSignal, (cont: boolean) => { this.setState({isDriving: !cont}) });
     }
     private handleSteeringSignalChanged(value: number) {
@@ -111,7 +102,7 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
         this.setState({simulationSpeed: value});
     }
 
-    private handleSetRandomPosition(e: any) {
+    private handleSetRandomPosition() {
         this.state.world.movableObject.randomizePosition();
 //        this.forceUpdate();
         this.setState({isDriving: false})
@@ -129,9 +120,6 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
     }
 
     private getTruckAngleSettings() {
-        if (this.props.object instanceof Car) {
-            return undefined;
-        } 
         return <div className="form-group">
             <div className="form-inline">
                 <div className="row mb w-100">
@@ -187,19 +175,13 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
     }
 
     private handlePositionChange(translation: Point) {
-
-        if (this.props.object instanceof Car) {
-            // no op
-            // TODO: implement
-        } else if (this.props.object instanceof Truck) {
-            let truck = this.props.object;
-            let tep = truck.getTrailerEndPosition();
-            let oldTep = new Point(tep.x, tep.y);
-            tep.x += translation.x;
-            tep.y += translation.y;
-            this.props.object.setTruckPosition(tep, truck.getTrailerAngle(), truck.getTruckAngle());
-            console.log("Updated truck position! to " + tep + " from " + oldTep);
-        }
+        let truck = this.props.object;
+        let tep = truck.getTrailerEndPosition();
+        let oldTep = new Point(tep.x, tep.y);
+        tep.x += translation.x;
+        tep.y += translation.y;
+        this.props.object.setTruckPosition(tep, truck.getTrailerAngle(), truck.getTruckAngle());
+        console.log("Updated truck position! to " + tep + " from " + oldTep);
         this.forceUpdate();
     }
 

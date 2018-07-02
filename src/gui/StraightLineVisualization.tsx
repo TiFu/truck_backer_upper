@@ -1,5 +1,4 @@
 import * as React from 'react'
-import {Dock} from '../model/world'
 import {CoordinateSystemTransformation} from './CoordinateSystemTransformation';
 import { Layer, Rect, Stage, Group, Line, Circle} from 'react-konva'
 import {plus, minus, calculateVector, scale, Point, rotateVector, Angle, StraightLine} from '../math'

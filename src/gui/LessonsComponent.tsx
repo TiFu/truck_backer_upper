@@ -1,22 +1,16 @@
 import * as React from 'react'
-import {Simulation} from './Simulation'
-import { Car } from "../model/car";
 import { Truck } from '../model/truck';
 
-import { Point, toDeg, toRad } from "../math";
-import { Dock } from "../model/world";
-import {Emulator} from './Emulator';
-import {Tab, Tabs} from 'react-bootstrap';
-import {Controller} from './Controller';
-import {Lesson, CarLesson, TruckLesson, Range} from '../neuralnet/lesson';
+import { toDeg } from "../math";
+import {TruckLesson, Range} from '../neuralnet/lesson';
 import { SGD, SGDNesterovMomentum } from '../neuralnet/optimizers';
 import {Optimizer} from '../neuralnet/optimizers';
 
 export interface LessonsProps {
-    object: Car | Truck;
-    lessons: Lesson[];
+    object: Truck;
+    lessons: TruckLesson[];
     activeLessonIndex: number;
-    onChange: (lessons: Lesson[]) => void;
+    onChange: (lessons: TruckLesson[]) => void;
     onSelectRow: (lessonIndex: number) => void;
 }
 
@@ -24,7 +18,7 @@ export interface LessonsState {
     addLesson: boolean;
     editLesson: boolean;
     lessonIndex: number;
-    lesson: Lesson;
+    lesson: TruckLesson;
 }
 export class LessonsComponent extends React.Component<LessonsProps, LessonsState> {
 
@@ -37,23 +31,20 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
         return radians / Math.PI * 180;
     }
 
-    private toRad(degree: number): number {
-        return degree / 180 * Math.PI;
-    }
 
     public handleAddLesson() {
-        let defaultLesson = undefined;
-        if (this.props.object instanceof Car) {
-            defaultLesson = new CarLesson(this.props.object, this.props.lessons.length - 1, 10000, 52, () => new SGDNesterovMomentum(0.75, 0.9), new Range(1, 4), new Range(1, 2), new Range(-Math.PI, Math.PI));
-        } else if (this.props.object instanceof Truck) {
-            defaultLesson = new TruckLesson(this.props.object, this.props.lessons.length - 1, 10000, () => new SGDNesterovMomentum(0.75, 0.9), new Range(1, 4), new Range(-2, 2), new Range(-0.5 * Math.PI, Math.PI), new Range(-0.5*Math.PI, 0.5*Math.PI), 52);
-        } else {
-            return;
-        }
+        let defaultLesson = new TruckLesson(this.props.object, 
+            this.props.lessons.length - 1, 10000, 
+            () => new SGDNesterovMomentum(0.75, 0.9), 
+            new Range(1, 4), 
+            new Range(-2, 2), 
+            new Range(-0.5 * Math.PI, Math.PI), 
+            new Range(-0.5*Math.PI, 0.5*Math.PI), 52);
+
         this.setState({addLesson: true, lessonIndex: -1, lesson: defaultLesson})
     }
 
-    private handleAddLessonConfirm(lesson: Lesson) {
+    private handleAddLessonConfirm(lesson: TruckLesson) {
         console.log("handling add lesson changed.");
         lesson.no += 1; // "add after" + 1 is index
         this.props.lessons.splice(lesson.no, 0, lesson);
@@ -61,7 +52,7 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
         this.setState({addLesson: false, lesson: undefined, lessonIndex: -1});
     }
 
-    private onChange(e: React.MouseEvent<HTMLElement>, index: number, lesson: Lesson) {
+    private onChange(e: React.MouseEvent<HTMLElement>, index: number, lesson: TruckLesson) {
         let lessons = this.props.lessons;
         if (lesson == null) {
             lessons.splice(index, 1);
@@ -76,12 +67,12 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
         this.props.onChange(lessons);
     }
 
-    private editLesson(e: React.MouseEvent<HTMLElement>, index: number, lesson: Lesson) {
+    private editLesson(e: React.MouseEvent<HTMLElement>, index: number, lesson: TruckLesson) {
         e.stopPropagation();
         this.setState({editLesson: true, lesson: lesson, lessonIndex: index});
     }
 
-    private onLessonSave(lesson: Lesson) {
+    private onLessonSave(lesson: TruckLesson) {
         if (this.state.editLesson) {
             this.props.lessons[this.state.lessonIndex] = lesson;
             this.props.onChange(this.props.lessons);
@@ -95,7 +86,7 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
         this.setState({editLesson: false, addLesson: false, lesson: undefined});
     }
 
-    private getColHeader(name: string, colHeaderCount: number){ 
+    private getColHeader(name: string, headerCount: number){ 
         return <th key={name.replace(/ /g, "_").replace(/\./g, "").toLowerCase()} scope="col">{name}</th>
     }
 
@@ -107,33 +98,15 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
         return <td key={name + "_" + Math.random()}> [ {angleFunction(range.min).toFixed(2).toString()}, {angleFunction(range.max).toFixed(2).toString()} ]</td>
     }
 
-    // TODO: make CarLEssonComponent & TruckLessonComponent separaet components
     public render() {
         let colHeaders = ["No.", "Samples", "Max Steps", "Optimizer"]
-        if (this.props.lessons[0] instanceof CarLesson){ 
-            colHeaders.push("x-Range", "y-Range", "Angle");
-        } else if (this.props.lessons[0] instanceof TruckLesson) {
-            colHeaders.push("x-Range", "y-Range", "Cabin Angle-Range", "Trailer Angle-Range");
-        }
+        colHeaders.push("x-Range", "y-Range", "Cabin Angle-Range", "Trailer Angle-Range");
 
         let columns = [];
         for (let header of colHeaders) {
             columns.push(this.getColHeader(header, colHeaders.length));
         }
         columns.push(<th key={"buttons"}></th>);
-
-        /*        columns.push(<th key="no" scope="col">No.</th>);
-        columns.push(<th key="samples" scope="col">Samples</th>)
-        columns.push(<th key="max_stesp" scope="col">Max Steps</th>);
-        columns.push(<th key="optimizer" scope="col">Optimizer</th>);
-
-        if (this.props.lessons[0] instanceof CarLesson) {
-            columns.push(<th key="x" scope="col">x-Range</th>);
-            columns.push(<th key="y" scope="col">y-Range</th>);
-            columns.push(<th key="angle" scope="col">Angle</th>);
-        } else if (this.props.lessons[0] instanceof TruckLesson) {
-
-        }*/
 
         let lessons = this.props.lessons.map((l ,i) => {
             let additionalProperties = [
@@ -155,19 +128,12 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
                 <td key={"optimizer_" + Math.random()}>{optimizer.getName()}({br} {params} )</td>
             );
 
-            if (l instanceof CarLesson) {
-                additionalProperties.push(
-                    this.getRow("x", l.x),
-                    this.getRow("y", l.y),
-                    this.getRow("angle", l.angle, true));
-            } else if (l instanceof TruckLesson) {
-                additionalProperties.push(
-                    this.getRow("x", l.x),
-                    this.getRow("y", l.y),
-                    this.getRow("cabin_angle", l.cabAngle, true),
-                    this.getRow("trailer_angle", l.trailerAngle, true),
-                );
-            }
+            additionalProperties.push(
+                this.getRow("x", l.x),
+                this.getRow("y", l.y),
+                this.getRow("cabin_angle", l.cabAngle, true),
+                this.getRow("trailer_angle", l.trailerAngle, true),
+            );
     
             // TODO: replace onChange with null with onDeleteLesson(index);
             additionalProperties.push(<td key={"buttons_" + Math.random()} className="align-right">
@@ -208,9 +174,9 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
 }
 
 interface LessonProps {
-    lesson: Lesson;
+    lesson: TruckLesson;
     edit: boolean;
-    onSave: (lesson: Lesson) => void;
+    onSave: (lesson: TruckLesson) => void;
     onCancel: () => void;
 }
 
@@ -237,23 +203,14 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
         let cabAngle = new Range(0.0, 0.0);
         let trailerAngle = new Range(0.0, 0.0);
         
-        if (this.props.lesson instanceof CarLesson) {
-            x.min = this.props.lesson.x.min;
-            x.max = this.props.lesson.x.max;
-            y.min = this.props.lesson.y.min;
-            y.max = this.props.lesson.y.max;
-            angle.min = toDeg(this.props.lesson.angle.min);
-            angle.max = toDeg(this.props.lesson.angle.max);
-        } else if (this.props.lesson instanceof TruckLesson) {
-            x.min = this.props.lesson.x.min;
-            x.max = this.props.lesson.x.max;
-            y.min = this.props.lesson.y.min;
-            y.max = this.props.lesson.y.max;
-            cabAngle.min = toDeg(this.props.lesson.cabAngle.min);
-            cabAngle.max = toDeg(this.props.lesson.cabAngle.max);
-            trailerAngle.min = toDeg(this.props.lesson.trailerAngle.min);
-            trailerAngle.max = toDeg(this.props.lesson.trailerAngle.max);
-        }
+        x.min = this.props.lesson.x.min;
+        x.max = this.props.lesson.x.max;
+        y.min = this.props.lesson.y.min;
+        y.max = this.props.lesson.y.max;
+        cabAngle.min = toDeg(this.props.lesson.cabAngle.min);
+        cabAngle.max = toDeg(this.props.lesson.cabAngle.max);
+        trailerAngle.min = toDeg(this.props.lesson.trailerAngle.min);
+        trailerAngle.max = toDeg(this.props.lesson.trailerAngle.max);
 
         let optimizers: any = {
         }
@@ -337,7 +294,6 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
     }
 
     private handleLessonNoChanged(e: React.ChangeEvent<HTMLInputElement>) {
-        let no = Number.parseInt(e.currentTarget.value);
         this.setState({ no: this.state.no});
     }
 
@@ -346,7 +302,6 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
         this.props.lesson.no = this.state.no;
         this.props.lesson.samples = this.state.samples;
         this.props.lesson.maxSteps = this.state.maxSteps;
-        let optimizerFunction = null;
         let optimizer = this.state.optimizer
         if (optimizer instanceof SGD) {
             this.props.lesson.optimizer = () => new SGD((optimizer as SGD).learningRate);
@@ -354,15 +309,9 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
             this.props.lesson.optimizer = () => new SGDNesterovMomentum((optimizer as SGDNesterovMomentum).learningRate, (optimizer as SGDNesterovMomentum).momentum);
         }
 
-        if (this.props.lesson instanceof CarLesson) {
-            this.props.lesson.x = this.state.x;
-            this.props.lesson.y = this.state.y;
-            // convert back to radians
-            this.props.lesson.angle = this.state.angle.getScaled(Math.PI / 180);
-        } else if (this.props.lesson instanceof TruckLesson) {
-            this.props.lesson.cabAngle = this.state.cabinAngle.getScaled(Math.PI / 180);
-            this.props.lesson.trailerAngle = this.state.trailerAngle.getScaled(Math.PI / 180);
-        }
+        this.props.lesson.cabAngle = this.state.cabinAngle.getScaled(Math.PI / 180);
+        this.props.lesson.trailerAngle = this.state.trailerAngle.getScaled(Math.PI / 180);
+
         this.props.onSave(this.props.lesson);
     }
 
@@ -379,7 +328,6 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
                 sampleOptimizer.learningRate = lr;
             }
         } else if (sampleOptimizer instanceof SGDNesterovMomentum){
-            let optimizer = sampleOptimizer as SGDNesterovMomentum;
             if (index === 0) {
                 let lr = Number.parseFloat(property.currentTarget.value)
                 sampleOptimizer.learningRate = lr;
@@ -484,16 +432,10 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
     // TODO: how to have less copy & paste for optimizer?
     public render() {
         let additionalProperties = [];
-        if (this.props.lesson instanceof CarLesson) {
-            additionalProperties.push(this.getEditFor("x-Range", this.props.lesson.x, this.handleXMinChanged, this.handleXMaxChanged));
-            additionalProperties.push(this.getEditFor("y-Range", this.props.lesson.y, this.handleYMinChanged, this.handleYMaxChanged));
-            additionalProperties.push(this.getEditFor("Angle-Range", this.convertRangeToDeg(this.props.lesson.angle), this.handleAngleMinChanged, this.handleAngleMaxChanged));
-        } else if (this.props.lesson instanceof TruckLesson) {
-            additionalProperties.push(this.getEditFor("x-Range", this.props.lesson.x, this.handleXMinChanged, this.handleXMaxChanged));
-            additionalProperties.push(this.getEditFor("y-Range", this.props.lesson.y, this.handleYMinChanged, this.handleYMaxChanged));
-            additionalProperties.push(this.getEditFor("Trailer Angle-Range", this.convertRangeToDeg(this.props.lesson.trailerAngle), this.handleTrailerAngleMinChanged, this.handleTrailerAngleMaxChanged));
-            additionalProperties.push(this.getEditFor("Cabin Angle-Range", this.convertRangeToDeg(this.props.lesson.cabAngle), this.handleCabinAngleMinChanged, this.handleCabinAngleMaxChanged));
-        }
+        additionalProperties.push(this.getEditFor("x-Range", this.props.lesson.x, this.handleXMinChanged, this.handleXMaxChanged));
+        additionalProperties.push(this.getEditFor("y-Range", this.props.lesson.y, this.handleYMinChanged, this.handleYMaxChanged));
+        additionalProperties.push(this.getEditFor("Trailer Angle-Range", this.convertRangeToDeg(this.props.lesson.trailerAngle), this.handleTrailerAngleMinChanged, this.handleTrailerAngleMaxChanged));
+        additionalProperties.push(this.getEditFor("Cabin Angle-Range", this.convertRangeToDeg(this.props.lesson.cabAngle), this.handleCabinAngleMinChanged, this.handleCabinAngleMaxChanged));
 
         let index = undefined;
         if (this.props.edit) {

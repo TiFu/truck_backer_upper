@@ -7,12 +7,10 @@ import {Truck} from '../model/truck'
 import {TruckTrailerVisualization} from './TruckTrailerVisualization'
 import {WheelVisualization} from './WheelVisualization'
 import {StraightLineVisualization} from './StraightLineVisualization'
-import {CarVisualization} from './CarVisualization'
 
 import {DockVisualization} from './DockVisualization'
 import {CoordinateSystemTransformation} from './CoordinateSystemTransformation'
 import {Vector} from '../math'
-import { Car } from '../model/car';
 
 interface WorldVisualizationProps {
     world: World, 
@@ -45,14 +43,7 @@ export default class WorldVisualization extends React.Component<WorldVisualizati
     }
 
     private visualizeMovableObject(movableObject: any, cst: CoordinateSystemTransformation) {
-        if (this.props.world.movableObject instanceof Truck) {
-            return <TruckTrailerVisualization draggable={this.props.draggable} cordSystemTransformer={cst} truck={movableObject} onTruckPositionChanged={this.props.onObjectMoved}  />;
-        } else if (this.props.world.movableObject instanceof Car) {
-            return <CarVisualization cordSystemTransformer={cst} car={movableObject} wheelOffset={0.2} />
-        } else {
-            return <Text text="Unknown movable object!" />;
-        }
-
+        return <TruckTrailerVisualization draggable={this.props.draggable} cordSystemTransformer={cst} truck={movableObject} onTruckPositionChanged={this.props.onObjectMoved}  />;
     }
 
     public onResize(contentRect: any) {

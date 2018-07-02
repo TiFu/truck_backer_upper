@@ -14,7 +14,7 @@
     "css-loader": "^0.28.4",
     "style-loader": "^0.18.2",
     "ts-loader": "^2.3.2",
-    "typescript": "^2.4.2",
+    "typescript": "^2.9.1",
     "webpack": "^3.5.4"
   },
   "dependencies": {

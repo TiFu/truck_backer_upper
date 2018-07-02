@@ -1,6 +1,5 @@
 import * as React from 'react'
 import {Simulation} from './Simulation'
-import { Car, NormalizedCar } from "../model/car";
 import { Point } from "../math";
 import { Dock, World } from "../model/world";
 import {Emulator} from './Emulator';
@@ -14,14 +13,14 @@ import {HowItWorks} from './HowItWorks';
 export interface MainComponentState {
     emulatorNet: NeuralNet;
     controller: TrainController;
-    simulationCar: Car | Truck;
+    truck: Truck;
 }
 export class MainComponent extends React.Component<{}, MainComponentState> {
     private controllerRef: any;
 
     public constructor(props: {}) {
         super(props)
-        this.state = {emulatorNet: undefined, controller: undefined, simulationCar: new Truck(new Point(15, 15), 0, 0, new Dock(new Point(0,0)), [])};
+        this.state = {emulatorNet: undefined, controller: undefined, truck: new Truck(new Point(15, 15), 0, 0, new Dock(new Point(0,0)), [])};
     }
 
     private toDeg(radians: number): number {
@@ -34,25 +33,18 @@ export class MainComponent extends React.Component<{}, MainComponentState> {
 
     private onControllerNetChanged(controller: TrainController) {
         if (controller != null) {
-            if (this.state.simulationCar instanceof Car) {
-                controller.setPlant(new NormalizedCar(this.state.simulationCar));
-            } else {
-                controller.setPlant(new NormalizedTruck(this.state.simulationCar));            
-            }
+            controller.setPlant(new NormalizedTruck(this.state.truck));            
         }
         this.setState({controller: controller});
     }
 
-    public getObject(): Truck | Car {
-        if (this.state.simulationCar instanceof Car) {
-            return  new Car(new Point(15,15), 0, []);
-        } else {
-            return new Truck(new Point(15, 15), 0, 0, new Dock(new Point(0,0)), [])
-        }
+    public getObject(): Truck {
+        return new Truck(new Point(15, 15), 0, 0, new Dock(new Point(0,0)), [])
     }
+
     public render() {
-        let controllerCar = this.getObject();
-        let controllerWorld = new World(controllerCar, new Dock(new Point(0, 0)));
+        let controllerTruck = this.getObject();
+        let controllerWorld = new World(controllerTruck, new Dock(new Point(0, 0)));
 
         return <div className="container">
                 <div className="page-header">
@@ -60,7 +52,7 @@ export class MainComponent extends React.Component<{}, MainComponentState> {
                 </div>
                 <div className="row">
                     <div className="col-sm-12">
-                        <Simulation controller={this.state.controller} object={this.state.simulationCar} dock={new Dock(new Point(0,0))} />
+                        <Simulation controller={this.state.controller} object={this.state.truck} dock={new Dock(new Point(0,0))} />
                     </div>
                 </div>
                 <div className="row">
@@ -72,7 +64,7 @@ export class MainComponent extends React.Component<{}, MainComponentState> {
                             <Emulator object={this.getObject()} onNetworkChange={this.onEmulatorNetworkChanged.bind(this)} />                            
                         </Tab>
                         <Tab eventKey={3} title={"Step 2: Controller"}>
-                            <Controller onControllerTrained={this.onControllerNetChanged.bind(this)} emulatorNet={this.state.emulatorNet} world={controllerWorld} object={controllerCar} />
+                            <Controller onControllerTrained={this.onControllerNetChanged.bind(this)} emulatorNet={this.state.emulatorNet} world={controllerWorld} object={controllerTruck} />
                         </Tab>
                     </Tabs>
                 </div>

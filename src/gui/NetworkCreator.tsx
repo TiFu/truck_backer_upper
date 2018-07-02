@@ -1,10 +1,4 @@
 import * as React from 'react'
-import {Simulation} from './Simulation'
-import { Car } from "../model/car";
-import { Point } from "../math";
-import { Dock } from "../model/world";
-import {Emulator} from './Emulator';
-import {Tab, Tabs} from 'react-bootstrap';
 import {NetConfig, LayerConfig} from '../neuralnet/net';
 import { ErrorFunction } from '../neuralnet/error';
 import { Optimizer, SGD, SGDNesterovMomentum } from '../neuralnet/optimizers';
@@ -61,7 +55,7 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
         this.props.onChange(network, true);
     }
 
-    private handleAddLayer(e: any) {
+    private handleAddLayer() {
         let network = this.props.network;
         network.layerConfigs.push(null);
         network.layerConfigs[network.layerConfigs.length - 1] = network.layerConfigs[network.layerConfigs.length - 2];
@@ -281,7 +275,7 @@ class LayerCreator extends React.Component<LayerCreatorProps, {}> {
         }
     }
 
-    private handleRemoveLayer(e: any) {
+    private handleRemoveLayer() {
         this.props.onChange(null);
     }
 

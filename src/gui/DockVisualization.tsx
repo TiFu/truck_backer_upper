@@ -51,7 +51,5 @@ export class DockVisualization extends React.Component<DockVisualizationProps, {
                     <StraightLineVisualization line={new StraightLine(this.props.dock.position, this.props.dock.dockDirection)} cordSystemTransformer={this.props.cordSystemTransformer} canvasHeight={this.props.canvasHeight} canvasWidth={this.props.canvasWidth} />
                     <Circle radius={3} x={p.x} y={p.y} fill="red" />
         </Group>
-
-//                    <Line points={[start.x, start.y, end.x, end.y]} stroke="black" />           
-}
+    }
 }
