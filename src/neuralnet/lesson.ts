@@ -311,7 +311,7 @@ export function createTruckControllerLessons(truck: HasLength) {
     let minCabAngle = new Range(-10/180 * Math.PI, -90/180*Math.PI);
     let maxCabAngle = new Range(10/180 * Math.PI,90/180 * Math.PI);
 
-    let lessonCountX = 30;
+    let lessonCountX = 20;
 
     for (let i = 0; i < lessonCountX; i++) {
         let xR = rangeForStep(minX, maxX, i, lessonCountX);
