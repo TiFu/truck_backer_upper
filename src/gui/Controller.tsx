@@ -3,7 +3,6 @@ import { Point } from "../math";
 import { World } from "../model/world";
 import { Truck, NormalizedTruck} from '../model/truck';
 import { NetworkCreator } from './NetworkCreator';
-import {Tab, Tabs} from 'react-bootstrap';
 
 import {NetConfig} from '../neuralnet/net';
 import { MSE, ErrorFunction } from '../neuralnet/error';
@@ -457,15 +456,27 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                 {alert}
                 {alertInstability}
                 {diagram}
+                <div className="row">
+                    <div className="col-12">
+                        <ul className="nav nav-tabs">
+                            <li className="nav-item">
+                                <a className="nav-link active" data-toggle="tab" href="#lessons">Lessons</a>
+                            </li>
+                            <li className="nav-item">
+                                <a className="nav-link" data-toggle="tab" href="#network">Network Architecture</a>
+                            </li>
+                        </ul>
 
-                <Tabs id={"3"} defaultActiveKey={1} animation={false}>
-                    <Tab eventKey={1} title={"Lessons"}>
-                        <LessonsComponent disabled={this.state.train} onSelectRow={this.setCurrentLesson.bind(this)} activeLessonIndex={this.state.currentLessonIndex} object={this.props.object} lessons={this.state.lessons} onChange={this.updateLessons.bind(this)}/>
-                    </Tab>
-                    <Tab eventKey={2} title={"Network Architecture"}>
-                        <NetworkCreator disabled={this.state.train} showOptimizer={false} showInfo={false} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
-                    </Tab>
-                </Tabs>
+                        <div className="tab-content">
+                            <div className="tab-pane container active" id="lessons">
+                                <LessonsComponent disabled={this.state.train} onSelectRow={this.setCurrentLesson.bind(this)} activeLessonIndex={this.state.currentLessonIndex} object={this.props.object} lessons={this.state.lessons} onChange={this.updateLessons.bind(this)}/>
+                            </div>
+                            <div className="tab-pane container" id="network">
+                                <NetworkCreator disabled={this.state.train} showOptimizer={false} showInfo={false} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
+                            </div>
+                        </div> 
+                    </div>
+                </div>
             </div>
     }
 
