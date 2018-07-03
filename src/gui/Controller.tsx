@@ -420,11 +420,11 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         if (this.state.train || this.state.isTrainedNetwork) {
             let lesson = this.state.lessons[this.state.currentLessonIndex];
             diagram = <div className="row">
-            <div className="col-sm-12">
-            Training lesson {lesson.no} for {lesson.samples} samples. {this.state.maxStepErrors} occurred in the last 100 training samples.
-            {this.getErrorDiagram()}
-            </div>
-        </div>;
+                <div className="col-sm-12">
+                Training lesson {lesson.no} for {lesson.samples} samples. {this.state.maxStepErrors} occurred in the last 100 training samples.
+                {this.getErrorDiagram()}
+                </div>
+            </div>;
         }
 
         let lessonOptions = [];
