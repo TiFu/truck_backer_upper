@@ -451,7 +451,7 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
             index = <div className="col-sm-12">
                     <div className="row pb">
                         <div className="col-sm-4">
-                            <label htmlFor="a" className="pl pr">Add after: </label>
+                            <label htmlFor="a" className="pl pr">Add after (-1 to add as first lesson): </label>
                         </div>
                         <div className="col-sm-8"> 
                             <input defaultValue={this.props.lesson.no.toString()} id="no" type="text" onBlur={this.handleLessonNoChanged.bind(this)} className="form-control"/>
