@@ -134,11 +134,8 @@ export class Truck implements HasState, Limitable, HasLength {
 
     public setTruckPosition(tep: Point, trailerAngle: Angle, cabinAngle: Angle) {
         this.tep = tep;
-     //   console.log("Tep: ", tep.x, "|", tep.y);
         this.trailerAngle = this.fixAngle(trailerAngle)
-     //   console.log("Trailer: ", this.trailerAngle);
         this.cabinAngle = this.fixAngle(cabinAngle)
-      //  console.log("Cabin: ", this.cabinAngle);
     }
     
     public getTrailerLength(): number {
@@ -275,10 +272,6 @@ export class Truck implements HasState, Limitable, HasLength {
             let tep2 = new Point(bounds[2], bounds[3]);
             let maxAngleTrailer = [bounds[4], bounds[5]];
             let maxAngleCabin = [bounds[6], bounds[7]];
-        /*    console.log("tep1 ", tep1);
-            console.log("tep2", tep2);
-            console.log("trailer ", maxAngleTrailer);
-            console.log("cabin", maxAngleCabin)*/
             this.randomizeTruckPosition(tep1, tep2, maxAngleTrailer, maxAngleCabin);
         } else {
             this.randomizeNoLimits();
@@ -381,13 +374,12 @@ export class TruckEmulator implements Emulator {
     public backward(gradient: nnMath.Vector): nnMath.Vector {
         let lastInput = this.input.pop();
 
-        // NOTE: the derivative wrt to the input signal does NOT need to be scaled!
         let unscaleMatrix = new nnMath.Matrix([
             [50, 0, 0, 0 , 0],
             [0, 50, 0, 0, 0],
             [0, 0, Math.PI, 0, 0],
             [0, 0, 0, Math.PI, 0],
-            [0, 0, 0, 0, 70/180 * Math.PI],  // TOOD: this is incorrect => outupt is -1, 1, usage is angle
+            [0, 0, 0, 0, 70/180 * Math.PI],
         ]);
 
         let scaleMatrix = new nnMath.Matrix([
@@ -407,8 +399,7 @@ export class TruckEmulator implements Emulator {
         let r = this.truck.velocity;
         let lt = this.truck.trailerLength;
         let lc = this.truck.cabinLength;
-        // TODO: fix
-        // x, y, cabin, trailer, steering
+
         let dxdu = r * Math.sin(u) * Math.cos(c - t) * Math.cos(t);
         let dxdc = r * Math.cos(u) * Math.sin(c - t) * Math.cos(t);
         let dxdt = - r * Math.cos(u) * Math.sin(c - t) * Math.cos(t) 
@@ -436,13 +427,9 @@ export class TruckEmulator implements Emulator {
             [0, 0, dtdc, dtdt, dtdu]//trailer
         ])
 
-   //     console.log("[Gradient] ", gradient);
         let scaleError = gradient.multiplyMatrixFromLeft(scaleMatrix);
-  //      console.log("[Scale Error] ", scaleError)
         let modelError = scaleError.multiplyMatrixFromLeft(modelMatrix);
-   //     console.log("[Model Error] ", modelError);
         let inputError = modelError.multiplyMatrixFromLeft(unscaleMatrix);
-   //     console.log("[InputError] ", inputError);
         return inputError;
     }
 

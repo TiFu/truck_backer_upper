@@ -82,7 +82,6 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
             this.errorSum += error[1];
 
             if (this.errorCount > 0 && this.errorCount % this.STEPS_PER_ERROR === 0) {
-                console.log("Error: ", this.errorSum/this.STEPS_PER_ERROR, "Count: ", this.errorCache.length * 100);
                 this.errorCache.push(this.errorSum / this.STEPS_PER_ERROR);
                 (this.refs.chart as any).getChart().series[0].addPoint(this.errorSum / this.STEPS_PER_ERROR, true);
 
@@ -119,7 +118,6 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
 
                 try {
                     neuralNet.loadWeights(JSON.parse(data));
-                    console.log("Loaded nn weights");
                     this.setState({
                         loadingWeights: false, 
                         network: network,
@@ -273,9 +271,6 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
     }
 
     private handleStopTrain() {
-        console.log("pushing error cache");
-        // Temporary HACK: do not duplicate error entries
-     //   this.state.errors.push(...this.errorCache);
         this.errorCache = [];
         this.setState({train: false, isTrainedNetwork: true, nn: this.state.nn, errors: this.state.errors});
         this.props.onNetworkChange(this.state.nn);

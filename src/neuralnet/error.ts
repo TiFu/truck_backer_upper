@@ -23,7 +23,7 @@ export class MSE extends ErrorFunction {
     }
 
     public getErrorDerivative(is: Vector, should: Vector): Vector {
-        // 2 * (is - should) bzw -2 * (should - is)
+        // 2 * (is - should) or -2 * (should - is)
         return plus(is, should.getScaled(-1)).scale(2 / is.length);
     }
 }
@@ -96,14 +96,6 @@ export class TruckControllerError extends ControllerError {
         let yDiff = yTrailer - this.dock.y;
         let thetaDiff = thetaTrailer - 0;
 
-        if (thetaDiff > 2 * Math.PI) {
-            console.log("[Error] Theta Diff greater than 2 pi!");
-            process.exit();
-        }
-        // first 3 do not matter for the error
-/*        if (xDiff > 0) {
-            console.log(2 * xDiff);
-        }*/
         return new Vector([0, 10 * 2 * yDiff, 0, 2 * thetaDiff]);
     }
 

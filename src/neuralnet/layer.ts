@@ -59,13 +59,12 @@ export class Layer {
         if (input.length != this.inputDim) {
             throw new Error("Invalid Input Dimension! Expected " + this.inputDim + ", but got " + input.length);
         }
-//        console.log("-")
-//        console.log("Layer Input: ", input.entries)
+
         let outputs = new Array(this.outputDim);
         for (let i = 0; i < this.outputDim; i++) {
             outputs[i] = this.units[i].forward(input);
         }
-//        console.log("Layer output: ", outputs)
+
         return new Vector(outputs);
     }
 

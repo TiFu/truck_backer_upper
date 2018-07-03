@@ -129,9 +129,5 @@ export function createTruckControllerLessons(truck: HasLength) {
         lessons.push(new TruckLesson(truck, i, samples,  optimizers[i], xR, yR, trailerR, cabR, 1000));
     }
 
-    for (let lesson of lessons) {
-        console.log(lesson.x.getScaled(1 / truck.getLength()), lesson.y.getScaled(1 / truck.getLength()), lesson.trailerAngle.getScaled(180 / Math.PI), lesson.cabAngle.getScaled(180 / Math.PI))
-    }
-    //    console.log("Created lessons: ", lessons);
     return lessons;
 }

@@ -113,8 +113,6 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
         this.drive(steeringSignal, (cont: boolean) => {
             if (cont) {
                 this.handleDriveController();
-            } else {
-                console.log(this.props.object.getStateVector());
             }
         })
     }
@@ -181,7 +179,6 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
         tep.x += translation.x;
         tep.y += translation.y;
         this.props.object.setTruckPosition(tep, truck.getTrailerAngle(), truck.getTruckAngle());
-        console.log("Updated truck position! to " + tep + " from " + oldTep);
         this.forceUpdate();
     }
 

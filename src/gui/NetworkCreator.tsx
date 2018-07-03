@@ -65,8 +65,6 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
             unitConstructor:(weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
             activation: new Tanh()
         }
-        console.log("added layer!");
-        console.log(network.layerConfigs);
         this.props.onChange(network, false);
     }
 
@@ -189,7 +187,6 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
         </div>;
 
         let layers = this.props.network.layerConfigs.map((l: LayerConfig, index: number) => {
-            console.log("Rendering layer with ", l.neuronCount, "neurons!")
             return <LayerCreator id={index} key={Math.random() * 100} layer={l} 
                                 weightInitializers={this.props.weightInitializers} 
                                 activations={this.props.activations}

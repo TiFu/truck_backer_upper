@@ -77,14 +77,10 @@ export class Controller extends React.Component<ControllerProps, ControllerState
     }
 
     private handleResetLessons() {
-        this.setState({ currentLessonIndex: 0, lessons: createTruckControllerLessons(this.props.object)}, () => {
-            console.log("[state] reset lessons");
-        })        
+        this.setState({ currentLessonIndex: 0, lessons: createTruckControllerLessons(this.props.object)})        
     }
 
     private handleStopTrain(errorMsg: string = undefined) {
-        // Temporary HACK: do not duplicate error entries
-     //   this.state.errors.push(...this.errorCache);
         this.errorCache = [];
         let success = errorMsg === undefined;
         this.setState({train: false, isTrainedNetwork: success, nn: this.state.nn, errors: this.state.errors}, () => {
@@ -98,7 +94,6 @@ export class Controller extends React.Component<ControllerProps, ControllerState
 
     public handleMaxStepErrors(){ 
         this.setState({maxStepErrors: this.state.maxStepErrors + 1}, () => {
-            console.log("Max Step Errors: " + this.state.maxStepErrors);
             if (this.state.maxStepErrors >= 90) {
                 this.handleStopTrain("The truck diverged and did not find the dock!");
             }    
@@ -119,14 +114,12 @@ export class Controller extends React.Component<ControllerProps, ControllerState
 
         let nn = this.state.nn;
         if (!this.state.nn) {
-            console.log("creating nn")
             nn = new NeuralNet(this.state.network);
         }
 
         this.setState({nn: nn, train: true, maxStepErrors: 0},() => {
             // we updated the gui
             // start animation
-            console.log("[state] handle train");
             let ctrl = this.makeTrainController();
             this.emulatorController = ctrl;
             this.emulatorController.setLesson(this.state.lessons[this.state.currentLessonIndex]);
@@ -140,12 +133,9 @@ export class Controller extends React.Component<ControllerProps, ControllerState
 
     private makeTrainController(): TrainController {
         let normalizedObject = new NormalizedTruck(this.props.object);
-        console.log("Object: ", normalizedObject);
         let dock = normalizedObject.getNormalizedDock(this.props.world.dock);
-        console.log("dock", dock);
         let error = new TruckControllerError(dock)
         error.setSaveErrors(false);
-        console.log("error", error);
 
         let ctrl = new TrainController(this.props.world, normalizedObject, this.state.nn, new NeuralNetEmulator(this.props.emulatorNet), error);   
         ctrl.addMaxStepListener(this.handleMaxStepErrors.bind(this));
@@ -164,7 +154,6 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             }
 
             if (this.errorCount > 0 && this.errorCount % this.STEPS_PER_ERROR === 0) {
-                console.log("Error: ", this.errorSum/this.errorCount, "Count: ", this.currentLessonSteps);
                 this.errorCache.push(this.errorSum / this.errorCount);
                 (this.refs.chart as any).getChart().series[0].addPoint(this.errorSum / this.errorCount, true);
 
@@ -174,7 +163,6 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         }
         // TODO: chart disable decimals
         if (this.currentLessonSteps + this.STEPS_PER_FRAME >= this.state.lessons[this.state.currentLessonIndex].samples) {
-            console.error("Setting lesson to " + (this.state.currentLessonIndex + 1))
             // end training
             if (this.state.lessons.length >= this.state.currentLessonIndex + 1) {
                 this.handleStopTrain();
@@ -183,7 +171,6 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                 this.emulatorController.setLesson(this.state.lessons[this.state.currentLessonIndex + 1]);
                 this.currentLessonSteps = 0;
                 this.setState({currentLessonIndex: this.state.currentLessonIndex + 1, maxStepErrors: 0}, () => {
-                    console.log("[state] next lesson");
                     this.trainNextStep();
                 });
             }
@@ -228,7 +215,6 @@ export class Controller extends React.Component<ControllerProps, ControllerState
 
                 try {
                     neuralNet.loadWeights(JSON.parse(data));
-                    console.log("Loaded nn weights");
                     this.setState({
                         loadingWeights: false, 
                         nn: neuralNet, 
@@ -236,7 +222,6 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                         loadWeightsSuccessful: true,
                         loadedLessonWeights: lessonIndex }, () => {
                             this.props.onControllerTrained(this.makeTrainController());
-                            console.log("[state] loaded weights");
                         });
                 } catch (e) {
                     this.setState({
@@ -245,8 +230,6 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                         nn: null,
                         loadWeightsSuccessful: false,
                         loadWeightsFailureMsg: "" + e
-                    }, () => {
-                        console.log("[state] failed to load weights");
                     })
                 }
             }
@@ -292,7 +275,6 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             loadWeightsSuccessful: null,
             errors: []
         }, () => {
-            console.log("[state] reset network");
             this.props.onControllerTrained(null);
         })
     }
@@ -312,31 +294,22 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             isTrained = false;
             currentLesson = 0;
         }
-        this.setState({ currentLessonIndex: currentLesson, network: net, nn: nn, errors: errors, isTrainedNetwork: isTrained},
-        () => {
-            console.log("[state] network changed")
-        });
+        this.setState({ currentLessonIndex: currentLesson, network: net, nn: nn, errors: errors, isTrainedNetwork: isTrained});
     }
 
     private updateLessons(lessons: TruckLesson[]) {
-        console.log("Updated lessons: ", lessons);
         let newIndex = this.state.currentLessonIndex < lessons.length ? this.state.currentLessonIndex : lessons.length - 1;
         newIndex = newIndex < 0 ? 0 : newIndex;
         if (this.emulatorController)
             this.emulatorController.setLesson(lessons[newIndex]);
         
-        console.log("New Index: ", newIndex);
-        this.setState({lessons: lessons, currentLessonIndex: newIndex}, () => {
-            console.log("[state] Updated state", this.state.currentLessonIndex, newIndex);
-        });
+        this.setState({lessons: lessons, currentLessonIndex: newIndex});
     }
 
     private setCurrentLesson(index: number) {
         if (this.emulatorController)
             this.emulatorController.setLesson(this.state.lessons[index]);
-        this.setState({currentLessonIndex: index}, () => {
-            console.log("[state] updated current lesson", index);
-        })
+        this.setState({currentLessonIndex: index})
     }
     private getErrorDiagram() {
         let config = {
@@ -379,6 +352,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             weightLessonIndex: Number.parseInt(e.currentTarget.value)
         })
     }
+    
     private renderController() {
         let normalizedDockPosition = new Point((this.props.world.dock.position.x - 50)/ 50, this.props.world.dock.position.y / 50);
         let mse = new TruckControllerError(normalizedDockPosition);
@@ -445,8 +419,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             </div>
         </div>;
         }
-        console.log("Current Lesson Index: ", this.state.currentLessonIndex);
-        // TODO: add accordion
+
         let lessonOptions = [];
         for (let i = 0; i <= Controller.MAX_LESSON; i++){ 
             lessonOptions.push(
@@ -485,7 +458,6 @@ export class Controller extends React.Component<ControllerProps, ControllerState
     }
 
     public render() {
-        console.log("Lesson Count: " + this.state.lessons.length);
         return this.renderController();
     }
 }

@@ -42,7 +42,7 @@ export class TruckTrailerVisualization extends React.Component<TruckTrailerVisua
         let absPos = e.target.children[1].getAbsolutePosition();
         let endX = absPos["x"];
         let endY = absPos["y"];
-        console.log("End ", endX, endY)
+
         let startPoint = new Point(this.state.startX, this.state.startY);
         let endPoint = new Point(endX, endY);
         let groupTranslation = minus(endPoint, startPoint);
@@ -60,7 +60,6 @@ export class TruckTrailerVisualization extends React.Component<TruckTrailerVisua
 
     private handleDragStart(e: any) {
         let absPos = e.target.children[1].getAbsolutePosition();
-        console.log("Begin: ", e.target.x(), e.target.y())
         this.setState({
             startX: absPos["x"],
             startY: absPos["y"],

@@ -30,9 +30,8 @@ export class AdalineUnit implements Unit {
     constructor(private inputDim: number, private activation: ActivationFunction, weightInitializer: WeightInitializer, private optimizer: Optimizer) {
         this.fixedWeights = false;
         this.lastInput = []
-        this.weights = weightInitializer.initialize(inputDim); // this.getRandomWeights(inputDim + 1, initialWeightRange); // bias
+        this.weights = weightInitializer.initialize(inputDim);
         this.resetAccumulatedWeights();
-        //console.log("inputDim: ", inputDim, "weights:", this.weights.length);
     }
 
     public changeOptimizer(optimizer: Optimizer) {
@@ -48,15 +47,6 @@ export class AdalineUnit implements Unit {
     public getLastUpdate(): Vector {
         return this.lastUpdate;
     }
-
-  /*  private getRandomWeights(inputDim: number, initialWeightRange: number): Vector {
-        let random = [];
-        for (let i = 0; i < inputDim; i++) {
-            random.push(Math.random() * initialWeightRange - 0.5 * initialWeightRange); // [-0.3, 0.3]
-        }
-//        console.log("Initial Weights: " + random);
-        return new Vector(random);
-    }*/
 
     public setWeights(weights: Vector) {
         if (weights.length != this.weights.length) {
@@ -89,17 +79,8 @@ export class AdalineUnit implements Unit {
 
         this.lastSum = this.weights.multiply(input); // last is bias
 
-        if (Number.isNaN(this.lastSum)) {
-            console.log("[Unit] Input: " + input);
-            console.log("[Unit] Last Sum: " + this.lastSum)
-            console.log("[Unit] Weights: ", this.weights.entries);
-            console.log("[Unit] Sum: ", this.lastSum);
-            console.log("Exiting...");
-            process.exit();
-        }
         let activated = this.activation.apply(this.lastSum);
-        if (Number.isNaN(activated))
-            console.log("[Unit] Activated: ", activated, "Last Sum: ", this.lastSum);
+
         return activated;
     }
 
@@ -114,10 +95,9 @@ export class AdalineUnit implements Unit {
         this.batchCounter = 0;
     }
     public updateWithAccumulatedWeights() {
-//       console.log("Accumulated Weights: " + this.accumulatedWeights);
         for (let i = 0; i < this.accumulatedWeights.length; i++) {
             if (isNaN(this.accumulatedWeights.entries[i])) {
-                console.log("Found NaN in a weight update");
+                throw new Error("Found NaN in weight update!")
             }
         }
         this.updateWeights(this.accumulatedWeights.scale(1 / this.batchCounter));
@@ -128,7 +108,7 @@ export class AdalineUnit implements Unit {
     public backward(errorDerivative: Scalar, accumulateWeigthUpdates: boolean): Vector {
         let activationDerivative = this.activation.applyDerivative(this.lastSum);
         let scalarFactor = errorDerivative * activationDerivative;
- //       console.log("[DerivativeScalarFactor]", scalarFactor)
+
         let inputDerivative: Vector = this.weights.getScaled(scalarFactor);
         if (inputDerivative.entries.reduce((prev, next) => prev || Number.isNaN(next), false)) {
             throw new Error("Found NaN in backward pass!");
@@ -150,17 +130,6 @@ export class AdalineUnit implements Unit {
         // calculate update for current batch
         update = this.optimizer.calculateUpdate(update);
         this.lastUpdate = update;
-/*        let show = false;
-        for (let i = 0; i < update.length; i++) {
-            if (update.entries[i] > 1) {
-                show = true;
-            }
-        }
-        if (show) {
-            console.log("Last Update: ", this.lastUpdate.entries);
-            process.exit()
-        }*/
-        //     console.log("[Update] " + this.lastUpdate.entries);
         this.weights.add(update);
     }
 }

@@ -45,7 +45,6 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
     }
 
     private handleAddLessonConfirm(lesson: TruckLesson) {
-        console.log("handling add lesson changed.");
         lesson.no += 1; // "add after" + 1 is index
         this.props.lessons.splice(lesson.no, 0, lesson);
         this.props.onChange(this.props.lessons);
