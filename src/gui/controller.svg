@@ -222,8 +222,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.7"
-     inkscape:cx="868.96123"
-     inkscape:cy="54.170792"
+     inkscape:cx="348.0005"
+     inkscape:cy="89.031696"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -254,7 +254,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -306,24 +306,13 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="82.111298"
-       y="-43.616604"
+       y="-36.737431"
        id="text4524-6-3"><tspan
          sodipodi:role="line"
          id="tspan4522-7-5"
          x="82.111298"
-         y="-43.616604"
+         y="-36.737431"
          style="stroke-width:0.26458332px">T</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="82.512192"
-       y="-24.695536"
-       id="text4524-6-0-9"><tspan
-         sodipodi:role="line"
-         id="tspan4522-7-9-4"
-         x="82.512192"
-         y="-24.695536"
-         style="stroke-width:0.26458332px">E</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker1471)"
        d="M 39.6875,-53.572926 H 79.375002"
@@ -372,24 +361,13 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="185.29883"
-       y="-43.616608"
+       y="-36.737434"
        id="text4524-6-3-4"><tspan
          sodipodi:role="line"
          id="tspan4522-7-5-7"
          x="185.29883"
-         y="-43.616608"
+         y="-36.737434"
          style="stroke-width:0.26458332px">T</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="185.69972"
-       y="-24.695536"
-       id="text4524-6-0-9-4"><tspan
-         sodipodi:role="line"
-         id="tspan4522-7-9-4-4"
-         x="185.69972"
-         y="-24.695536"
-         style="stroke-width:0.26458332px">E</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker1471-9)"
        d="m 142.87498,-53.572926 h 39.68751"
@@ -434,24 +412,13 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="280.5488"
-       y="-43.616608"
+       y="-36.737434"
        id="text4524-6-3-4-6"><tspan
          sodipodi:role="line"
          id="tspan4522-7-5-7-8"
          x="280.5488"
-         y="-43.616608"
+         y="-36.737434"
          style="stroke-width:0.26458332px">T</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="280.94968"
-       y="-24.695534"
-       id="text4524-6-0-9-4-8"><tspan
-         sodipodi:role="line"
-         id="tspan4522-7-9-4-4-4"
-         x="280.94968"
-         y="-24.695534"
-         style="stroke-width:0.26458332px">E</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker1673)"
        d="M 240.77084,-40.343759 H 277.8125"

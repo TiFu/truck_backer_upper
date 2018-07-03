@@ -15,7 +15,8 @@ export class HowItWorks extends React.Component<{}, {}> {
                     <h3>Step 1: Train Emulator</h3>
                     <p>
                     In the first step a neural net is used to learn an approximate
-                    model of the truck. 
+                    model of the truck. This network will be used to calculate an estimate
+                    of the derivatives wrt to the truck state in the backward pass of the second step.
                     </p>
                     
                     <b>Input</b>
@@ -46,7 +47,12 @@ export class HowItWorks extends React.Component<{}, {}> {
                     <br/>
                     <figure className="figure">
                         <img src="./controller.svg" className="col-12 figure-img " />
-                        <figcaption className="figure-caption"><big><b>Figure 1</b> Forward Pass</big></figcaption>
+                        <figcaption className="figure-caption"><big><b>Figure 1</b> Forward Pass using the Controller C and the truck model T</big></figcaption>
+                    </figure>
+                    <br /><br />
+                    <figure className="figure">
+                        <img src="./backpropagation.svg" className="col-12 figure-img " />
+                        <figcaption className="figure-caption"><big><b>Figure 2</b> Backpropagation through time using the Controller C and the Emulator E</big></figcaption>
                     </figure>
                     <br /><br />
 
