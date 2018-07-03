@@ -444,7 +444,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                 </div>
                 <div className="row mt mb">
                     <div className="form-inline">
-                        <b>Lesson:</b>
+                        <b>Original Lesson:</b>
                         <select className="ml mr select form-control" defaultValue={this.state.weightLessonIndex.toString()} onChange={this.handleLessonWeightIndexChanged.bind(this)}>
                             {lessonOptions}
                         </select>
