@@ -3,7 +3,6 @@ import { Point } from "../math";
 import { World } from "../model/world";
 import { Truck, NormalizedTruck} from '../model/truck';
 import { NetworkCreator } from './NetworkCreator';
-import {Tab, Tabs} from 'react-bootstrap';
 
 import {NetConfig} from '../neuralnet/net';
 import { MSE, ErrorFunction } from '../neuralnet/error';
@@ -11,7 +10,6 @@ import { SGD, Optimizer, SGDNesterovMomentum } from '../neuralnet/optimizers';
 import {RandomWeightInitializer, TwoLayerInitializer, WeightInitializer} from '../neuralnet/weightinitializer';
 import {Tanh, Sigmoid, ActivationFunction, ReLu, Linear} from '../neuralnet/activation';
 import {AdalineUnit} from '../neuralnet/unit';
-import { LoadingModal } from './LoadingModal';
 import {NeuralNet} from '../neuralnet/net';
 import {TrainController} from '../neuralnet/train';
 import {TruckControllerError} from '../neuralnet/error';
@@ -396,10 +394,6 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         activations[new ReLu(0.01).getName()] = new ReLu(0.01);
         activations[new Linear().getName()] = new Linear();
 
-        let loadingModal = undefined;
-        if (this.state.loadingWeights) {
-            loadingModal = <LoadingModal headerText={"Loading weights..."} />
-        }   
         let alert = undefined;
 
         if (this.state.loadWeightsSuccessful !== null) {
@@ -443,7 +437,6 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         }
 
         return <div className="container">
-                {loadingModal}
                 <div className="row mt-large">
                     <div className="btn-toolbar form-inline">
                         {trainButton}
@@ -463,15 +456,27 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                 {alert}
                 {alertInstability}
                 {diagram}
+                <div className="row">
+                    <div className="col-12">
+                        <ul className="nav nav-tabs">
+                            <li className="nav-item">
+                                <a className="nav-link active" data-toggle="tab" href="#lessons">Lessons</a>
+                            </li>
+                            <li className="nav-item">
+                                <a className="nav-link" data-toggle="tab" href="#network">Network Architecture</a>
+                            </li>
+                        </ul>
 
-                <Tabs id={"3"} defaultActiveKey={1} animation={false}>
-                    <Tab eventKey={1} title={"Lessons"}>
-                        <LessonsComponent disabled={this.state.train} onSelectRow={this.setCurrentLesson.bind(this)} activeLessonIndex={this.state.currentLessonIndex} object={this.props.object} lessons={this.state.lessons} onChange={this.updateLessons.bind(this)}/>
-                    </Tab>
-                    <Tab eventKey={2} title={"Network Architecture"}>
-                        <NetworkCreator disabled={this.state.train} showOptimizer={false} showInfo={false} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
-                    </Tab>
-                </Tabs>
+                        <div className="tab-content">
+                            <div className="tab-pane container active" id="lessons">
+                                <LessonsComponent disabled={this.state.train} onSelectRow={this.setCurrentLesson.bind(this)} activeLessonIndex={this.state.currentLessonIndex} object={this.props.object} lessons={this.state.lessons} onChange={this.updateLessons.bind(this)}/>
+                            </div>
+                            <div className="tab-pane container" id="network">
+                                <NetworkCreator disabled={this.state.train} showOptimizer={false} showInfo={false} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
+                            </div>
+                        </div> 
+                    </div>
+                </div>
             </div>
     }
 

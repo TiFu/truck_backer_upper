@@ -3,7 +3,6 @@ import {Simulation} from './Simulation'
 import { Point } from "../math";
 import { Dock, World } from "../model/world";
 import {Emulator} from './Emulator';
-import {Tab, Tabs} from 'react-bootstrap';
 import {Controller} from './Controller';
 import {NeuralNet} from '../neuralnet/net';
 import { TrainController } from '../neuralnet/train';
@@ -56,17 +55,29 @@ export class MainComponent extends React.Component<{}, MainComponentState> {
                     </div>
                 </div>
                 <div className="row">
-                    <Tabs id={"2"} defaultActiveKey={1} animation={false}>
-                        <Tab eventKey={1} title={"How it works"}>
-                            <HowItWorks />
-                        </Tab>
-                        <Tab eventKey={2} title={"Step 1: Emulator"}>
-                            <Emulator object={this.getObject()} onNetworkChange={this.onEmulatorNetworkChanged.bind(this)} />                            
-                        </Tab>
-                        <Tab eventKey={3} title={"Step 2: Controller"}>
-                            <Controller onControllerTrained={this.onControllerNetChanged.bind(this)} emulatorNet={this.state.emulatorNet} world={controllerWorld} object={controllerTruck} />
-                        </Tab>
-                    </Tabs>
+                    <div className="col-12">
+                        <ul className="nav nav-tabs">
+                            <li className="nav-item">
+                                <a className="nav-link active" data-toggle="tab" href="#how_it_works">How it works</a>
+                            </li>
+                            <li className="nav-item">
+                                <a className="nav-link" data-toggle="tab" href="#emulator">Step 1: Emulator</a>
+                            </li>
+                            <li className="nav-item">
+                                <a className="nav-link" data-toggle="tab" href="#controller">Step 2: Controller</a>
+                            </li>
+                        </ul>
+
+                        <div className="tab-content">
+                            <div className="tab-pane active container" id="how_it_works"><HowItWorks /></div>
+                            <div className="tab-pane container" id="emulator">
+                                <Emulator object={this.getObject()} onNetworkChange={this.onEmulatorNetworkChanged.bind(this)} />
+                            </div>
+                            <div className="tab-pane container" id="controller">
+                                <Controller onControllerTrained={this.onControllerNetChanged.bind(this)} emulatorNet={this.state.emulatorNet} world={controllerWorld} object={controllerTruck} />
+                            </div>
+                        </div> 
+                    </div>
                 </div>
                 <a href="https://github.com/TiFu/truck_backer_upper">Source on Github</a>
             </div>

@@ -8,7 +8,6 @@ import { SGD, Optimizer, SGDNesterovMomentum } from '../neuralnet/optimizers';
 import {RandomWeightInitializer, TwoLayerInitializer, WeightInitializer} from '../neuralnet/weightinitializer';
 import {Tanh, Sigmoid, ActivationFunction, ReLu, Linear} from '../neuralnet/activation';
 import {AdalineUnit} from '../neuralnet/unit';
-import { LoadingModal } from './LoadingModal';
 import {NeuralNet} from '../neuralnet/net';
 import {TrainTruckEmulator} from '../neuralnet/train';
 const ReactHighcharts = require('react-highcharts');
@@ -223,10 +222,6 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
         activations[new ReLu(0.01).getName()] = new ReLu(0.01);
         activations[new Linear().getName()] = new Linear();
 
-        let loadingModal = undefined;
-        if (this.state.loadingWeights) {
-            loadingModal = <LoadingModal headerText={"Loading weights..."} />
-        }   
         let alert = undefined;
 
         if (this.state.loadWeightsSuccessful !== null) {
@@ -251,7 +246,6 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
             diagram = this.getErrorDiagram()
         }
         return <div className="container">
-                {loadingModal}
                 <div className="row">
                     <div className="h3 btn-toolbar">
                         {trainButton}
