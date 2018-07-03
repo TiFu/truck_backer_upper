@@ -3,6 +3,7 @@ import { Point } from "../math";
 import { World } from "../model/world";
 import { Truck, NormalizedTruck} from '../model/truck';
 import { NetworkCreator } from './NetworkCreator';
+import {Tab, Tabs} from 'react-bootstrap';
 
 import {NetConfig} from '../neuralnet/net';
 import { MSE, ErrorFunction } from '../neuralnet/error';
@@ -454,12 +455,15 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                 {alert}
                 {alertInstability}
                 {diagram}
-                <div className="row">
-                    <LessonsComponent onSelectRow={this.setCurrentLesson.bind(this)} activeLessonIndex={this.state.currentLessonIndex} object={this.props.object} lessons={this.state.lessons} onChange={this.updateLessons.bind(this)}/>
-                </div>
-                <div className="row">
-                    <NetworkCreator showOptimizer={false} showInfo={false} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
-                </div>
+
+                <Tabs id={"3"} defaultActiveKey={1} animation={false}>
+                    <Tab eventKey={1} title={"Lessons"}>
+                        <LessonsComponent onSelectRow={this.setCurrentLesson.bind(this)} activeLessonIndex={this.state.currentLessonIndex} object={this.props.object} lessons={this.state.lessons} onChange={this.updateLessons.bind(this)}/>
+                    </Tab>
+                    <Tab eventKey={2} title={"Network Architecture"}>
+                        <NetworkCreator showOptimizer={false} showInfo={false} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
+                    </Tab>
+                </Tabs>
             </div>
     }
 
