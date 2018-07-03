@@ -15,6 +15,7 @@ export interface NetworkCreatorProps {
     showInfo: boolean;
     onChange: (config: NetConfig, keepWeights: boolean) => void;
     showOptimizer: boolean;
+    disabled: boolean;
 }
 
 export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
@@ -191,7 +192,8 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
                                 weightInitializers={this.props.weightInitializers} 
                                 activations={this.props.activations}
                                 onChange={(layer) => this.onLayerChange(index, layer)}
-                                disableNeuronEdit={index+1 === this.props.network.layerConfigs.length} />
+                                disableNeuronEdit={index+1 === this.props.network.layerConfigs.length}
+                                disabled={this.props.disabled} />
         });
 
         let info = undefined;
@@ -205,7 +207,7 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
                 {info}
                 {netComponent}
                 <h3>Layers</h3>
-                <button type="button"  onClick={this.handleAddLayer.bind(this)} className="mb btn btn-success">Add layer</button>
+                <button type="button" disabled={this.props.disabled} onClick={this.handleAddLayer.bind(this)} className="mb btn btn-success">Add layer</button>
                 <table className="table table-hover">
                         <thead>
                             <tr>
@@ -232,6 +234,7 @@ interface LayerCreatorProps {
     activations: { [key: string]: ActivationFunction}
     onChange: (layer: LayerConfig) => void;
     disableNeuronEdit: boolean;
+    disabled: boolean;
 }
 
 class LayerCreator extends React.Component<LayerCreatorProps, {}> {
@@ -322,7 +325,7 @@ class LayerCreator extends React.Component<LayerCreatorProps, {}> {
         }
         let button = undefined;
         if (!this.props.disableNeuronEdit) {
-            button = <button type="button"  onClick={this.handleRemoveLayer.bind(this)} className="btn btn-danger"><span className="fas fa-trash-alt"></span></button>;
+            button = <button type="button" disabled={this.props.disabled}  onClick={this.handleRemoveLayer.bind(this)} className="btn btn-danger"><span className="fas fa-trash-alt"></span></button>;
         }
         return <tr>
                 <td>{this.props.id}</td>

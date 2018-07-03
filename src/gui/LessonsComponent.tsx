@@ -12,6 +12,7 @@ export interface LessonsProps {
     activeLessonIndex: number;
     onChange: (lessons: TruckLesson[]) => void;
     onSelectRow: (lessonIndex: number) => void;
+    disabled: boolean;
 }
 
 export interface LessonsState {
@@ -135,8 +136,8 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
             );
     
             additionalProperties.push(<td key={"buttons_" + Math.random()} className="align-right">
-                    <button type="button" onClick={(e) => this.editLesson(e, i, l)} disabled={this.state.editLesson || this.state.addLesson} className="btn btn-warning mr"><span className="fas fa-edit"></span></button>
-                    <button type="button"  onClick={(e) => this.onChange(e, i, null)} disabled={this.state.editLesson || this.state.addLesson} className="btn btn-danger"><span className="fas fa-trash-alt"></span></button>
+                    <button type="button" onClick={(e) => this.editLesson(e, i, l)} disabled={this.state.editLesson || this.state.addLesson || this.props.disabled} className="btn btn-warning mr"><span className="fas fa-edit"></span></button>
+                    <button type="button"  onClick={(e) => this.onChange(e, i, null)} disabled={this.state.editLesson || this.state.addLesson || this.props.disabled} className="btn btn-danger"><span className="fas fa-trash-alt"></span></button>
                 </td>);
             
             let active = this.props.activeLessonIndex == i ? "table-primary" : "";
@@ -156,7 +157,7 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
                 Click on a row to select a lesson and use it for training. The training
                 algorithm will automatically switch to the next lesson after <i>samples</i> steps.
             </div>
-            <button disabled={this.state.addLesson || this.state.editLesson} type="button"  onClick={this.handleAddLesson.bind(this)} className="btn btn-primary mb">Add Lesson</button>
+            <button disabled={this.state.addLesson || this.state.editLesson || this.props.disabled} type="button"  onClick={this.handleAddLesson.bind(this)} className="btn btn-primary mb">Add Lesson</button>
             <table className="table table-hover">
                 <thead>
                 <tr>

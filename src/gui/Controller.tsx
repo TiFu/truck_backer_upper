@@ -439,8 +439,8 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                 <div className="row mt-large">
                     <div className="btn-toolbar form-inline">
                         {trainButton}
-                        <button type="button"  onClick={this.handleResetNetwork.bind(this)} className="btn btn-danger">Reset Network</button>
-                        <button type="button"  onClick={this.handleResetLessons.bind(this)} className="btn btn-danger mr">Reset Lessons</button>
+                        <button type="button"  onClick={this.handleResetNetwork.bind(this)} disabled={this.state.train} className="btn btn-danger">Reset Network</button>
+                        <button type="button"  onClick={this.handleResetLessons.bind(this)} disabled={this.state.train} className="btn btn-danger mr">Reset Lessons</button>
                     </div>
                 </div>
                 <div className="row mt mb">
@@ -449,7 +449,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                         <select className="ml mr select form-control" defaultValue={this.state.weightLessonIndex.toString()} onChange={this.handleLessonWeightIndexChanged.bind(this)}>
                             {lessonOptions}
                         </select>
-                        <button type="button"  onClick={this.handleLoadPretrainedWeights.bind(this)} className="btn btn-warning">Load pretrained network</button>
+                        <button type="button"  onClick={this.handleLoadPretrainedWeights.bind(this)} disabled={this.state.train} className="btn btn-warning">Load pretrained network</button>
                     </div>
                 </div>
                 {alert}
@@ -458,10 +458,10 @@ export class Controller extends React.Component<ControllerProps, ControllerState
 
                 <Tabs id={"3"} defaultActiveKey={1} animation={false}>
                     <Tab eventKey={1} title={"Lessons"}>
-                        <LessonsComponent onSelectRow={this.setCurrentLesson.bind(this)} activeLessonIndex={this.state.currentLessonIndex} object={this.props.object} lessons={this.state.lessons} onChange={this.updateLessons.bind(this)}/>
+                        <LessonsComponent disabled={this.state.train} onSelectRow={this.setCurrentLesson.bind(this)} activeLessonIndex={this.state.currentLessonIndex} object={this.props.object} lessons={this.state.lessons} onChange={this.updateLessons.bind(this)}/>
                     </Tab>
                     <Tab eventKey={2} title={"Network Architecture"}>
-                        <NetworkCreator showOptimizer={false} showInfo={false} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
+                        <NetworkCreator disabled={this.state.train} showOptimizer={false} showInfo={false} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
                     </Tab>
                 </Tabs>
             </div>

@@ -247,8 +247,8 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
                 <div className="row">
                     <div className="h3 btn-toolbar">
                         {trainButton}
-                        <button type="button"  onClick={this.handleLoadPretrainedWeights.bind(this)} className="btn btn-warning">Load pretrained Network</button>
-                        <button type="button"  onClick={this.handleResetNetwork.bind(this)} className="btn btn-danger">Reset Network</button>
+                        <button type="button"  onClick={this.handleLoadPretrainedWeights.bind(this)} disabled={this.state.train} className="btn btn-warning">Load pretrained Network</button>
+                        <button type="button"  onClick={this.handleResetNetwork.bind(this)} disabled={this.state.train} className="btn btn-danger">Reset Network</button>
                     </div>
                 </div>
                 {alert}
@@ -258,7 +258,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
                     </div>
                 </div>
                 <div className="row">
-                    <NetworkCreator showOptimizer={true} showInfo={true} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
+                    <NetworkCreator disabled={this.state.train} showOptimizer={true} showInfo={true} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
                 </div>
             </div>
     }
