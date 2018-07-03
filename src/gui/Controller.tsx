@@ -87,7 +87,8 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             if (success) {
                 this.props.onControllerTrained(this.makeTrainController());
             } else {
-                alert("Error: " + errorMsg);
+                console.log(errorMsg);
+                alert("Error: " + errorMsg.toString());
             }
         });
     }
@@ -412,7 +413,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         </div>
         let trainButton = <button type="button"  onClick={this.handleTrain.bind(this)} className="btn btn-primary">Train</button>;
         if (this.state.train) {
-            trainButton = <button type="button"  disabled={!this.state.train} onClick={this.handleStopTrain.bind(this)} className="btn btn-danger">Stop</button>;
+            trainButton = <button type="button"  disabled={!this.state.train} onClick={() => this.handleStopTrain()} className="btn btn-danger">Stop</button>;
         }
         let diagram = undefined;
         if (this.state.train || this.state.isTrainedNetwork) {
