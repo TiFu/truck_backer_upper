@@ -428,7 +428,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         let lessonOptions = [];
         for (let i = 0; i <= Controller.MAX_LESSON; i++){ 
             lessonOptions.push(
-                <option value={i}>{i}</option>
+                <option key={i} value={i}>{i}</option>
             )
         }
 
