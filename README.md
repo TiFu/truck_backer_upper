@@ -1,6 +1,6 @@
 # Truck Backer Upper
 
-This repository contains the neural network and perceptron demonstration program for the lecture “Neural Networks” at the [Interactive Systems Lab (ISL)](http://isl.anthropomatik.kit.edu/english/) at the [Karlsruhe Institute of Technology](https://kit.edu).
+This repository contains the [Truck Backer Upper demonstration project](http://www-isl.stanford.edu/~widrow/papers/j1990neuralnetworks.pdf) for the lecture “Neural Networks” at the [Interactive Systems Lab (ISL)](http://isl.anthropomatik.kit.edu/english/) at the [Karlsruhe Institute of Technology](https://kit.edu).
 
 This demo runs completely client-side in the browser. The `index.html` file in the `gh-pages` branch can be opened on a local webserver (`python3 -m http.server`). [A hosted version is available here](https://tifu.github.io/truck_backer_upper/).
 
@@ -23,7 +23,7 @@ git worktree add bin gh-pages
 npm install
 ```
 
-Then build via ```npm run build``` or ```npm run prod-build```
+Then build via ```npm run build``` or ```npm run prod-build``` and open the `index.html` in the `bin` directory.
 
 ## Updating binaries
 
