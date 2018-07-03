@@ -77,7 +77,15 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
         let i = 0;
         for (let i = 0; i < this.STEPS_PER_FRAME; i++) {
             this.props.object.randomizeNoLimits();
-            let error = this.emulatorTrainer.train(1);
+            let error = [0, 0];
+            try {
+                error = this.emulatorTrainer.train(1);
+            } catch (e) {
+                this.setState({ train: false }, () => {
+                    alert("Error in Training: " + e);
+                })
+                return;
+            }
             this.errorCount++;
             this.errorSum += error[1];
 

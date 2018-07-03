@@ -149,7 +149,15 @@ export class Controller extends React.Component<ControllerProps, ControllerState
 
         for (let i = 0; i < this.STEPS_PER_FRAME; i++) {
             this.props.object.randomizeNoLimits();
-            let error = this.emulatorController.trainSingleStep();
+            let error = 0;
+            try {
+                error = this.emulatorController.trainSingleStep();
+            } catch (e) {
+                this.setState({ train: false}, () => {
+                    alert("Error during Training: " + e);
+                })
+                return;
+            }
             if (error) {
                 this.errorCount++;
                 this.errorSum += error;
