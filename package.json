@@ -4,9 +4,9 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "watch": "mkdir -p bin/weights && cp -r src/weights/* bin/weights/ && cp src/**/*.svg ./bin/ && webpack --watch",
-    "build": "mkdir -p bin/weights && cp -r src/weights/* bin/weights/ && cp src/**/*.svg ./bin/ && webpack ",
-    "build-prod": "(export NODE_ENV=production; mkdir -p bin/weights && cp -r src/weights/* bin/weights/ && cp src/**/*.svg ./bin/ && webpack)"
+    "watch": "mkdir -p bin/weights && cp screenshot.png ./bin && cp -r src/weights/* bin/weights/ && cp src/**/*.svg ./bin/ && webpack --watch",
+    "build": "mkdir -p bin/weights && cp screenshot.png ./bin && cp -r src/weights/* bin/weights/ && cp src/**/*.svg ./bin/ && webpack ",
+    "build-prod": "(export NODE_ENV=production; mkdir -p bin/weights && cp screenshot.png ./bin && cp -r src/weights/* bin/weights/ && cp src/**/*.svg ./bin/ && webpack)"
   },
   "author": "Tino Fuhrmann",
   "license": "GPL-3.0",
