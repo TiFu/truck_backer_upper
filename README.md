@@ -2,7 +2,7 @@
 
 This repository contains the neural network and perceptron demonstration program for the lecture “Neural Networks” at the [Interactive Systems Lab (ISL)](http://isl.anthropomatik.kit.edu/english/) at the [Karlsruhe Institute of Technology](https://kit.edu).
 
-This demo runs completely client-side in the browser. The `index.html` file in the `gh-pages` branch can be opened on a local webserver (`python3 -m http.server`). [A hosted version is available here](https://tifu.github.io/truck-backer-upper/).
+This demo runs completely client-side in the browser. The `index.html` file in the `gh-pages` branch can be opened on a local webserver (`python3 -m http.server`). [A hosted version is available here](https://tifu.github.io/truck_backer_upper/).
 
 ## Development
 

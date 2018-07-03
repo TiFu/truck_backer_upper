@@ -84,7 +84,7 @@ export class HowItWorks extends React.Component<{}, {}> {
 
                     <h2>References</h2>
 
-                    <p><b>Basics Distal Teacher: </b>Jordan, Michael I., and David E. Rumelhart. "Forward models: Supervised learning with a distal teacher." Cognitive science 16.3 (1992): 307-354.</p>
+                    <p><b>Distal Teacher Basics: </b>Jordan, Michael I., and David E. Rumelhart. "Forward models: Supervised learning with a distal teacher." Cognitive science 16.3 (1992): 307-354.</p>
 
                     <p><b>Truck Backer-Upper:</b> Nguyen, Derrick, and Bernard Widrow. "The truck backer-upper: An example of self-learning in neural networks." Advanced neural computers. 1990. 11-19.</p>
 
