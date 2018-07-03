@@ -137,7 +137,8 @@ export class TrainController {
 
     public setLesson(lesson: TruckLesson): void {
         this.currentLesson = lesson;
-        this.controllerNet.changeOptimizer(lesson.optimizer);
+        if (lesson !== undefined) 
+            this.controllerNet.changeOptimizer(lesson.optimizer);
 
         this.performedTrainSteps = 0;
         this.maxStepErrors = 0;

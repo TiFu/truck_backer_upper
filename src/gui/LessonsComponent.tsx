@@ -134,7 +134,6 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
                 this.getRow("trailer_angle", l.trailerAngle, true),
             );
     
-            // TODO: replace onChange with null with onDeleteLesson(index);
             additionalProperties.push(<td key={"buttons_" + Math.random()} className="align-right">
                     <button type="button" onClick={(e) => this.editLesson(e, i, l)} disabled={this.state.editLesson || this.state.addLesson} className="btn btn-warning mr"><span className="fas fa-edit"></span></button>
                     <button type="button"  onClick={(e) => this.onChange(e, i, null)} disabled={this.state.editLesson || this.state.addLesson} className="btn btn-danger"><span className="fas fa-trash-alt"></span></button>

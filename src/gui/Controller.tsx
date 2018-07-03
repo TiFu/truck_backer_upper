@@ -300,8 +300,13 @@ export class Controller extends React.Component<ControllerProps, ControllerState
     private updateLessons(lessons: TruckLesson[]) {
         let newIndex = this.state.currentLessonIndex < lessons.length ? this.state.currentLessonIndex : lessons.length - 1;
         newIndex = newIndex < 0 ? 0 : newIndex;
-        if (this.emulatorController)
-            this.emulatorController.setLesson(lessons[newIndex]);
+        if (this.emulatorController) {
+            let lesson = undefined;
+            if (newIndex < lessons.length) 
+                lesson = lessons[newIndex];
+
+            this.emulatorController.setLesson(lesson);
+        }
         
         this.setState({lessons: lessons, currentLessonIndex: newIndex});
     }
