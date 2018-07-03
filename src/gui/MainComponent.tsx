@@ -68,7 +68,7 @@ export class MainComponent extends React.Component<{}, MainComponentState> {
                         </Tab>
                     </Tabs>
                 </div>
-
+                <a href="https://github.com/TiFu/truck_backer_upper">Source on Github</a>
             </div>
     }
 }
