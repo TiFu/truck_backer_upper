@@ -1,6 +1,7 @@
 var webpack = require("webpack");
 var path = require('path');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
+const Uglify = require("uglifyjs-webpack-plugin");
 
 const production = process.env.NODE_ENV === "production";
 
@@ -19,9 +20,7 @@ module.exports = {
 					NODE_ENV: JSON.stringify('production')
 				}
 			}),
-			new webpack.optimize.UglifyJsPlugin({
-				sourceMap: true
-			}),
+			new Uglify(),
 		] : []),
 		new webpack.ProvidePlugin({
 			jQuery: 'jquery',

@@ -17,7 +17,8 @@
     "style-loader": "^0.18.2",
     "ts-loader": "^2.3.2",
     "typescript": "^2.9.1",
-    "webpack": "^3.5.4"
+    "uglifyjs-webpack-plugin": "^1.2.7",
+    "webpack": "^3.10.0"
   },
   "dependencies": {
     "@types/bootstrap": "^3.3.39",
@@ -26,7 +27,7 @@
     "@types/jquery": "^3.2.11",
     "@types/rc-slider": "^8.2.3",
     "@types/react": "^16.3.16",
-    "@types/react-bootstrap": "^0.31.9",
+    "@types/react-bootstrap": "^0.32.1",
     "@types/react-dom": "^16.0.5",
     "ajv": "^6.5.0",
     "bootstrap": "^3.3.7",

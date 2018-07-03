@@ -11,7 +11,6 @@ import { SGD, Optimizer, SGDNesterovMomentum } from '../neuralnet/optimizers';
 import {RandomWeightInitializer, TwoLayerInitializer, WeightInitializer} from '../neuralnet/weightinitializer';
 import {Tanh, Sigmoid, ActivationFunction, ReLu, Linear} from '../neuralnet/activation';
 import {AdalineUnit} from '../neuralnet/unit';
-import { LoadingModal } from './LoadingModal';
 import {NeuralNet} from '../neuralnet/net';
 import {TrainController} from '../neuralnet/train';
 import {TruckControllerError} from '../neuralnet/error';
@@ -396,10 +395,6 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         activations[new ReLu(0.01).getName()] = new ReLu(0.01);
         activations[new Linear().getName()] = new Linear();
 
-        let loadingModal = undefined;
-        if (this.state.loadingWeights) {
-            loadingModal = <LoadingModal headerText={"Loading weights..."} />
-        }   
         let alert = undefined;
 
         if (this.state.loadWeightsSuccessful !== null) {
@@ -443,7 +438,6 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         }
 
         return <div className="container">
-                {loadingModal}
                 <div className="row mt-large">
                     <div className="btn-toolbar form-inline">
                         {trainButton}
