@@ -30,6 +30,11 @@ export class AdalineUnit implements Unit {
     constructor(private inputDim: number, private activation: ActivationFunction, weightInitializer: WeightInitializer, private optimizer: Optimizer) {
         this.fixedWeights = false;
         this.lastInput = []
+        this.lastSum = 0;
+        this.accumulatedWeights = new Vector([]);
+        this.batchCounter = 0;
+        this.lastUpdate = new Vector([]);
+        this.debug = false;
         this.weights = weightInitializer.initialize(inputDim);
         this.resetAccumulatedWeights();
     }
@@ -114,7 +119,12 @@ export class AdalineUnit implements Unit {
             throw new Error("Found NaN in backward pass!");
         }
         if (!this.fixedWeights) {
-            let weightDerivative: Vector = this.lastInput.pop().getScaled(scalarFactor);
+            let lastInput = this.lastInput.pop();
+            if (lastInput === undefined) {
+                throw new Error("No input for backward pass found! \
+                    Did you execute a forward pass before calling backwards?");
+            }
+            let weightDerivative: Vector = lastInput.getScaled(scalarFactor);
             let update = weightDerivative;
             if (accumulateWeigthUpdates) {
                 this.accumulatedWeights.add(update);

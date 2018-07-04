@@ -30,8 +30,8 @@ export class TruckTrailerVisualization extends React.Component<TruckTrailerVisua
         super(props)
         this.group = React.createRef();
         this.state = {
-            startX: undefined,
-            startY: undefined,
+            startX: 0,
+            startY: 0,
             konvaX: 0,
             konvaY: 0
         }

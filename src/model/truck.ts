@@ -350,7 +350,7 @@ export class TruckException extends Error {
 }
 
 export class TruckEmulator implements Emulator {
-    private input: nnMath.Vector[];
+    private input: nnMath.Vector[] = [];
 
     public constructor(private truck: Truck) {
 
@@ -373,7 +373,10 @@ export class TruckEmulator implements Emulator {
 
     public backward(gradient: nnMath.Vector): nnMath.Vector {
         let lastInput = this.input.pop();
-
+        if (!lastInput) {
+            throw new Error("Failed to read last input! Did you call backwards too often?");
+        }
+        
         let unscaleMatrix = new nnMath.Matrix([
             [50, 0, 0, 0, 0],
             [0, 50, 0, 0, 0],

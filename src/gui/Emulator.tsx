@@ -14,12 +14,12 @@ const ReactHighcharts = require('react-highcharts');
 
 interface EmulatorProps {
     object: Truck;
-    onNetworkChange: (nn: NeuralNet) => void;
+    onNetworkChange: (nn: NeuralNet | undefined) => void;
 }
 
 interface EmulatorState {
     network: NetConfig;
-    nn: NeuralNet;
+    nn: NeuralNet | undefined;
     loadingWeights: boolean;
     loadWeightsSuccessful: boolean | null;
     loadWeightsFailureMsg: string | null;
@@ -29,15 +29,15 @@ interface EmulatorState {
 }
 
 export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
-    private emulatorTrainer: TrainTruckEmulator;
+    private emulatorTrainer: TrainTruckEmulator | null = null;
     private i = 0;
     public STEPS_PER_FRAME = 10;
     public readonly STEPS_PER_ERROR = 100;
-    private lastIteration: number = undefined;
+    private lastIteration: number = 0;
 
     private errorCache: number[] = [];
-    private errorCount: number;
-    private errorSum: number;
+    private errorCount: number = 0;
+    private errorSum: number = 0;
 
     public constructor(props: EmulatorProps) {
         super(props);
@@ -55,14 +55,14 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
 
     public handleTrain() {
         let nn = this.state.nn;
-        if (!this.state.nn) {
+        if (nn === undefined) {
             nn = new NeuralNet(this.state.network);
         }
         this.setState({ nn: nn, train: true }, () => {
             // we updated the gui
             // start animation
             let normalizedObject = new NormalizedTruck(this.props.object);
-            this.emulatorTrainer = new TrainTruckEmulator(normalizedObject, this.state.nn, 1);
+            this.emulatorTrainer = new TrainTruckEmulator(normalizedObject, this.state.nn as NeuralNet, 1);
             this.lastIteration = performance.now();
             this.errorCache = [];
             this.errorSum = 0;
@@ -74,6 +74,9 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
     private trainNeuralNetAniFrame = this.trainNeuralNetCallback.bind(this);
     private trainNeuralNetCallback() {
         let i = 0;
+        if (this.emulatorTrainer === null) {
+            throw new Error("Emulator Trainer was not initialized!");
+        }
         for (let i = 0; i < this.STEPS_PER_FRAME; i++) {
             this.props.object.randomizeNoLimits();
             let error = [0, 0];
@@ -136,7 +139,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
                     this.setState({
                         network: network,
                         loadingWeights: false,
-                        nn: null,
+                        nn: undefined,
                         loadWeightsSuccessful: false,
                         loadWeightsFailureMsg: "" + e
                     })
@@ -178,7 +181,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
 
     public handleResetNetwork() {
         this.setState({ network: this.getDefaultNetConfig(), nn: undefined, loadWeightsSuccessful: null, loadWeightsFailureMsg: null, loadingWeights: false }, () => {
-            this.props.onNetworkChange(null);
+            this.props.onNetworkChange(undefined);
         })
     }
 
@@ -193,7 +196,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
             nn.loadWeights(weights);
         } else {
             nn = undefined;
-            errors = undefined;
+            errors = [];
             isTrained = false;
         }
         this.setState({ network: net, nn: nn, errors: errors, isTrainedNetwork: isTrained, loadWeightsSuccessful: null, loadWeightsFailureMsg: null, loadingWeights: false });
@@ -291,8 +294,8 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
             },
             xAxis: {
                 labels: {
-                    formatter: function() {
-                        return (this.value * 100 + 100).toFixed(0);
+                    formatter: function(): string {
+                        return ((this as any).value * 100 + 100).toFixed(0);
                     }
                 }
             },

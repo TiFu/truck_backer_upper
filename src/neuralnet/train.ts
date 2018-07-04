@@ -11,7 +11,7 @@ import { Emulator } from './emulator';
 export type MaxStepListener = (steps: number) => void;
 
 export class TrainTruckEmulator {
-    private lastError: number;
+    private lastError: number = 0;
     public cabAngleError: number[] = [];
     public xCabError: number[] = []
     public yCabError: number[] = []
@@ -84,7 +84,7 @@ export class TrainTruckEmulator {
 
 // let's not use this for now
 export class TrainController {
-    private lastTrainedLesson: TruckLesson
+    private lastTrainedLesson: TruckLesson | null = null
     public errors: Array<number> = [];
     public steeringSignals: Array<number> = [];
     public angleError: Array<number> = [];
@@ -95,12 +95,15 @@ export class TrainController {
     public maxStepErrors = 0;
 
     public emulatorInputs: any = [];
-    private currentLesson: TruckLesson = null;
+    private currentLesson: TruckLesson | null = null;
     private maxStepListeners: Set<MaxStepListener> = new Set<MaxStepListener>();
 
-    public constructor(private world: World, private realPlant: HasState, private controllerNet: NeuralNet, private emulatorNet: Emulator, private errorFunction: ControllerError) {
+    public constructor(private world: World, private realPlant: HasState, private controllerNet: NeuralNet, private emulatorNet: Emulator | null, private errorFunction: ControllerError) {
     }
 
+    public setEmulatorNet(emulator: Emulator) {
+        this.emulatorNet = emulator;
+    }
 
     public addMaxStepListener(listener: MaxStepListener) {
         this.maxStepListeners.add(listener);
@@ -149,18 +152,21 @@ export class TrainController {
     }
 
     public hasNextStep(): boolean {
+        if (!this.currentLesson) {
+            return false;
+        }
         return this.performedTrainSteps < this.currentLesson.samples;
     }
 
-    public getCurrentLesson(): TruckLesson {
+    public getCurrentLesson(): TruckLesson | null {
         return this.currentLesson;
     }
 
     public trainSingleStep(): number {
-        if (this.currentLesson == null) {
+        if (!this.currentLesson) {
             throw new Error("You have to set the current lesson before calling this function!");
         }
-
+        console.log("training step");
         this.prepareTruckPosition();
         let error = this.trainStep();
         this.lastTrainedLesson = this.currentLesson;
@@ -173,11 +179,11 @@ export class TrainController {
     }
 
     private prepareTruckPosition() {
-        this.realPlant.randomizePosition(this.currentLesson);
+        this.realPlant.randomizePosition(this.currentLesson as TruckLesson);
     }
 
     private fixEmulator(fix: boolean) {
-        if (this.fixedEmulator != fix) {
+        if (this.emulatorNet && this.fixedEmulator != fix) {
             0
             this.emulatorNet.setNotTrainable(fix); // do not train emulator
             this.fixedEmulator = fix;
@@ -192,6 +198,9 @@ export class TrainController {
     }
 
     private trainStep(): number {
+        if (!this.emulatorNet){
+            throw new Error("The emulator net has to be initialized before trainin gcan begin!");
+        }
         this.fixEmulator(true);
         let canContinue = true;
         let controllerSignals = [];
@@ -221,13 +230,13 @@ export class TrainController {
             currentState = this.realPlant.getStateVector();
             outputState = this.realPlant.getOriginalState();
 
-            if (canContinue && i + 1 >= this.currentLesson.maxSteps) {
+            if (canContinue && i + 1 >= (this.currentLesson as TruckLesson).maxSteps) {
                 this.informListeners(i);
                 this.controllerNet.clearInputs();
                 this.emulatorNet.clearInputs();
                 this.maxStepErrors++;
 
-                return;
+                return 0;
             }
             i++;
         }

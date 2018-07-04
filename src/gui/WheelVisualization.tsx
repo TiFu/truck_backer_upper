@@ -13,7 +13,7 @@ interface WheelVisualizationProps {
     wheelOffset: number;
     wheelLength: number;
     cordSystemTransformer: CoordinateSystemTransformation
-    steeringAngle?: Angle;
+    steeringAngle: Angle;
     color?: string;
 }
 export class WheelVisualization extends React.Component<WheelVisualizationProps, {}> {

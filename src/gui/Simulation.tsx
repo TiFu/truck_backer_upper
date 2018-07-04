@@ -13,7 +13,7 @@ import Slider from 'rc-slider';
 interface SimulationProps {
     object: Truck;
     dock: Dock;
-    controller: TrainController;
+    controller: TrainController | undefined;
 }
 interface SimulationState {
     world: World;
@@ -34,12 +34,9 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
         if (Simulation.instance) throw Error("Already instantiated")
         else Simulation.instance = this;
 
-        let cabAngle = undefined;
-        let trailerAngle = undefined;
-        if (this.props.object instanceof Truck) {
-            cabAngle = toDeg(this.props.object.getTruckAngle());
-            trailerAngle = toDeg(this.props.object.getTrailerAngle());
-        }
+        let cabAngle = toDeg(this.props.object.getTruckAngle());
+        let trailerAngle = toDeg(this.props.object.getTrailerAngle());
+
         this.state = {
             world: new World(this.props.object, this.props.dock),
             steeringSignal: 0,
@@ -109,6 +106,9 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
     }
 
     private handleDriveController() {
+        if (!this.props.controller) {
+            throw new Error("The controller must be initialized for driving to work!");
+        }
         let steeringSignal = this.props.controller.predict();
         this.drive(steeringSignal, (cont: boolean) => {
             if (cont) {

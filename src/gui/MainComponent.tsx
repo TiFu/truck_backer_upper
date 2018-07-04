@@ -10,8 +10,8 @@ import { Truck, NormalizedTruck } from '../model/truck';
 import { HowItWorks } from './HowItWorks';
 
 export interface MainComponentState {
-    emulatorNet: NeuralNet;
-    controller: TrainController;
+    emulatorNet: NeuralNet | undefined;
+    controller: TrainController | undefined;
     truck: Truck;
 }
 export class MainComponent extends React.Component<{}, MainComponentState> {
@@ -19,7 +19,11 @@ export class MainComponent extends React.Component<{}, MainComponentState> {
 
     public constructor(props: {}) {
         super(props)
-        this.state = { emulatorNet: undefined, controller: undefined, truck: new Truck(new Point(15, 15), 0, 0, new Dock(new Point(0, 0)), []) };
+        this.state = { 
+            emulatorNet: undefined, 
+            controller: undefined, 
+            truck: new Truck(new Point(15, 15), 0, 0, new Dock(new Point(0, 0)), [])
+        };
     }
 
     private toDeg(radians: number): number {

@@ -7,7 +7,7 @@ import { ActivationFunction, Tanh } from '../neuralnet/activation';
 import { AdalineUnit } from '../neuralnet/unit';
 
 export interface NetworkCreatorProps {
-    errorFunctions?: { [key: string]: ErrorFunction };
+    errorFunctions: { [key: string]: ErrorFunction };
     optimizers: { [key: string]: () => Optimizer };
     weightInitializers: { [key: string]: WeightInitializer };
     activations: { [key: string]: ActivationFunction }
@@ -25,7 +25,7 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
     }
 
 
-    private onLayerChange(index: number, layer: LayerConfig) {
+    private onLayerChange(index: number, layer: LayerConfig | null) {
         let network = this.props.network;
         if (layer !== null) {
             network.layerConfigs[index] = layer;
@@ -58,14 +58,14 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
 
     private handleAddLayer() {
         let network = this.props.network;
-        network.layerConfigs.push(null);
-        network.layerConfigs[network.layerConfigs.length - 1] = network.layerConfigs[network.layerConfigs.length - 2];
+        network.layerConfigs.push(network.layerConfigs[network.layerConfigs.length - 1]);
         network.layerConfigs[network.layerConfigs.length - 2] = {
             neuronCount: 5,
             weightInitializer: new RandomWeightInitializer(0.5),
             unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
             activation: new Tanh()
         }
+
         this.props.onChange(network, false);
     }
 
@@ -152,7 +152,7 @@ export class NetworkCreator extends React.Component<NetworkCreatorProps, {}> {
             </div>;
         }
 
-        let optimizerComponent = <div className="row pb">
+        let optimizerComponent: JSX.Element | undefined = <div className="row pb">
             <div className="col-sm-3">
                 <label>Optimizer:</label>
             </div>
@@ -232,7 +232,7 @@ interface LayerCreatorProps {
     layer: LayerConfig
     weightInitializers: { [key: string]: WeightInitializer };
     activations: { [key: string]: ActivationFunction }
-    onChange: (layer: LayerConfig) => void;
+    onChange: (layer: LayerConfig | null) => void;
     disableNeuronEdit: boolean;
     disabled: boolean;
 }

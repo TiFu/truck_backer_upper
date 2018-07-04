@@ -14,6 +14,7 @@ export class Layer {
         for (let i = 0; i < outputDim; i++) {
             this.units.push(this.unitConstructor(inputDim, activation, weightInitializer, this.optimizerConstructor()));
         }
+        this.debug = false;
     }
 
     public setDebug(debug: boolean) {

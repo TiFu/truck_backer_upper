@@ -19,7 +19,7 @@ export interface LessonsState {
     addLesson: boolean;
     editLesson: boolean;
     lessonIndex: number;
-    lesson: TruckLesson;
+    lesson: TruckLesson | undefined;
 }
 export class LessonsComponent extends React.Component<LessonsProps, LessonsState> {
 
@@ -52,7 +52,7 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
         this.setState({ addLesson: false, lesson: undefined, lessonIndex: -1 });
     }
 
-    private onChange(e: React.MouseEvent<HTMLElement>, index: number, lesson: TruckLesson) {
+    private onChange(e: React.MouseEvent<HTMLElement>, index: number, lesson: TruckLesson | null) {
         let lessons = this.props.lessons;
         if (lesson == null) {
             lessons.splice(index, 1);
@@ -76,7 +76,7 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
         if (this.state.editLesson) {
             this.props.lessons[this.state.lessonIndex] = lesson;
             this.props.onChange(this.props.lessons);
-            this.setState({ editLesson: false, lessonIndex: -1, lesson: null });
+            this.setState({ editLesson: false, lessonIndex: -1, lesson: undefined });
         } else if (this.state.addLesson) {
             this.handleAddLessonConfirm(lesson);
         }
@@ -147,7 +147,7 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
         })
 
         let modal = undefined;
-        if (this.state.addLesson || this.state.editLesson) {
+        if ((this.state.addLesson || this.state.editLesson) && this.state.lesson !== undefined) {
             modal = <LessonEditComponent edit={this.state.editLesson} lesson={this.state.lesson} onSave={this.onLessonSave.bind(this)} onCancel={this.onLessonCancel.bind(this)} />
         }
         return <div className="container">
@@ -308,6 +308,10 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
             this.props.lesson.optimizer = () => new SGDNesterovMomentum((optimizer as SGDNesterovMomentum).learningRate, (optimizer as SGDNesterovMomentum).momentum);
         }
 
+        this.props.lesson.x.min = this.state.x.min;
+        this.props.lesson.x.max = this.state.x.max;
+        this.props.lesson.y.min = this.state.y.min;
+        this.props.lesson.y.max = this.state.y.max;
         this.props.lesson.cabAngle = this.state.cabinAngle.getScaled(Math.PI / 180);
         this.props.lesson.trailerAngle = this.state.trailerAngle.getScaled(Math.PI / 180);
 

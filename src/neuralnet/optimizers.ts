@@ -22,10 +22,11 @@ export class SGD extends Optimizer {
 }
 
 export class SGDNesterovMomentum extends Optimizer {
-    private moments: Vector;
+    private moments: Vector | null;
 
     public constructor(public learningRate: number = 0.1, public momentum: number = 0.9) {
         super();
+        this.moments = null;
     }
 
     calculateUpdate(weightDerivative: Vector): Vector {

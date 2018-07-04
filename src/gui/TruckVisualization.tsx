@@ -30,7 +30,7 @@ export class TruckVisualization extends React.Component<TruckVisualizationProps,
         let mappedCFP = this.map(cfp);
         return <Group>
             <BoxVisualization points={this.props.truck.getTruckCorners()} cordSystemTransformer={this.props.cordSystemTransformer} />
-            <WheelVisualization cordSystemTransformer={this.props.cordSystemTransformer} basePoint={eot} pointA={eot} pointB={cfp} wheelLength={1} wheelOffset={this.props.wheelOffset} boxWidth={this.props.truck.getWidth()} />
+            <WheelVisualization cordSystemTransformer={this.props.cordSystemTransformer} basePoint={eot} pointA={eot} pointB={cfp} wheelLength={1} wheelOffset={this.props.wheelOffset} boxWidth={this.props.truck.getWidth()} steeringAngle={0} />
             <WheelVisualization cordSystemTransformer={this.props.cordSystemTransformer} basePoint={cfp} pointA={cfp} pointB={eot} wheelLength={1} wheelOffset={this.props.wheelOffset} boxWidth={this.props.truck.getWidth()} steeringAngle={- this.props.truck.getLastSteeringAngle()} />
             <Circle radius={3} x={mappedEOT.x} y={mappedEOT.y} fill="black" />
             <Circle radius={3} x={mappedCFP.x} y={mappedCFP.y} fill="black" />

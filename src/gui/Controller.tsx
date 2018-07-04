@@ -23,13 +23,13 @@ const ReactHighcharts = require('react-highcharts');
 interface ControllerProps {
     object: Truck;
     world: World;
-    emulatorNet: NeuralNet;
-    onControllerTrained: (net: TrainController) => void;
+    emulatorNet: NeuralNet | undefined;
+    onControllerTrained: (net: TrainController | null) => void;
 }
 
 interface ControllerState {
     network: NetConfig;
-    nn: NeuralNet;
+    nn: NeuralNet | undefined;
     loadingWeights: boolean;
     loadWeightsSuccessful: boolean | null;
     loadWeightsFailureMsg: string | null;
@@ -45,14 +45,14 @@ interface ControllerState {
 
 export class Controller extends React.Component<ControllerProps, ControllerState> {
     public static MAX_LESSON = 19;
-    private emulatorController: TrainController;
+    private emulatorController: TrainController | null = null;
     public STEPS_PER_FRAME = 1;
     public readonly STEPS_PER_ERROR = 100;
-    private lastIteration: number = undefined;
+    private lastIteration: number = 0;
 
     private errorCache: number[] = [];
-    private errorCount: number;
-    private errorSum: number;
+    private errorCount: number = 0;
+    private errorSum: number = 0;
     private currentLessonSteps: number = 0;
 
     public constructor(props: ControllerProps) {
@@ -79,14 +79,16 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         this.setState({ currentLessonIndex: 0, lessons: createTruckControllerLessons(this.props.object) })
     }
 
-    private handleStopTrain(errorMsg: string = undefined) {
+    private handleStopTrain(errorMsg: string | undefined = undefined) {
         this.errorCache = [];
-        let success = errorMsg === undefined;
-        this.setState({ train: false, isTrainedNetwork: success, nn: this.state.nn, errors: this.state.errors }, () => {
-            if (success) {
-                this.props.onControllerTrained(this.makeTrainController());
+        this.setState({ train: false, isTrainedNetwork: errorMsg === undefined, nn: this.state.nn, errors: this.state.errors }, () => {
+            if (errorMsg === undefined) {
+                let ctrl = this.makeTrainController();
+                if (!ctrl) {
+                    alert("Failed to create train controller after training!");
+                }
+                this.props.onControllerTrained(ctrl);
             } else {
-                console.log(errorMsg);
                 alert("Error: " + errorMsg.toString());
             }
         });
@@ -121,30 +123,43 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             // we updated the gui
             // start animation
             let ctrl = this.makeTrainController();
-            this.emulatorController = ctrl;
-            this.emulatorController.setLesson(this.state.lessons[this.state.currentLessonIndex]);
-            this.lastIteration = performance.now();
-            this.errorCache = [];
-            this.errorSum = 0;
-            this.errorCount = 0;
-            requestAnimationFrame(this.trainNeuralNetAniFrame);
-        });
+            if (ctrl) {
+                this.emulatorController = ctrl;
+                this.emulatorController.setLesson(this.state.lessons[this.state.currentLessonIndex]);
+                this.lastIteration = performance.now();
+                this.errorCache = [];
+                this.errorSum = 0;
+                this.errorCount = 0;
+                requestAnimationFrame(this.trainNeuralNetAniFrame);
+            } else {
+                alert("Failed to start training because emulator network was not loaded or controller net is missing!");
+            }
+    });
     }
 
-    private makeTrainController(): TrainController {
+    private makeTrainController(): TrainController | null {
+        if (!this.state.nn) {
+            return null;
+        }
+ 
         let normalizedObject = new NormalizedTruck(this.props.object);
         let dock = normalizedObject.getNormalizedDock(this.props.world.dock);
         let error = new TruckControllerError(dock)
         error.setSaveErrors(false);
-
-        let ctrl = new TrainController(this.props.world, normalizedObject, this.state.nn, new NeuralNetEmulator(this.props.emulatorNet), error);
+        let emulator = null;
+        if (this.props.emulatorNet) {
+            emulator = new NeuralNetEmulator(this.props.emulatorNet);
+        }
+        let ctrl = new TrainController(this.props.world, normalizedObject, this.state.nn, emulator, error);
         ctrl.addMaxStepListener(this.handleMaxStepErrors.bind(this));
         return ctrl;
     }
 
     private trainNeuralNetAniFrame = this.trainNeuralNetCallback.bind(this);
     private trainNeuralNetCallback() {
-
+        if (!this.emulatorController) {
+            throw new Error("You must initialize the controller before starting training!");
+        }
         for (let i = 0; i < this.STEPS_PER_FRAME; i++) {
             this.props.object.randomizeNoLimits();
             let error = 0;
@@ -172,7 +187,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         // TODO: chart disable decimals
         if (this.currentLessonSteps + this.STEPS_PER_FRAME >= this.state.lessons[this.state.currentLessonIndex].samples) {
             // end training
-            if (this.state.lessons.length >= this.state.currentLessonIndex + 1) {
+            if (this.state.currentLessonIndex + 1 >= this.state.lessons.length) {
                 this.handleStopTrain();
                 return;
             } else {
@@ -236,7 +251,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                     this.setState({
                         network: network,
                         loadingWeights: false,
-                        nn: null,
+                        nn: undefined,
                         loadWeightsSuccessful: false,
                         loadWeightsFailureMsg: "" + e
                     })
@@ -313,8 +328,9 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             let lesson = undefined;
             if (newIndex < lessons.length)
                 lesson = lessons[newIndex];
-
-            this.emulatorController.setLesson(lesson);
+            if (lesson !== undefined) {
+                this.emulatorController.setLesson(lesson);
+            }
         }
 
         this.setState({ lessons: lessons, currentLessonIndex: newIndex });
@@ -343,8 +359,8 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             },
             xAxis: {
                 labels: {
-                    formatter: function() {
-                        return (this.value * 100 + 100).toFixed(0);
+                    formatter: function(): string {
+                        return ((this as any).value * 100 + 100).toFixed(0);
                     }
                 }
             },
@@ -371,7 +387,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         let normalizedDockPosition = new Point((this.props.world.dock.position.x - 50) / 50, this.props.world.dock.position.y / 50);
         let mse = new TruckControllerError(normalizedDockPosition);
 
-        let errorFunctions: { [key: string]: ErrorFunction } = undefined;
+        let errorFunctions: { [key: string]: ErrorFunction } = {};
         if (mse != undefined) {
             errorFunctions = {};
             errorFunctions[mse.getName()] = mse;
@@ -424,7 +440,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             let lesson = this.state.lessons[this.state.currentLessonIndex];
             diagram = <div className="row">
                 <div className="col-sm-12">
-                    Training lesson {lesson.no} for {lesson.samples} samples. {this.state.maxStepErrors} occurred in the last 100 training samples.
+                    Training lesson {lesson.no} for {lesson.samples} samples. {this.state.maxStepErrors} max step violations occurred in the last 100 training samples.
                 {this.getErrorDiagram()}
                 </div>
             </div>;

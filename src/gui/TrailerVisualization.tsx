@@ -30,8 +30,8 @@ export class TrailerVisualization extends React.Component<TrailerVisualizationPr
             <BoxVisualization points={this.props.truck.getTrailerCorners()} cordSystemTransformer={this.props.cordSystemTransformer} />
             <Circle radius={3} x={mappedEot.x} y={mappedEot.y} fill="black" />
             <Circle radius={3} x={mappedCfp.x} y={mappedCfp.y} fill="black" />
-            <WheelVisualization cordSystemTransformer={this.props.cordSystemTransformer} basePoint={eot} pointA={eot} pointB={cfp} wheelLength={1} wheelOffset={this.props.wheelOffset} boxWidth={this.props.truck.getWidth()} />
-            <WheelVisualization cordSystemTransformer={this.props.cordSystemTransformer} basePoint={cfp} pointA={cfp} pointB={eot} wheelLength={1} wheelOffset={this.props.wheelOffset} boxWidth={this.props.truck.getWidth()} />
+            <WheelVisualization cordSystemTransformer={this.props.cordSystemTransformer} basePoint={eot} pointA={eot} pointB={cfp} wheelLength={1} wheelOffset={this.props.wheelOffset} steeringAngle={0} boxWidth={this.props.truck.getWidth()} />
+            <WheelVisualization cordSystemTransformer={this.props.cordSystemTransformer} basePoint={cfp} pointA={cfp} pointB={eot} wheelLength={1} wheelOffset={this.props.wheelOffset} steeringAngle={0} boxWidth={this.props.truck.getWidth()} />
         </Group>
     }
 }
