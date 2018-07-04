@@ -170,7 +170,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
         return {
             inputs: 5,
             // TODO: was trained with 0.1 then 0.01 after improvement stops => basically decay
-            optimizer: () => new SGD(0.0001), //new SGDNesterovMomentum(0.1, 0.9),
+            optimizer: () => new SGD(0.01), //new SGDNesterovMomentum(0.1, 0.9),
             errorFunction: new MSE(),
             layerConfigs: [
                 hiddenEmulatorLayer,

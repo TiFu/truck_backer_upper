@@ -253,7 +253,7 @@ export class Truck implements HasState, Limitable, HasLength {
 
         return this.isTruckInValidPosition();
     }
-    // TODO: add check that truck is not too far away from area
+
     private isTruckNotAtDock() {
         let truckCorners = [this.getCouplingDevicePosition(), this.getCabinFrontPosition()]; //this.getTruckCorners();
         let trailerCorners = [this.tep, this.getCouplingDevicePosition()]; //this.getTrailerCorners();
