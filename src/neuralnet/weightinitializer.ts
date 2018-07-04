@@ -1,4 +1,4 @@
-import {Vector} from './math';
+import { Vector } from './math';
 
 export abstract class WeightInitializer {
 
@@ -6,7 +6,7 @@ export abstract class WeightInitializer {
         return this.constructor.name;
     }
 
-    abstract initialize(dim: number) : Vector;
+    abstract initialize(dim: number): Vector;
 }
 
 //export type WeightInitializer = (dim: number) => Vector;
@@ -42,18 +42,18 @@ export class TwoLayerInitializer extends WeightInitializer {
         let weights = getRandomWeights(dim, 2);
         weights = weights.scale(targetScale / weights.getLength())
         let bias = getRandom(targetScale);
-        return weights.getWithNewElement(bias);        
+        return weights.getWithNewElement(bias);
     }
 }
 
 export class RandomWeightInitializer extends WeightInitializer {
-    
+
     public constructor(public weightRange: number) {
         super();
     }
 
     public initialize(dim: number): Vector {
-        return getRandomWeights(dim + 1, this.weightRange);       
+        return getRandomWeights(dim + 1, this.weightRange);
     }
 }
 
@@ -65,6 +65,6 @@ function getRandomWeights(inputDim: number, initialWeightRange: number): Vector 
     return new Vector(random);
 }
 
-function getRandom(range: number){
+function getRandom(range: number) {
     return Math.random() * 2 * range - range
 }

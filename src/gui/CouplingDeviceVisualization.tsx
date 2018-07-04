@@ -1,8 +1,8 @@
 import * as React from 'react'
-import {Truck} from '../model/truck'
-import {CoordinateSystemTransformation} from './CoordinateSystemTransformation';
-import { Group, Line} from 'react-konva'
-import {plus, calculateVector, scale, Point, rotateVector, Angle} from '../math'
+import { Truck } from '../model/truck'
+import { CoordinateSystemTransformation } from './CoordinateSystemTransformation';
+import { Group, Line } from 'react-konva'
+import { plus, calculateVector, scale, Point, rotateVector, Angle } from '../math'
 
 interface CouplingDeviceVisualizationProps {
     truck: Truck;
@@ -14,7 +14,7 @@ export class CouplingDeviceVisualization extends React.Component<CouplingDeviceV
         super(props)
     }
 
-    public map(b: Point) { 
+    public map(b: Point) {
         return this.props.cordSystemTransformer.mapIntoNewCordSystem(b);
     }
 
@@ -27,13 +27,13 @@ export class CouplingDeviceVisualization extends React.Component<CouplingDeviceV
         let rotateDegree: Angle = 10 / 180.0 * Math.PI;
         let rotatedDirectionA = scale(rotateVector(vec, rotateDegree), 1 / Math.cos(rotateDegree));
         let rotatedDirectionB = scale(rotateVector(vec, -rotateDegree), 1 / Math.cos(rotateDegree));
-        
+
         let connectPointA = this.map(plus(cdp, rotatedDirectionA))
         let connectPointB = this.map(plus(cdp, rotatedDirectionB));
         cdp = this.map(cdp)
         return <Group>
-                     <Line points={[cdp.x, cdp.y, connectPointA.x, connectPointA.y]} stroke="black" />           
-                     <Line points={[cdp.x, cdp.y, connectPointB.x, connectPointB.y]} stroke="black" />           
+            <Line points={[cdp.x, cdp.y, connectPointA.x, connectPointA.y]} stroke="black" />
+            <Line points={[cdp.x, cdp.y, connectPointB.x, connectPointB.y]} stroke="black" />
         </Group>
     }
 }

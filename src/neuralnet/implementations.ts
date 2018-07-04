@@ -1,9 +1,9 @@
-import {NeuralNet, LayerConfig, NetConfig} from './net'
-import {MSE, WeightedMSE} from './error'
-import {AdalineUnit} from './unit'
-import {ActivationFunction, Tanh, Sigmoid, Linear, ReLu} from './activation'
-import {Vector} from './math'
-import {Optimizer, SGD, SGDNesterovMomentum} from './optimizers';
+import { NeuralNet, LayerConfig, NetConfig } from './net'
+import { MSE, WeightedMSE } from './error'
+import { AdalineUnit } from './unit'
+import { ActivationFunction, Tanh, Sigmoid, Linear, ReLu } from './activation'
+import { Vector } from './math'
+import { Optimizer, SGD, SGDNesterovMomentum } from './optimizers';
 import { WeightInitializer, TwoLayerInitializer, StaticInitializer, RandomWeightInitializer } from './weightinitializer';
 
 export var hiddenEmulatorLayer: LayerConfig = {

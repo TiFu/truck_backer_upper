@@ -1,8 +1,8 @@
-import {TrainTruckEmulator} from './../neuralnet/train'
-import {World, Dock} from './../model/world'
-import {emulatorNet} from './../neuralnet/implementations'
+import { TrainTruckEmulator } from './../neuralnet/train'
+import { World, Dock } from './../model/world'
+import { emulatorNet } from './../neuralnet/implementations'
 import * as fs from 'fs';
-import {NormalizedTruck, Truck} from './../model/truck';
+import { NormalizedTruck, Truck } from './../model/truck';
 import { Point } from './../math';
 
 let dock = new Dock(new Point(0, 0));
@@ -14,7 +14,7 @@ try {
     let savedWeights = fs.readFileSync("./../weights/truck_emulator_weights").toString();
     let parsedWeights = JSON.parse(savedWeights);
     trainTruckEmulator.getEmulatorNet().loadWeights(parsedWeights);
-} catch(err) {
+} catch (err) {
 
 }
 let dumps = 0;
@@ -27,11 +27,11 @@ let epochSteps = 1;
 let highErrors = 0;
 let summedSteps = 0;
 for (let i = 0; i < steps; i++) {
-//    console.log(i + " of " + steps);
+    //    console.log(i + " of " + steps);
     truck.randomizeNoLimits();
     let lastError2 = trainTruckEmulator.train(epochSteps);
     let lastError = lastError2[1];
-//    console.log("lastError", lastError);
+    //    console.log("lastError", lastError);
     if (lastError > 0.2) {
         highErrors++;
     }
@@ -39,8 +39,8 @@ for (let i = 0; i < steps; i++) {
     summedSteps++;
     errorMax = Math.max(errorMax, lastError);
     if ((i > 0 || errorSTep == 1) && i % errorSTep == 0) {
-        let cabAngle = trainTruckEmulator.cabAngleError.reduce((prev: number, next: number) => prev + next, 0) / trainTruckEmulator.cabAngleError.length;            
-        let trailerAngle = trainTruckEmulator.trailerAngleError.reduce((prev: number, next: number) => prev + next, 0) / trainTruckEmulator.trailerAngleError.length;            
+        let cabAngle = trainTruckEmulator.cabAngleError.reduce((prev: number, next: number) => prev + next, 0) / trainTruckEmulator.cabAngleError.length;
+        let trailerAngle = trainTruckEmulator.trailerAngleError.reduce((prev: number, next: number) => prev + next, 0) / trainTruckEmulator.trailerAngleError.length;
         let xCab = trainTruckEmulator.xCabError.reduce((prev: number, next: number) => prev + next, 0) / trainTruckEmulator.xCabError.length
         let yCab = trainTruckEmulator.yCabError.reduce((prev: number, next: number) => prev + next, 0) / trainTruckEmulator.yCabError.length
         let yTrailer = trainTruckEmulator.yTrailerError.reduce((prev: number, next: number) => prev + next, 0) / trainTruckEmulator.yTrailerError.length
@@ -59,8 +59,8 @@ for (let i = 0; i < steps; i++) {
         trainTruckEmulator.yCabError = [];
         trainTruckEmulator.yTrailerError = [];
         trainTruckEmulator.xTrailerError = [];
-        
-        console.log("[AvgError]", i + ": Avg Error " + errorSum/summedSteps + " / Max " + errorMax + " / High " + highErrors);
+
+        console.log("[AvgError]", i + ": Avg Error " + errorSum / summedSteps + " / Max " + errorMax + " / High " + highErrors);
         console.log("[AvgErrorComp]", "Cab Angle: " + cabAngle + " / Trailer Angle: " + trailerAngle + " / xCab: " + xCab + " / yCab: " + yCab + " / xTrailer: " + xTrailer + " / yTrailer: " + yTrailer);
         console.log("")
         fs.writeFileSync("./../weights/truck_emulator_weights", JSON.stringify(trainTruckEmulator.getEmulatorNet().getWeights()));

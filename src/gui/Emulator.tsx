@@ -1,15 +1,15 @@
 import * as React from 'react'
-import { Truck, NormalizedTruck} from '../model/truck';
+import { Truck, NormalizedTruck } from '../model/truck';
 import { NetworkCreator } from './NetworkCreator';
 
-import {NetConfig} from '../neuralnet/net';
+import { NetConfig } from '../neuralnet/net';
 import { MSE, ErrorFunction } from '../neuralnet/error';
 import { SGD, Optimizer, SGDNesterovMomentum } from '../neuralnet/optimizers';
-import {RandomWeightInitializer, TwoLayerInitializer, WeightInitializer} from '../neuralnet/weightinitializer';
-import {Tanh, Sigmoid, ActivationFunction, ReLu, Linear} from '../neuralnet/activation';
-import {AdalineUnit} from '../neuralnet/unit';
-import {NeuralNet} from '../neuralnet/net';
-import {TrainTruckEmulator} from '../neuralnet/train';
+import { RandomWeightInitializer, TwoLayerInitializer, WeightInitializer } from '../neuralnet/weightinitializer';
+import { Tanh, Sigmoid, ActivationFunction, ReLu, Linear } from '../neuralnet/activation';
+import { AdalineUnit } from '../neuralnet/unit';
+import { NeuralNet } from '../neuralnet/net';
+import { TrainTruckEmulator } from '../neuralnet/train';
 const ReactHighcharts = require('react-highcharts');
 
 interface EmulatorProps {
@@ -41,7 +41,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
 
     public constructor(props: EmulatorProps) {
         super(props);
-        this.state = { 
+        this.state = {
             network: this.getDefaultNetConfig(),
             nn: undefined,
             loadingWeights: false,
@@ -58,12 +58,12 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
         if (!this.state.nn) {
             nn = new NeuralNet(this.state.network);
         }
-        this.setState({nn: nn, train: true},() => {
+        this.setState({ nn: nn, train: true }, () => {
             // we updated the gui
             // start animation
             let normalizedObject = new NormalizedTruck(this.props.object);
-            this.emulatorTrainer = new TrainTruckEmulator(normalizedObject, this.state.nn, 1);   
-            this.lastIteration = performance.now();     
+            this.emulatorTrainer = new TrainTruckEmulator(normalizedObject, this.state.nn, 1);
+            this.lastIteration = performance.now();
             this.errorCache = [];
             this.errorSum = 0;
             this.errorCount = 0;
@@ -103,7 +103,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
         this.lastIteration = performance.now();
         if (duration > 1.05 * 1000 / 60) {
             this.STEPS_PER_FRAME = Math.min(1, this.STEPS_PER_FRAME);
-        } else if (duration < 0.95 * 1000/60){ 
+        } else if (duration < 0.95 * 1000 / 60) {
             this.STEPS_PER_FRAME += 1;
         }
 
@@ -126,10 +126,11 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
                 try {
                     neuralNet.loadWeights(JSON.parse(data));
                     this.setState({
-                        loadingWeights: false, 
+                        loadingWeights: false,
                         network: network,
-                        nn: neuralNet, 
-                        loadWeightsSuccessful: true });
+                        nn: neuralNet,
+                        loadWeightsSuccessful: true
+                    });
                     this.props.onNetworkChange(neuralNet);
                 } catch (e) {
                     this.setState({
@@ -141,7 +142,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
                     })
                 }
             }
-        })    
+        })
     }
 
     private getDefaultNetConfig() {
@@ -155,14 +156,14 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
             unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
             activation: new Tanh()
         }
-        
+
         const outputEmulatorLayer = {
             neuronCount: 4,
             weightInitializer: new TwoLayerInitializer(0.7, 6),
             unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
             activation: new Linear()
         }
-        
+
         return {
             inputs: 5,
             // TODO: was trained with 0.1 then 0.01 after improvement stops => basically decay
@@ -176,7 +177,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
     }
 
     public handleResetNetwork() {
-        this.setState({ network: this.getDefaultNetConfig(), nn: undefined, loadWeightsSuccessful: null, loadWeightsFailureMsg: null, loadingWeights: false}, () => {
+        this.setState({ network: this.getDefaultNetConfig(), nn: undefined, loadWeightsSuccessful: null, loadWeightsFailureMsg: null, loadingWeights: false }, () => {
             this.props.onNetworkChange(null);
         })
     }
@@ -195,28 +196,28 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
             errors = undefined;
             isTrained = false;
         }
-        this.setState({ network: net, nn: nn, errors: errors, isTrainedNetwork: isTrained, loadWeightsSuccessful: null, loadWeightsFailureMsg: null, loadingWeights: false});
+        this.setState({ network: net, nn: nn, errors: errors, isTrainedNetwork: isTrained, loadWeightsSuccessful: null, loadWeightsFailureMsg: null, loadingWeights: false });
     }
 
     private renderConfigureEmulator() {
         let mse = new MSE();
-        let errorFunctions: { [key: string]: ErrorFunction} = {
+        let errorFunctions: { [key: string]: ErrorFunction } = {
         }
         errorFunctions[mse.getName()] = mse;
 
-        let optimizers: { [key: string]: () => Optimizer} = {};
+        let optimizers: { [key: string]: () => Optimizer } = {};
         let sgd = new SGD(0.5);
         let nesterov = new SGDNesterovMomentum(0.5, 0.9);
         optimizers[sgd.getName()] = () => new SGD(0.5);
         optimizers[nesterov.getName()] = () => new SGDNesterovMomentum(0.5, 0.9);
 
-        let weightInitializers: { [key: string]: WeightInitializer} = {};
+        let weightInitializers: { [key: string]: WeightInitializer } = {};
         let random = new RandomWeightInitializer(0.5);
         let twoLayer = new TwoLayerInitializer(0.7, 25);
         weightInitializers[random.getName()] = random;
         weightInitializers[twoLayer.getName()] = twoLayer;
 
-        let activations: { [key: string]: ActivationFunction} = {}
+        let activations: { [key: string]: ActivationFunction } = {}
         activations[new Tanh().getName()] = new Tanh();
         activations[new Sigmoid().getName()] = new Sigmoid();
         activations[new ReLu(0.01).getName()] = new ReLu(0.01);
@@ -227,42 +228,42 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
         if (this.state.loadWeightsSuccessful !== null) {
             if (this.state.loadWeightsSuccessful) {
                 alert = <div className="row alert alert-success" role="alert">
-                <strong>Network loaded!</strong>
-              </div>
+                    <strong>Network loaded!</strong>
+                </div>
             } else {
                 alert = <div className="row alert alert-danger" role="alert">
-                <strong>Failed to load weights!</strong> Make sure that the network has 4
+                    <strong>Failed to load weights!</strong> Make sure that the network has 4
                  inputs, 45 neurons in the hidden layer and 3 outputs.<br />{this.state.loadWeightsFailureMsg}
-              </div>
+                </div>
             }
         }
 
-        let trainButton = <button type="button"  onClick={this.handleTrain.bind(this)} className="btn btn-primary">Train</button>;
+        let trainButton = <button type="button" onClick={this.handleTrain.bind(this)} className="btn btn-primary">Train</button>;
         if (this.state.train) {
-            trainButton = <button type="button"  disabled={!this.state.train} onClick={this.handleStopTrain.bind(this)} className="btn btn-danger">Stop</button>;
+            trainButton = <button type="button" disabled={!this.state.train} onClick={this.handleStopTrain.bind(this)} className="btn btn-danger">Stop</button>;
         }
         let diagram = undefined;
         if (this.state.train || this.state.isTrainedNetwork) {
             diagram = this.getErrorDiagram()
         }
         return <div className="container">
-                <div className="row">
-                    <div className="h3 btn-toolbar">
-                        {trainButton}
-                        <button type="button"  onClick={this.handleLoadPretrainedWeights.bind(this)} disabled={this.state.train} className="btn btn-warning">Load pretrained Network</button>
-                        <button type="button"  onClick={this.handleResetNetwork.bind(this)} disabled={this.state.train} className="btn btn-danger">Reset Network</button>
-                    </div>
-                </div>
-                {alert}
-                <div className="row">
-                    <div className="col-sm-12">
-                        {diagram}
-                    </div>
-                </div>
-                <div className="row">
-                    <NetworkCreator disabled={this.state.train} showOptimizer={true} showInfo={true} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
+            <div className="row">
+                <div className="h3 btn-toolbar">
+                    {trainButton}
+                    <button type="button" onClick={this.handleLoadPretrainedWeights.bind(this)} disabled={this.state.train} className="btn btn-warning">Load pretrained Network</button>
+                    <button type="button" onClick={this.handleResetNetwork.bind(this)} disabled={this.state.train} className="btn btn-danger">Reset Network</button>
                 </div>
             </div>
+            {alert}
+            <div className="row">
+                <div className="col-sm-12">
+                    {diagram}
+                </div>
+            </div>
+            <div className="row">
+                <NetworkCreator disabled={this.state.train} showOptimizer={true} showInfo={true} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
+            </div>
+        </div>
     }
 
     public componentWillUnmount() {
@@ -274,7 +275,7 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
 
     private handleStopTrain() {
         this.errorCache = [];
-        this.setState({train: false, isTrainedNetwork: true, nn: this.state.nn, errors: this.state.errors});
+        this.setState({ train: false, isTrainedNetwork: true, nn: this.state.nn, errors: this.state.errors });
         this.props.onNetworkChange(this.state.nn);
     }
 

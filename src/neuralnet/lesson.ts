@@ -1,6 +1,6 @@
 export class Range {
 
-    public constructor(public min: number,public max: number) {
+    public constructor(public min: number, public max: number) {
 
     }
 
@@ -8,10 +8,10 @@ export class Range {
         return new Range(this.min * factor, this.max * factor);
     }
 }
-import {Point, toRad} from '../math';
-import {Vector} from '../neuralnet/math'
-import {Truck} from '../model/truck'
-import {Dock, HasLength} from '../model/world';
+import { Point, toRad } from '../math';
+import { Vector } from '../neuralnet/math'
+import { Truck } from '../model/truck'
+import { Dock, HasLength } from '../model/world';
 import { SGDNesterovMomentum, Optimizer, SGD } from './optimizers';
 
 export class TruckLesson {
@@ -19,11 +19,11 @@ export class TruckLesson {
     public y: Range;
 
     public constructor(public object: HasLength, public no: number, public samples: number, public optimizer: () => Optimizer,
-        x: Range, y: Range, public trailerAngle: Range, 
-        public cabAngle: Range, public maxSteps: number){ 
-            let l = object.getLength();
-            this.x = x.getScaled(l);
-            this.y = y.getScaled(l);
+        x: Range, y: Range, public trailerAngle: Range,
+        public cabAngle: Range, public maxSteps: number) {
+        let l = object.getLength();
+        this.x = x.getScaled(l);
+        this.y = y.getScaled(l);
     }
 
     public getBoundsDescription(): any {
@@ -48,7 +48,7 @@ export class TruckLesson {
 
         return new Vector(
             [
-                tep1.x, 
+                tep1.x,
                 tep1.y,
                 tep2.x,
                 tep2.y,
@@ -113,10 +113,10 @@ export function createTruckControllerLessons(truck: HasLength) {
     // 1.5 also works but higher error
     let minY = new Range(-0.1, -1.0); // TODO: quadratic scaling? => should introduce the truck to this kind of deviation and then make it harder
     let maxY = new Range(0.1, 1.0);
-    let minTrailerAngle = new Range(-0/180 * Math.PI, -90/180*Math.PI);
-    let maxTrailerAngle = new Range(0/180 * Math.PI,90/180 * Math.PI);
-    let minCabAngle = new Range(-10/180 * Math.PI, -90/180*Math.PI);
-    let maxCabAngle = new Range(10/180 * Math.PI,90/180 * Math.PI);
+    let minTrailerAngle = new Range(-0 / 180 * Math.PI, -90 / 180 * Math.PI);
+    let maxTrailerAngle = new Range(0 / 180 * Math.PI, 90 / 180 * Math.PI);
+    let minCabAngle = new Range(-10 / 180 * Math.PI, -90 / 180 * Math.PI);
+    let maxCabAngle = new Range(10 / 180 * Math.PI, 90 / 180 * Math.PI);
 
     let lessonCountX = 20;
 
@@ -126,7 +126,7 @@ export function createTruckControllerLessons(truck: HasLength) {
         let trailerR = rangeForStep(minTrailerAngle, maxTrailerAngle, i, lessonCountX);
         let cabR = rangeForStep(minCabAngle, maxCabAngle, i, lessonCountX);
         let samples = 1000;
-        lessons.push(new TruckLesson(truck, i, samples,  optimizers[i], xR, yR, trailerR, cabR, 1000));
+        lessons.push(new TruckLesson(truck, i, samples, optimizers[i], xR, yR, trailerR, cabR, 1000));
     }
 
     return lessons;

@@ -1,15 +1,15 @@
 import * as React from 'react'
-import {Truck} from '../model/truck'
-import {CoordinateSystemTransformation} from './CoordinateSystemTransformation';
-import { Layer, Rect, Stage, Group, Line, Circle} from 'react-konva'
-import {plus, minus, calculateVector, scale, Point} from '../math'
-import {BoxVisualization} from './BoxVisualization'
-import {WheelVisualization} from './WheelVisualization'
+import { Truck } from '../model/truck'
+import { CoordinateSystemTransformation } from './CoordinateSystemTransformation';
+import { Layer, Rect, Stage, Group, Line, Circle } from 'react-konva'
+import { plus, minus, calculateVector, scale, Point } from '../math'
+import { BoxVisualization } from './BoxVisualization'
+import { WheelVisualization } from './WheelVisualization'
 
 interface TruckVisualizationProps {
-     truck: Truck;
-     wheelOffset: number;
-     cordSystemTransformer: CoordinateSystemTransformation
+    truck: Truck;
+    wheelOffset: number;
+    cordSystemTransformer: CoordinateSystemTransformation
 }
 
 export class TruckVisualization extends React.Component<TruckVisualizationProps, {}> {
@@ -17,9 +17,9 @@ export class TruckVisualization extends React.Component<TruckVisualizationProps,
     public constructor(props: TruckVisualizationProps) {
         super(props)
     }
-    
-    public map(b: Point) { 
-        let n =  this.props.cordSystemTransformer.mapIntoNewCordSystem(b);
+
+    public map(b: Point) {
+        let n = this.props.cordSystemTransformer.mapIntoNewCordSystem(b);
         return n;
     }
 

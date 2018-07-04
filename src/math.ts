@@ -38,7 +38,7 @@ export class StraightLine {
     }
 }
 export class Vector implements Object2D {
-    constructor(public x: number,public  y: number) {
+    constructor(public x: number, public y: number) {
     }
 
     getLength(): number {
@@ -95,7 +95,7 @@ export function getAngle(a: Vector, b: Vector): Angle {
     return Math.acos(scalarProduct(a, b) / (a.getLength() * b.getLength()));
 }
 
-export function rotateVector(a: Vector, angle: Angle): Vector { 
+export function rotateVector(a: Vector, angle: Angle): Vector {
     let newX = a.x * Math.cos(angle) - a.y * Math.sin(angle);
     let newY = a.x * Math.sin(angle) + a.y * Math.cos(angle);
     return new Vector(newX, newY);

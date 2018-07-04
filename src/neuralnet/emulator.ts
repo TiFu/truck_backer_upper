@@ -1,4 +1,4 @@
-import {Vector} from './math';
+import { Vector } from './math';
 import { NeuralNet } from './net';
 
 export interface Emulator {
@@ -13,8 +13,8 @@ export interface Emulator {
 }
 
 // TODO: chart: multiply x-axis by 100
-export class NeuralNetEmulator implements Emulator{
-    
+export class NeuralNetEmulator implements Emulator {
+
     public constructor(private net: NeuralNet) {
 
     }

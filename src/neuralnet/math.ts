@@ -13,8 +13,8 @@ export class Matrix {
             if (entries[i].length != dimensions) {
                 throw new Error("Invalid dimenions in matrix " + entries);
             }
-            for (let j = 0; j < entries[i].length; j++){
-                 this.content[i][j] = entries[i][j];
+            for (let j = 0; j < entries[i].length; j++) {
+                this.content[i][j] = entries[i][j];
             }
         }
     }
@@ -32,7 +32,7 @@ export class Vector {
         this.length = entries.length;
         this.entries = new Array(entries.length);
         // create a copy of the input array
-        for (let i = 0; i < entries.length; i++){ 
+        for (let i = 0; i < entries.length; i++) {
             this.entries[i] = entries[i];
         }
     }
@@ -92,7 +92,7 @@ export class Vector {
         }
         return this;
     }
-    
+
     public scale(factor: Scalar): Vector {
         for (let i = 0; i < this.length; i++) {
             this.entries[i] *= factor;
@@ -125,7 +125,7 @@ export class Vector {
             if (i == 0) {
                 str += this.entries[i];
             } else {
-            str += ", " + this.entries[i];
+                str += ", " + this.entries[i];
             }
         }
         str += ")";
@@ -137,6 +137,6 @@ export function plus(a: Vector, b: Vector): Vector {
     let entries = [];
     for (let i = 0; i < a.length; i++) {
         entries[i] = a.entries[i] + b.entries[i];
-    }  
+    }
     return new Vector(entries);
 }

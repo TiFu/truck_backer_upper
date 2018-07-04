@@ -1,4 +1,4 @@
-import {Point, Vector, plus, minus, scale, mapPoint} from '../math'
+import { Point, Vector, plus, minus, scale, mapPoint } from '../math'
 
 
 export class CoordinateSystemTransformation {
@@ -21,6 +21,6 @@ export class CoordinateSystemTransformation {
     }
 
     public mapVectorIntoOldCordSystem(p: Point): Point {
-        return mapPoint(p, 1/  this.scaleFactorX, 1 / this.scaleFactorY);
+        return mapPoint(p, 1 / this.scaleFactorX, 1 / this.scaleFactorY);
     }
 }

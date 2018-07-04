@@ -1,23 +1,23 @@
-import { Point, scale, minus, plus,  Vector, Angle, getAngle, calculateVector, rotate, StraightLine, isLeftOf } from '../math'
+import { Point, scale, minus, plus, Vector, Angle, getAngle, calculateVector, rotate, StraightLine, isLeftOf } from '../math'
 import * as nnMath from '../neuralnet/math' // TODO: union math libraries..
-import {Dock, AngleType, HasState, Limitable, HasLength} from './world'
-import {TruckLesson} from '../neuralnet/lesson';
+import { Dock, AngleType, HasState, Limitable, HasLength } from './world'
+import { TruckLesson } from '../neuralnet/lesson';
 
 import { Emulator } from '../neuralnet/emulator';
-import {Normalized} from '../model/world';
+import { Normalized } from '../model/world';
 import * as math from '../math';
 
-export class NormalizedTruck implements Normalized,  HasState, Limitable, HasLength {
+export class NormalizedTruck implements Normalized, HasState, Limitable, HasLength {
     public constructor(private truck: Truck) {
 
     }
 
     public getNormalizedDock(dock: Dock): math.Point {
-        let x =  (dock.position.x - 50)  / 50;
+        let x = (dock.position.x - 50) / 50;
         let y = dock.position.y / 50;
         return new math.Point(x, y);
     }
-    
+
     public getLength() {
         return this.truck.getLength();
     }
@@ -71,7 +71,7 @@ export class Truck implements HasState, Limitable, HasLength {
     public getLength() {
         return this.getTruckLength() + this.getTrailerLength();
     }
-    
+
     public constructor(private tep: Point, private trailerAngle: Angle, private cabinAngle: Angle, private dock: Dock, private limits: Array<StraightLine> = []) {
         this.cabinAngle = this.fixAngle(cabinAngle)
         this.trailerAngle = this.fixAngle(trailerAngle)
@@ -89,7 +89,7 @@ export class Truck implements HasState, Limitable, HasLength {
     }
 
     public getStateDescription(): string[] {
-        return [ "End of Truck x", "End of Truck y", "Cabin Angle", "Trailer Angle"];
+        return ["End of Truck x", "End of Truck y", "Cabin Angle", "Trailer Angle"];
     }
 
     public getStateVector(): nnMath.Vector {
@@ -137,7 +137,7 @@ export class Truck implements HasState, Limitable, HasLength {
         this.trailerAngle = this.fixAngle(trailerAngle)
         this.cabinAngle = this.fixAngle(cabinAngle)
     }
-    
+
     public getTrailerLength(): number {
         return this.trailerLength
     }
@@ -161,12 +161,12 @@ export class Truck implements HasState, Limitable, HasLength {
         let cfp = this.getCabinFrontPosition();
         let third = minus(cfp, scaled)
         let fourth = plus(cfp, scaled)
-//        return [this.getCouplingDevicePosition(), cfp];
+        //        return [this.getCouplingDevicePosition(), cfp];
         return [first, second, third, fourth]
     }
 
     public getTrailerCorners() {
-        let trailerDirection = rotate(new Vector(1,0), this.trailerAngle)
+        let trailerDirection = rotate(new Vector(1, 0), this.trailerAngle)
         let orthogonal = trailerDirection.getOrthogonalVector();
         let scaled = orthogonal.scale(this.getWidth() / 2);
         let first = plus(this.tep, scaled)
@@ -175,7 +175,7 @@ export class Truck implements HasState, Limitable, HasLength {
         let cdp = this.getCouplingDevicePosition()
         let third = minus(cdp, scaled);
         let fourth = plus(cdp, scaled);
-//        return [this.tep, this.getCouplingDevicePosition()];
+        //        return [this.tep, this.getCouplingDevicePosition()];
         return [first, second, third, fourth]
     }
 
@@ -188,20 +188,20 @@ export class Truck implements HasState, Limitable, HasLength {
     }
 
     public getCouplingDevicePosition(): Point {
-        let truckDirection = rotate(new Vector(1,0), this.trailerAngle).scale(this.trailerLength);
+        let truckDirection = rotate(new Vector(1, 0), this.trailerAngle).scale(this.trailerLength);
         let cdp = plus(this.tep, truckDirection)
         return cdp;
     }
 
     public getCabinFrontPosition(): Point {
-       let cdp = this.getCouplingDevicePosition();
-       let cabinDirection = rotate(new Vector(1, 0), this.cabinAngle).scale(this.cabinLength);
-       return plus(cdp, cabinDirection);
+        let cdp = this.getCouplingDevicePosition();
+        let cabinDirection = rotate(new Vector(1, 0), this.cabinAngle).scale(this.cabinLength);
+        return plus(cdp, cabinDirection);
     }
 
     public getEndOfTruck(): Point {
-       let cabinDirection = rotate(new Vector(1, 0), this.cabinAngle);
-       return plus(this.getCouplingDevicePosition(), cabinDirection.scale(2 / cabinDirection.getLength()));
+        let cabinDirection = rotate(new Vector(1, 0), this.cabinAngle);
+        return plus(this.getCouplingDevicePosition(), cabinDirection.scale(2 / cabinDirection.getLength()));
     }
 
     public getCabTrailerAngle(): Angle {
@@ -226,8 +226,8 @@ export class Truck implements HasState, Limitable, HasLength {
     private continue(): boolean {
         let distanceVector = this.getEndOfTruck().getVectorTo(this.dock.position);
         // less than 10cm distance is acceptable
-       let result =  !(Math.abs(distanceVector.x) < 0.1 && Math.abs(distanceVector.y) < 0.1);
-       return result;
+        let result = !(Math.abs(distanceVector.x) < 0.1 && Math.abs(distanceVector.y) < 0.1);
+        return result;
     }
     // -1, 1
     public drive(steeringSignal: number, time: number): boolean {
@@ -253,10 +253,10 @@ export class Truck implements HasState, Limitable, HasLength {
 
         return this.isTruckInValidPosition();
     }
-       // TODO: add check that truck is not too far away from area
+    // TODO: add check that truck is not too far away from area
     private isTruckNotAtDock() {
         let truckCorners = [this.getCouplingDevicePosition(), this.getCabinFrontPosition()]; //this.getTruckCorners();
-        let trailerCorners = [this.tep, this.getCouplingDevicePosition() ]; //this.getTrailerCorners();
+        let trailerCorners = [this.tep, this.getCouplingDevicePosition()]; //this.getTrailerCorners();
         let a = this.dock.position;
         let b = plus(a, this.dock.dockDirection);
 
@@ -266,7 +266,7 @@ export class Truck implements HasState, Limitable, HasLength {
     }
 
     public randomizePosition(lesson?: TruckLesson): void {
-        if (lesson &&lesson instanceof TruckLesson) {
+        if (lesson && lesson instanceof TruckLesson) {
             let bounds = lesson.getBounds().entries;
             let tep1 = new Point(bounds[0], bounds[1]);
             let tep2 = new Point(bounds[2], bounds[3]);
@@ -289,34 +289,34 @@ export class Truck implements HasState, Limitable, HasLength {
         let trailerAngle = this.getRandomTrailerAngle(maxAngleTrailer);
         let cabinAngle = this.getRandomCabinAngle(maxAngleCabin, trailerAngle)
         this.setTruckPosition(tep, trailerAngle, cabinAngle);
-        while(!this.isTruckInValidPosition()) {
+        while (!this.isTruckInValidPosition()) {
             this.randomizeTruckPosition(tep1, tep2, maxAngleTrailer, maxAngleCabin);
-        }        
+        }
     }
 
     private getRandomTrailerAngle(maxAngleTrailer: Angle[]): Angle {
         let trailerAngle = Math.random() * (maxAngleTrailer[1] - maxAngleTrailer[0]) + maxAngleTrailer[0];
-        return trailerAngle;        
+        return trailerAngle;
     }
 
     private getRandomCabinAngle(maxAngleCabin: Angle[], trailerAngle: Angle): Angle {
         let cabinAngle = trailerAngle + Math.random() * (maxAngleCabin[1] - maxAngleCabin[0]) + maxAngleCabin[0];
-        return cabinAngle;        
+        return cabinAngle;
     }
 
     private getRandomTEP(tep1: Point, tep2: Point): Point {
-        let x = Math.random() * (tep2.x - tep1.x) + tep1.x; 
+        let x = Math.random() * (tep2.x - tep1.x) + tep1.x;
         let y = Math.random() * (tep2.y - tep1.y) + tep1.y;
         let tep = new Point(x, y);
         return tep;
     }
 
     public randomizeNoLimits() {
-        let tep1 = new Point(0,50);
+        let tep1 = new Point(0, 50);
         let tep2 = new Point(100, -50);
         let tep = this.getRandomTEP(tep1, tep2);
         let maxCabinAngle = [- this.getMaxCabinAngle(), this.getMaxCabinAngle()];
-        let maxTrailerAngle =  [- this.getMaxTrailerAngle() , this.getMaxTrailerAngle()];
+        let maxTrailerAngle = [- this.getMaxTrailerAngle(), this.getMaxTrailerAngle()];
         let trailerAngle = this.getRandomTrailerAngle(maxCabinAngle);
         let cabinAngle = this.getRandomCabinAngle(maxCabinAngle, trailerAngle);
         this.setTruckPosition(tep, trailerAngle, cabinAngle);
@@ -331,12 +331,12 @@ export class Truck implements HasState, Limitable, HasLength {
         for (let i = 0; i < this.limits.length; i++) {
             let limit = truckCorners.some((p) => this.limits[i].isLeftOf(p) || trailerCorners.some((p) => this.limits[i].isLeftOf(p)));
             match = match || limit;
-        }        
+        }
         return !match
     }
 
     public isTruckInValidPosition(): boolean {
-        let notAtDock =  this.isTruckNotAtDock();
+        let notAtDock = this.isTruckNotAtDock();
         let inArea = this.isTruckInArea();
         let result = !this.limited || (notAtDock && inArea);
         return result;
@@ -359,7 +359,7 @@ export class TruckEmulator implements Emulator {
     public clearInputs() {
         this.input = []
     }
-    
+
     public forward(input: nnMath.Vector): void {
         if (!this.input) {
             this.input = [];
@@ -368,23 +368,23 @@ export class TruckEmulator implements Emulator {
     }
 
     public setNotTrainable(trainable: boolean): void {
-        
+
     }
 
     public backward(gradient: nnMath.Vector): nnMath.Vector {
         let lastInput = this.input.pop();
 
         let unscaleMatrix = new nnMath.Matrix([
-            [50, 0, 0, 0 , 0],
+            [50, 0, 0, 0, 0],
             [0, 50, 0, 0, 0],
             [0, 0, Math.PI, 0, 0],
             [0, 0, 0, Math.PI, 0],
-            [0, 0, 0, 0, 70/180 * Math.PI],
+            [0, 0, 0, 0, 70 / 180 * Math.PI],
         ]);
 
         let scaleMatrix = new nnMath.Matrix([
-            [1/50.0, 0, 0, 0],
-            [0, 1/50.0, 0, 0],
+            [1 / 50.0, 0, 0, 0],
+            [0, 1 / 50.0, 0, 0],
             [0, 0, 1 / Math.PI, 0],
             [0, 0, 0, 1 / Math.PI],
         ])
@@ -402,23 +402,23 @@ export class TruckEmulator implements Emulator {
 
         let dxdu = r * Math.sin(u) * Math.cos(c - t) * Math.cos(t);
         let dxdc = r * Math.cos(u) * Math.sin(c - t) * Math.cos(t);
-        let dxdt = - r * Math.cos(u) * Math.sin(c - t) * Math.cos(t) 
-                   + r * Math.cos(u) * Math.cos(c - t) * Math.sin(t);
+        let dxdt = - r * Math.cos(u) * Math.sin(c - t) * Math.cos(t)
+            + r * Math.cos(u) * Math.cos(c - t) * Math.sin(t);
 
         let dydu = r * Math.sin(u) * Math.cos(c - t) * Math.sin(t);
         let dydc = r * Math.cos(u) * Math.sin(c - t) * Math.sin(t);
-        let dydt = - r * Math.cos(u) * Math.sin(c - t) * Math.sin(t) 
-                   - r * Math.cos(u) * Math.cos(c - t) * Math.cos(t);
+        let dydt = - r * Math.cos(u) * Math.sin(c - t) * Math.sin(t)
+            - r * Math.cos(u) * Math.cos(c - t) * Math.cos(t);
 
         let dtdc = - 1 / Math.sqrt(1 - Math.pow(r * Math.cos(u) * Math.sin(c - t) / lt, 2))
-                    * r * Math.cos(u) * Math.cos(c - t) / lt;
+            * r * Math.cos(u) * Math.cos(c - t) / lt;
         let dtdt = 1 + 1 / Math.sqrt(1 - Math.pow(r * Math.cos(u) * Math.sin(c - t) / lt, 2))
-                    * r * Math.cos(u) * Math.cos(c - t) / lt;
+            * r * Math.cos(u) * Math.cos(c - t) / lt;
         let dtdu = 1 / Math.sqrt(1 - Math.pow(r * Math.cos(u) * Math.sin(c - t) / lt, 2))
-                    * r * Math.sin(u) * Math.sin(c - t) / lt;
-        
-        let dcdu = 1 / Math.sqrt(1 - Math.pow( r * Math.sin(u) / (lt + lc), 2)) 
-                    * r * Math.cos(u) / (lt + lc);
+            * r * Math.sin(u) * Math.sin(c - t) / lt;
+
+        let dcdu = 1 / Math.sqrt(1 - Math.pow(r * Math.sin(u) / (lt + lc), 2))
+            * r * Math.cos(u) / (lt + lc);
 
         let modelMatrix = new nnMath.Matrix([
             [1, 0, dxdc, dxdt, dxdu],//x

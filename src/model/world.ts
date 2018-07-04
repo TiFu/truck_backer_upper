@@ -1,7 +1,7 @@
 import { Point, Vector, isLeftOf, plus, StraightLine, Angle, rotate } from '../math'
 import { Truck } from './truck'
 import * as nnMath from '../neuralnet/math';
-import {TruckLesson} from '../neuralnet/lesson'
+import { TruckLesson } from '../neuralnet/lesson'
 export class Dock {
     public dockDirection: Vector;
 
@@ -41,13 +41,13 @@ export enum AngleType {
 
 export class World {
     private limits = [
-        new StraightLine(new Point(0,0), new Vector(0, 1)), // left
-        new StraightLine(new Point(0,100), new Vector(1, 0)), // top
-        new StraightLine(new Point(200,100), new Vector(0, -1)), // left
-        new StraightLine(new Point(200,-100), new Vector(-1, 0)), // left
+        new StraightLine(new Point(0, 0), new Vector(0, 1)), // left
+        new StraightLine(new Point(0, 100), new Vector(1, 0)), // top
+        new StraightLine(new Point(200, 100), new Vector(0, -1)), // left
+        new StraightLine(new Point(200, -100), new Vector(-1, 0)), // left
     ];
 
-    constructor(public movableObject: HasState & Limitable, public dock: Dock) {      
+    constructor(public movableObject: HasState & Limitable, public dock: Dock) {
     }
 
 

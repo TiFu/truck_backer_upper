@@ -1,9 +1,9 @@
-import {Scalar, Vector} from './math'
-import {Layer} from './layer'
-import {ActivationFunction} from './activation';
-import {Unit} from './unit'
-import {ErrorFunction} from './error'
-import {Optimizer} from './optimizers';
+import { Scalar, Vector } from './math'
+import { Layer } from './layer'
+import { ActivationFunction } from './activation';
+import { Unit } from './unit'
+import { ErrorFunction } from './error'
+import { Optimizer } from './optimizers';
 import { WeightInitializer } from './weightinitializer';
 
 export interface NetConfig {
@@ -89,7 +89,7 @@ export class NeuralNet {
     public updateWithAccumulatedWeights() {
         for (let layer of this.layers) {
             layer.updateWithAccumulatedWeights();
-        }        
+        }
     }
 
     public clearLastInput() {
@@ -97,7 +97,7 @@ export class NeuralNet {
             layer.clearInputs();
         }
     }
-    
+
     public forward(input: Vector): Vector {
         let nextInput = input;
         for (let i = 0; i < this.netConfig.layerConfigs.length; i++) {
@@ -111,10 +111,10 @@ export class NeuralNet {
         for (let i = this.netConfig.layerConfigs.length - 1; i >= 0; i--) {
             error = this.layers[i].backward(error, accumulateWeigthUpdates);
         }
-        return error;        
+        return error;
     }
 
-    public getError(output:Vector, expected: Vector): number {
+    public getError(output: Vector, expected: Vector): number {
         return this.netConfig.errorFunction.getError(output, expected);
     }
     public backward(output: Vector, expected: Vector, accumulateWeigthUpdates: boolean = false): Vector {

@@ -1,4 +1,4 @@
-import {Scalar} from './math'
+import { Scalar } from './math'
 
 export abstract class ActivationFunction {
 
@@ -33,14 +33,14 @@ export class Sigmoid extends ActivationFunction {
 }
 
 export class ReLu extends ActivationFunction {
-    
+
     public constructor(private epsilon: number) {
         super();
         if (epsilon > 1) {
             throw new Error("ReLu needs an epsilon <= 1");
         }
     }
-    
+
     apply(input: Scalar) {
         return Math.max(input, this.epsilon * input);
     }
@@ -63,5 +63,5 @@ export class Linear extends ActivationFunction {
     applyDerivative(input: Scalar) {
         return 1;
     }
-    
+
 }

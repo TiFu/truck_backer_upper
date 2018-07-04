@@ -1,24 +1,24 @@
 import * as React from 'react'
-import {CoordinateSystemTransformation} from './CoordinateSystemTransformation';
-import { Group, Line} from 'react-konva'
-import {Point} from '../math'
+import { CoordinateSystemTransformation } from './CoordinateSystemTransformation';
+import { Group, Line } from 'react-konva'
+import { Point } from '../math'
 
 
-interface BoxVisualizationProps{
+interface BoxVisualizationProps {
     points: Point[];
     cordSystemTransformer: CoordinateSystemTransformation;
     color?: string;
 }
 export class BoxVisualization extends React.Component<BoxVisualizationProps, {}> {
-    static defaultProps = { color: "black"};
-    
+    static defaultProps = { color: "black" };
+
     public constructor(props: BoxVisualizationProps) {
         super(props)
     }
 
     // TODO: less copies of this function
-    public map(b: Point) { 
-        let n =  this.props.cordSystemTransformer.mapIntoNewCordSystem(b);
+    public map(b: Point) {
+        let n = this.props.cordSystemTransformer.mapIntoNewCordSystem(b);
         return n;
     }
 
@@ -30,11 +30,11 @@ export class BoxVisualization extends React.Component<BoxVisualizationProps, {}>
             rectanglePoints.push(mapped.x, mapped.y);
         }
         let mapped = this.map(this.props.points[0]);
-        rectanglePoints.push(mapped.x, mapped.y);                
+        rectanglePoints.push(mapped.x, mapped.y);
 
-        
-        return  <Group>
-                    <Line closed={true} points={rectanglePoints} stroke={this.props.color} />
-                </Group>
+
+        return <Group>
+            <Line closed={true} points={rectanglePoints} stroke={this.props.color} />
+        </Group>
     }
 }

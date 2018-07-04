@@ -1,6 +1,6 @@
-import {Vector, Scalar, plus} from './math';
-import {Point} from '../math'
-import {Dock} from '../model/world';
+import { Vector, Scalar, plus } from './math';
+import { Point } from '../math'
+import { Dock } from '../model/world';
 import { getCiphers } from 'crypto';
 
 export abstract class ErrorFunction {
@@ -8,7 +8,7 @@ export abstract class ErrorFunction {
         return this.constructor.name;
     }
     abstract getError(is: Vector, should: Vector): Scalar;
-    abstract getErrorDerivative(is: Vector, sholud:Vector): Vector;
+    abstract getErrorDerivative(is: Vector, sholud: Vector): Vector;
 }
 
 export class MSE extends ErrorFunction {
@@ -16,7 +16,7 @@ export class MSE extends ErrorFunction {
     public getError(is: Vector, should: Vector): Scalar {
         let diff = 0;
         for (let i = 0; i < is.length; i++) {
-            let d =  is.entries[i] - should.entries[i];
+            let d = is.entries[i] - should.entries[i];
             diff += d * d;
         }
         return diff / is.length;
@@ -39,7 +39,7 @@ export class WeightedMSE extends ErrorFunction {
     public getError(is: Vector, should: Vector): Scalar {
         let diff = 0;
         for (let i = 0; i < is.length; i++) {
-            let d =  is.entries[i] - should.entries[i];
+            let d = is.entries[i] - should.entries[i];
             diff += this.weights.entries[i] * d * d;
         }
         return diff / this.weightSum;
@@ -92,7 +92,7 @@ export class TruckControllerError extends ControllerError {
         let thetaTrailer = finalState.entries[3];
 
         // Derivative of SSE
-        let xDiff = Math.max(xTrailer,-1) - this.dock.x;
+        let xDiff = Math.max(xTrailer, -1) - this.dock.x;
         let yDiff = yTrailer - this.dock.y;
         let thetaDiff = thetaTrailer - 0;
 
@@ -117,8 +117,8 @@ export class TruckControllerError extends ControllerError {
             this.angleError.push(Math.abs(thetaDiff * Math.PI))
             this.yError.push(Math.abs(yDiff * 50))
         }
-        
-        let error =  xDiff * xDiff + yDiff * yDiff + thetaDiff * thetaDiff;
+
+        let error = xDiff * xDiff + yDiff * yDiff + thetaDiff * thetaDiff;
         if (this.saveErrors) {
             this.errors.push(error);
         }

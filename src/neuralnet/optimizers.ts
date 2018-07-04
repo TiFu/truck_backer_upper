@@ -1,7 +1,7 @@
-import {Vector, } from './math';
+import { Vector, } from './math';
 
 export abstract class Optimizer {
-    
+
     public getName() {
         return this.constructor.name;
     }
@@ -21,7 +21,7 @@ export class SGD extends Optimizer {
     }
 }
 
-export class SGDNesterovMomentum extends Optimizer { 
+export class SGDNesterovMomentum extends Optimizer {
     private moments: Vector;
 
     public constructor(public learningRate: number = 0.1, public momentum: number = 0.9) {
@@ -32,13 +32,13 @@ export class SGDNesterovMomentum extends Optimizer {
         if (this.moments == null) {
             this.moments = new Vector(new Array(weightDerivative.length).fill(0))
         }
-        
+
         // calculate velocity as moments * momentum - lr * g;
         let scaledMoments = this.moments.scale(this.momentum);
         // note -1 scaling
         let scaledWeightDerivative = weightDerivative.getScaled(this.learningRate).scale(-1);
         let velocity = scaledMoments.add(scaledWeightDerivative);
-        
+
         this.moments = velocity;
 
         // momentum * v - lr * g

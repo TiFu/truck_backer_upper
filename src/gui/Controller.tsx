@@ -1,23 +1,23 @@
 import * as React from 'react'
 import { Point } from "../math";
 import { World } from "../model/world";
-import { Truck, NormalizedTruck} from '../model/truck';
+import { Truck, NormalizedTruck } from '../model/truck';
 import { NetworkCreator } from './NetworkCreator';
 
-import {NetConfig} from '../neuralnet/net';
+import { NetConfig } from '../neuralnet/net';
 import { MSE, ErrorFunction } from '../neuralnet/error';
 import { SGD, Optimizer, SGDNesterovMomentum } from '../neuralnet/optimizers';
-import {RandomWeightInitializer, TwoLayerInitializer, WeightInitializer} from '../neuralnet/weightinitializer';
-import {Tanh, Sigmoid, ActivationFunction, ReLu, Linear} from '../neuralnet/activation';
-import {AdalineUnit} from '../neuralnet/unit';
-import {NeuralNet} from '../neuralnet/net';
-import {TrainController} from '../neuralnet/train';
-import {TruckControllerError} from '../neuralnet/error';
-import {NeuralNetEmulator} from '../neuralnet/emulator';
+import { RandomWeightInitializer, TwoLayerInitializer, WeightInitializer } from '../neuralnet/weightinitializer';
+import { Tanh, Sigmoid, ActivationFunction, ReLu, Linear } from '../neuralnet/activation';
+import { AdalineUnit } from '../neuralnet/unit';
+import { NeuralNet } from '../neuralnet/net';
+import { TrainController } from '../neuralnet/train';
+import { TruckControllerError } from '../neuralnet/error';
+import { NeuralNetEmulator } from '../neuralnet/emulator';
 import { TruckLesson } from '../neuralnet/lesson';
-import {createTruckControllerLessons} from '../neuralnet/lesson';
-import {LayerConfig} from '../neuralnet/net';
-import {LessonsComponent} from './LessonsComponent'
+import { createTruckControllerLessons } from '../neuralnet/lesson';
+import { LayerConfig } from '../neuralnet/net';
+import { LessonsComponent } from './LessonsComponent'
 const ReactHighcharts = require('react-highcharts');
 
 interface ControllerProps {
@@ -57,7 +57,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
 
     public constructor(props: ControllerProps) {
         super(props);
-        this.state = { 
+        this.state = {
             network: this.getDefaultNetConfig(),
             nn: undefined,
             loadingWeights: false,
@@ -76,13 +76,13 @@ export class Controller extends React.Component<ControllerProps, ControllerState
     }
 
     private handleResetLessons() {
-        this.setState({ currentLessonIndex: 0, lessons: createTruckControllerLessons(this.props.object)})        
+        this.setState({ currentLessonIndex: 0, lessons: createTruckControllerLessons(this.props.object) })
     }
 
     private handleStopTrain(errorMsg: string = undefined) {
         this.errorCache = [];
         let success = errorMsg === undefined;
-        this.setState({train: false, isTrainedNetwork: success, nn: this.state.nn, errors: this.state.errors}, () => {
+        this.setState({ train: false, isTrainedNetwork: success, nn: this.state.nn, errors: this.state.errors }, () => {
             if (success) {
                 this.props.onControllerTrained(this.makeTrainController());
             } else {
@@ -92,11 +92,11 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         });
     }
 
-    public handleMaxStepErrors(){ 
-        this.setState({maxStepErrors: this.state.maxStepErrors + 1}, () => {
+    public handleMaxStepErrors() {
+        this.setState({ maxStepErrors: this.state.maxStepErrors + 1 }, () => {
             if (this.state.maxStepErrors >= 90) {
                 this.handleStopTrain("The truck diverged and did not find the dock!");
-            }    
+            }
         });
     }
 
@@ -117,13 +117,13 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             nn = new NeuralNet(this.state.network);
         }
 
-        this.setState({nn: nn, train: true, maxStepErrors: 0},() => {
+        this.setState({ nn: nn, train: true, maxStepErrors: 0 }, () => {
             // we updated the gui
             // start animation
             let ctrl = this.makeTrainController();
             this.emulatorController = ctrl;
             this.emulatorController.setLesson(this.state.lessons[this.state.currentLessonIndex]);
-            this.lastIteration = performance.now();     
+            this.lastIteration = performance.now();
             this.errorCache = [];
             this.errorSum = 0;
             this.errorCount = 0;
@@ -137,7 +137,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         let error = new TruckControllerError(dock)
         error.setSaveErrors(false);
 
-        let ctrl = new TrainController(this.props.world, normalizedObject, this.state.nn, new NeuralNetEmulator(this.props.emulatorNet), error);   
+        let ctrl = new TrainController(this.props.world, normalizedObject, this.state.nn, new NeuralNetEmulator(this.props.emulatorNet), error);
         ctrl.addMaxStepListener(this.handleMaxStepErrors.bind(this));
         return ctrl;
     }
@@ -151,7 +151,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             try {
                 error = this.emulatorController.trainSingleStep();
             } catch (e) {
-                this.setState({ train: false}, () => {
+                this.setState({ train: false }, () => {
                     alert("Error during Training: " + e);
                 })
                 return;
@@ -178,14 +178,14 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             } else {
                 this.emulatorController.setLesson(this.state.lessons[this.state.currentLessonIndex + 1]);
                 this.currentLessonSteps = 0;
-                this.setState({currentLessonIndex: this.state.currentLessonIndex + 1, maxStepErrors: 0}, () => {
+                this.setState({ currentLessonIndex: this.state.currentLessonIndex + 1, maxStepErrors: 0 }, () => {
                     this.trainNextStep();
                 });
             }
         } else {
             this.currentLessonSteps += this.STEPS_PER_FRAME;
             if (this.currentLessonSteps % 100 === 0) {
-                this.setState({maxStepErrors: 0}, () => {
+                this.setState({ maxStepErrors: 0 }, () => {
                     this.trainNextStep()
                 });
             } else {
@@ -200,17 +200,17 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         this.lastIteration = performance.now();
         if (duration > 1.05 * 1000 / 60) {
             this.STEPS_PER_FRAME = Math.min(1, this.STEPS_PER_FRAME);
-        } else if (duration < 0.95 * 1000/60){ 
+        } else if (duration < 0.95 * 1000 / 60) {
             this.STEPS_PER_FRAME += 1;
         }
 
         if (this.state.train) {
             requestAnimationFrame(this.trainNeuralNetAniFrame);
-        }        
+        }
     }
 
     public handleLoadPretrainedWeights() {
-        let weightName = "truck_emulator_controller_weights_" + this.state.weightLessonIndex;       ;
+        let weightName = "truck_emulator_controller_weights_" + this.state.weightLessonIndex;;
         let lessonIndex = this.state.weightLessonIndex;
 
         $.ajax({
@@ -224,13 +224,14 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                 try {
                     neuralNet.loadWeights(JSON.parse(data));
                     this.setState({
-                        loadingWeights: false, 
-                        nn: neuralNet, 
+                        loadingWeights: false,
+                        nn: neuralNet,
                         network: network,
                         loadWeightsSuccessful: true,
-                        loadedLessonWeights: lessonIndex }, () => {
-                            this.props.onControllerTrained(this.makeTrainController());
-                        });
+                        loadedLessonWeights: lessonIndex
+                    }, () => {
+                        this.props.onControllerTrained(this.makeTrainController());
+                    });
                 } catch (e) {
                     this.setState({
                         network: network,
@@ -241,7 +242,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                     })
                 }
             }
-        })    
+        })
     }
 
     private getDefaultNetConfig() {
@@ -255,14 +256,14 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
             activation: new Tanh()
         }
-        
+
         const outputControllerLayer: LayerConfig = {
             neuronCount: 1,
             weightInitializer: new TwoLayerInitializer(0.7, 1),
             unitConstructor: (weights: number, activation: ActivationFunction, initialWeightRange: WeightInitializer, optimizer: Optimizer) => new AdalineUnit(weights, activation, initialWeightRange, optimizer),
             activation: new Tanh() // [-1, 1]
         }
-        
+
         return {
             inputs: 4,
             optimizer: () => new SGD(0.8),
@@ -274,12 +275,12 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         }
     }
     // TODO: add visualization for training area from TrainController.lastTrainedLesson
-        // i.e. add red square in simulation
+    // i.e. add red square in simulation
 
     public handleResetNetwork() {
-        this.setState({ 
-            network: this.getDefaultNetConfig(), 
-            nn: undefined, 
+        this.setState({
+            network: this.getDefaultNetConfig(),
+            nn: undefined,
             loadWeightsSuccessful: null,
             errors: []
         }, () => {
@@ -302,7 +303,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             isTrained = false;
             currentLesson = 0;
         }
-        this.setState({ currentLessonIndex: currentLesson, network: net, nn: nn, errors: errors, isTrainedNetwork: isTrained});
+        this.setState({ currentLessonIndex: currentLesson, network: net, nn: nn, errors: errors, isTrainedNetwork: isTrained });
     }
 
     private updateLessons(lessons: TruckLesson[]) {
@@ -310,19 +311,19 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         newIndex = newIndex < 0 ? 0 : newIndex;
         if (this.emulatorController) {
             let lesson = undefined;
-            if (newIndex < lessons.length) 
+            if (newIndex < lessons.length)
                 lesson = lessons[newIndex];
 
             this.emulatorController.setLesson(lesson);
         }
-        
-        this.setState({lessons: lessons, currentLessonIndex: newIndex});
+
+        this.setState({ lessons: lessons, currentLessonIndex: newIndex });
     }
 
     private setCurrentLesson(index: number) {
         if (this.emulatorController)
             this.emulatorController.setLesson(this.state.lessons[index]);
-        this.setState({currentLessonIndex: index})
+        this.setState({ currentLessonIndex: index })
     }
     private getErrorDiagram() {
         let config = {
@@ -365,30 +366,30 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             weightLessonIndex: Number.parseInt(e.currentTarget.value)
         })
     }
-    
+
     private renderController() {
-        let normalizedDockPosition = new Point((this.props.world.dock.position.x - 50)/ 50, this.props.world.dock.position.y / 50);
+        let normalizedDockPosition = new Point((this.props.world.dock.position.x - 50) / 50, this.props.world.dock.position.y / 50);
         let mse = new TruckControllerError(normalizedDockPosition);
 
-        let errorFunctions: { [key: string]: ErrorFunction} = undefined;
+        let errorFunctions: { [key: string]: ErrorFunction } = undefined;
         if (mse != undefined) {
             errorFunctions = {};
             errorFunctions[mse.getName()] = mse;
         }
 
-        let optimizers: { [key: string]: () => Optimizer} = {};
+        let optimizers: { [key: string]: () => Optimizer } = {};
         let sgd = new SGD(0.5);
         let nesterov = new SGDNesterovMomentum(0.5, 0.9);
         optimizers[sgd.getName()] = () => new SGD(0.5);
         optimizers[nesterov.getName()] = () => new SGDNesterovMomentum(0.5, 0.9);
 
-        let weightInitializers: { [key: string]: WeightInitializer} = {};
+        let weightInitializers: { [key: string]: WeightInitializer } = {};
         let random = new RandomWeightInitializer(0.5);
         let twoLayer = new TwoLayerInitializer(0.7, 25);
         weightInitializers[random.getName()] = random;
         weightInitializers[twoLayer.getName()] = twoLayer;
 
-        let activations: { [key: string]: ActivationFunction} = {}
+        let activations: { [key: string]: ActivationFunction } = {}
         activations[new Tanh().getName()] = new Tanh();
         activations[new Sigmoid().getName()] = new Sigmoid();
         activations[new ReLu(0.01).getName()] = new ReLu(0.01);
@@ -399,85 +400,85 @@ export class Controller extends React.Component<ControllerProps, ControllerState
         if (this.state.loadWeightsSuccessful !== null) {
             if (this.state.loadWeightsSuccessful) {
                 alert = <div className="row alert alert-success" role="alert">
-                <strong>Network for lesson {this.state.loadedLessonWeights} loaded!</strong>
-              </div>
+                    <strong>Network for lesson {this.state.loadedLessonWeights} loaded!</strong>
+                </div>
             } else {
                 alert = <div className="row alert alert-danger" role="alert">
-                <strong>Failed to load weights!</strong> Make sure that the network has 4
+                    <strong>Failed to load weights!</strong> Make sure that the network has 4
                  inputs, 45 neurons in the hidden layer and 3 outputs.<br />{this.state.loadWeightsFailureMsg}
-              </div>
+                </div>
             }
         }
 
         let alertInstability = <div className="row alert alert-warning" role="alert">
-            The training is not very stable - the truck might diverge during the earlier lessons and learn to drive 
-            hard left or hard right only. This depends on the random weight initialization and the chosen random starting 
+            The training is not very stable - the truck might diverge during the earlier lessons and learn to drive
+            hard left or hard right only. This depends on the random weight initialization and the chosen random starting
             positions during training.
         </div>
-        let trainButton = <button type="button"  onClick={this.handleTrain.bind(this)} className="btn btn-primary">Train</button>;
+        let trainButton = <button type="button" onClick={this.handleTrain.bind(this)} className="btn btn-primary">Train</button>;
         if (this.state.train) {
-            trainButton = <button type="button"  disabled={!this.state.train} onClick={() => this.handleStopTrain()} className="btn btn-danger">Stop</button>;
+            trainButton = <button type="button" disabled={!this.state.train} onClick={() => this.handleStopTrain()} className="btn btn-danger">Stop</button>;
         }
         let diagram = undefined;
         if (this.state.train || this.state.isTrainedNetwork) {
             let lesson = this.state.lessons[this.state.currentLessonIndex];
             diagram = <div className="row">
                 <div className="col-sm-12">
-                Training lesson {lesson.no} for {lesson.samples} samples. {this.state.maxStepErrors} occurred in the last 100 training samples.
+                    Training lesson {lesson.no} for {lesson.samples} samples. {this.state.maxStepErrors} occurred in the last 100 training samples.
                 {this.getErrorDiagram()}
                 </div>
             </div>;
         }
 
         let lessonOptions = [];
-        for (let i = 0; i <= Controller.MAX_LESSON; i++){ 
+        for (let i = 0; i <= Controller.MAX_LESSON; i++) {
             lessonOptions.push(
                 <option key={i} value={i}>{i}</option>
             )
         }
 
         return <div className="container">
-                <div className="row mt-large">
-                    <div className="btn-toolbar form-inline">
-                        {trainButton}
-                        <button type="button"  onClick={this.handleResetNetwork.bind(this)} disabled={this.state.train} className="btn btn-danger">Reset Network</button>
-                        <button type="button"  onClick={this.handleResetLessons.bind(this)} disabled={this.state.train} className="btn btn-danger mr">Reset Lessons</button>
-                    </div>
+            <div className="row mt-large">
+                <div className="btn-toolbar form-inline">
+                    {trainButton}
+                    <button type="button" onClick={this.handleResetNetwork.bind(this)} disabled={this.state.train} className="btn btn-danger">Reset Network</button>
+                    <button type="button" onClick={this.handleResetLessons.bind(this)} disabled={this.state.train} className="btn btn-danger mr">Reset Lessons</button>
                 </div>
-                <div className="row mt mb">
-                    <div className="form-inline">
-                        <b>Original Lesson:</b>
-                        <select className="ml mr select form-control" defaultValue={this.state.weightLessonIndex.toString()} onChange={this.handleLessonWeightIndexChanged.bind(this)}>
-                            {lessonOptions}
-                        </select>
-                        <button type="button"  onClick={this.handleLoadPretrainedWeights.bind(this)} disabled={this.state.train} className="btn btn-warning">Load pretrained network</button>
-                    </div>
+            </div>
+            <div className="row mt mb">
+                <div className="form-inline">
+                    <b>Original Lesson:</b>
+                    <select className="ml mr select form-control" defaultValue={this.state.weightLessonIndex.toString()} onChange={this.handleLessonWeightIndexChanged.bind(this)}>
+                        {lessonOptions}
+                    </select>
+                    <button type="button" onClick={this.handleLoadPretrainedWeights.bind(this)} disabled={this.state.train} className="btn btn-warning">Load pretrained network</button>
                 </div>
-                {alert}
-                {alertInstability}
-                {diagram}
-                <div className="row">
-                    <div className="col-12">
-                        <ul className="nav nav-tabs">
-                            <li className="nav-item">
-                                <a className="nav-link active" data-toggle="tab" href="#lessons">Lessons</a>
-                            </li>
-                            <li className="nav-item">
-                                <a className="nav-link" data-toggle="tab" href="#network">Network Architecture</a>
-                            </li>
-                        </ul>
+            </div>
+            {alert}
+            {alertInstability}
+            {diagram}
+            <div className="row">
+                <div className="col-12">
+                    <ul className="nav nav-tabs">
+                        <li className="nav-item">
+                            <a className="nav-link active" data-toggle="tab" href="#lessons">Lessons</a>
+                        </li>
+                        <li className="nav-item">
+                            <a className="nav-link" data-toggle="tab" href="#network">Network Architecture</a>
+                        </li>
+                    </ul>
 
-                        <div className="tab-content">
-                            <div className="tab-pane container active" id="lessons">
-                                <LessonsComponent disabled={this.state.train} onSelectRow={this.setCurrentLesson.bind(this)} activeLessonIndex={this.state.currentLessonIndex} object={this.props.object} lessons={this.state.lessons} onChange={this.updateLessons.bind(this)}/>
-                            </div>
-                            <div className="tab-pane container" id="network">
-                                <NetworkCreator disabled={this.state.train} showOptimizer={false} showInfo={false} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
-                            </div>
-                        </div> 
+                    <div className="tab-content">
+                        <div className="tab-pane container active" id="lessons">
+                            <LessonsComponent disabled={this.state.train} onSelectRow={this.setCurrentLesson.bind(this)} activeLessonIndex={this.state.currentLessonIndex} object={this.props.object} lessons={this.state.lessons} onChange={this.updateLessons.bind(this)} />
+                        </div>
+                        <div className="tab-pane container" id="network">
+                            <NetworkCreator disabled={this.state.train} showOptimizer={false} showInfo={false} activations={activations} weightInitializers={weightInitializers} optimizers={optimizers} network={this.state.network} onChange={this.onNetworkChange.bind(this)} errorFunctions={errorFunctions} />
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
     }
 
     public render() {

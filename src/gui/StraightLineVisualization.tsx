@@ -1,7 +1,7 @@
 import * as React from 'react'
-import {CoordinateSystemTransformation} from './CoordinateSystemTransformation';
-import { Layer, Rect, Stage, Group, Line, Circle} from 'react-konva'
-import {plus, minus, calculateVector, scale, Point, rotateVector, Angle, StraightLine} from '../math'
+import { CoordinateSystemTransformation } from './CoordinateSystemTransformation';
+import { Layer, Rect, Stage, Group, Line, Circle } from 'react-konva'
+import { plus, minus, calculateVector, scale, Point, rotateVector, Angle, StraightLine } from '../math'
 
 interface StraightLineVisualizationProps {
     line: StraightLine
@@ -15,12 +15,12 @@ export class StraightLineVisualization extends React.Component<StraightLineVisua
         super(props)
     }
 
-    public map(b: Point) { 
+    public map(b: Point) {
         return this.props.cordSystemTransformer.mapIntoNewCordSystem(b);
     }
 
     public extendLine(a: StraightLine, height: number, width: number): Point[] {
-        let start = new Point(0,0)
+        let start = new Point(0, 0)
         let end = new Point(0, 0)
         if (a.direction.x == 0) {
             start.x = a.base.x
@@ -37,14 +37,14 @@ export class StraightLineVisualization extends React.Component<StraightLineVisua
         }
         return [start, end]
     }
-        
+
     public render() {
         let mappedLine = new StraightLine(this.map(this.props.line.base), this.props.line.direction);
-        let points = this.extendLine(mappedLine,  this.props.canvasHeight, this.props.canvasWidth);
+        let points = this.extendLine(mappedLine, this.props.canvasHeight, this.props.canvasWidth);
         let start = points[0];
         let end = points[1];
         return <Group>
-                    <Line points={[start.x, start.y, end.x, end.y]} stroke="black" />           
-                </Group>
+            <Line points={[start.x, start.y, end.x, end.y]} stroke="black" />
+        </Group>
     }
 }

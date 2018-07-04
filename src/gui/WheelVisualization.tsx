@@ -1,11 +1,11 @@
 import * as React from 'react'
-import {Truck} from '../model/truck'
-import {CoordinateSystemTransformation} from './CoordinateSystemTransformation';
-import { Layer, Rect, Stage, Group, Line, Circle} from 'react-konva'
-import {Point, plus, minus, calculateVector, scale, Angle, rotateVector, Vector} from '../math'
+import { Truck } from '../model/truck'
+import { CoordinateSystemTransformation } from './CoordinateSystemTransformation';
+import { Layer, Rect, Stage, Group, Line, Circle } from 'react-konva'
+import { Point, plus, minus, calculateVector, scale, Angle, rotateVector, Vector } from '../math'
 
 
-interface WheelVisualizationProps{
+interface WheelVisualizationProps {
     pointA: Point;
     pointB: Point;
     basePoint: Point;
@@ -26,7 +26,7 @@ export class WheelVisualization extends React.Component<WheelVisualizationProps,
         super(props)
     }
 
-    public map(b: Point) { 
+    public map(b: Point) {
         return this.props.cordSystemTransformer.mapIntoNewCordSystem(b);
     }
 
@@ -48,23 +48,23 @@ export class WheelVisualization extends React.Component<WheelVisualizationProps,
         let rotatedWheelDirection = scale(rotateVector(wheelDirection, this.props.steeringAngle), 0.5);
 
         let wheelBeginLeft = plus(this.props.basePoint, perpendicular);
-        let wheelBeginRight = minus(this.props.basePoint, perpendicular); 
+        let wheelBeginRight = minus(this.props.basePoint, perpendicular);
         let wheelEndLeft = plus(wheelBeginLeft, wheelDirection);
         let wheelEndRight = plus(wheelBeginRight, wheelDirection);
 
         // Calculate midpoint
         [wheelBeginLeft, wheelEndLeft] = this.getRotatedPoints(wheelBeginLeft, wheelEndLeft, rotatedWheelDirection);
         [wheelBeginRight, wheelEndRight] = this.getRotatedPoints(wheelBeginRight, wheelEndRight, rotatedWheelDirection);
-        
+
         // map into canvas
         wheelBeginLeft = this.map(wheelBeginLeft)
         wheelEndLeft = this.map(wheelEndLeft);
         wheelBeginRight = this.map(wheelBeginRight);
         wheelEndRight = this.map(wheelEndRight)
 
-        return  <Group>
-                    <Line points={[wheelBeginLeft.x, wheelBeginLeft.y, wheelEndLeft.x, wheelEndLeft.y]} stroke={this.props.color} />
-                    <Line points={[wheelBeginRight.x, wheelBeginRight.y, wheelEndRight.x, wheelEndRight.y]} stroke={this.props.color} />
-                </Group>
+        return <Group>
+            <Line points={[wheelBeginLeft.x, wheelBeginLeft.y, wheelEndLeft.x, wheelEndLeft.y]} stroke={this.props.color} />
+            <Line points={[wheelBeginRight.x, wheelBeginRight.y, wheelEndRight.x, wheelEndRight.y]} stroke={this.props.color} />
+        </Group>
     }
 }

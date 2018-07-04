@@ -14,11 +14,11 @@ export class HowItWorks extends React.Component<{}, {}> {
 
                     <h3>Step 1: Train Emulator</h3>
                     <p>
-                    In the first step a neural net is used to learn an approximate
-                    model of the truck. This network will be used to calculate an estimate
-                    of the derivatives wrt to the truck state in the backward pass of the second step.
+                        In the first step a neural net is used to learn an approximate
+                        model of the truck. This network will be used to calculate an estimate
+                        of the derivatives wrt to the truck state in the backward pass of the second step.
                     </p>
-                    
+
                     <b>Input</b>
                     <ul>
                         <li>(x,y) position of the end of the trailer</li>
@@ -26,7 +26,7 @@ export class HowItWorks extends React.Component<{}, {}> {
                         <li>Tractor Angle, relative to the x-Axis</li>
                         <li>Steering Signal</li>
                     </ul>
-                    
+
                     <b>Output</b>
                     <ul>
                         <li>(x,y) position of the end of the trailer</li>
@@ -35,16 +35,16 @@ export class HowItWorks extends React.Component<{}, {}> {
                     </ul>
 
                     The backpropagation algorithm is used to train the network.
-                    All inputs and outputs are scaled to {"[-1, 1]"} in order to 
+                    All inputs and outputs are scaled to {"[-1, 1]"} in order to
                     reduce the network error and improve the learning speed.
 
 
                     <h3>Step 2: Train Controller</h3>
 
                     The result of the second step is a controller which is capable of steering
-                    the truck to the dock. The controller is a neural net which 
-                    maps the state of the truck to an appropriate steering signal. 
-                    <br/>
+                    the truck to the dock. The controller is a neural net which
+                    maps the state of the truck to an appropriate steering signal.
+                    <br />
                     <figure className="figure">
                         <img src="./controller.svg" className="col-12 figure-img " />
                         <figcaption className="figure-caption"><big><b>Figure 1</b> Forward Pass using the Controller C and the truck model T</big></figcaption>
@@ -77,8 +77,8 @@ export class HowItWorks extends React.Component<{}, {}> {
 
                     <sup>1</sup> It's also possible to use the emulator in this step instead of the actual truck model<br />
                     <sup>2</sup> The emulator network in the backward pass can also be replaced by the Jacobi Matrix of the truck model.<br />
-                    <sup>3</sup>At the beginning of training the controller produces a random steering signal - therefore the truck can not 
-                        be placed too far away from the dock or it might not reach the dock. Learning has to be performed stepwise 
+                    <sup>3</sup>At the beginning of training the controller produces a random steering signal - therefore the truck can not
+                        be placed too far away from the dock or it might not reach the dock. Learning has to be performed stepwise
                         - going from simple lessons to more complicated lessons with further distance from the dock and larger angles.<br />
                     <sup>4</sup>The error is the squared distance between the (x,y) coordinate of the trailer and the dock, and between the trailer angle and 0 degrees.
 

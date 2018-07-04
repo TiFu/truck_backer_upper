@@ -1,20 +1,20 @@
 import * as React from 'react'
-import {Truck} from '../model/truck'
-import {CoordinateSystemTransformation} from './CoordinateSystemTransformation';
-import { Layer, Rect, Stage, Group, Line, Circle} from 'react-konva'
-import {plus, minus, calculateVector, scale} from '../math'
-import {TruckVisualization} from './TruckVisualization'
-import {TrailerVisualization} from './TrailerVisualization'
-import {CouplingDeviceVisualization} from './CouplingDeviceVisualization'
-import {BoxVisualization} from './BoxVisualization'
-import {WheelVisualization} from './WheelVisualization'
-import {Point} from '../math';
+import { Truck } from '../model/truck'
+import { CoordinateSystemTransformation } from './CoordinateSystemTransformation';
+import { Layer, Rect, Stage, Group, Line, Circle } from 'react-konva'
+import { plus, minus, calculateVector, scale } from '../math'
+import { TruckVisualization } from './TruckVisualization'
+import { TrailerVisualization } from './TrailerVisualization'
+import { CouplingDeviceVisualization } from './CouplingDeviceVisualization'
+import { BoxVisualization } from './BoxVisualization'
+import { WheelVisualization } from './WheelVisualization'
+import { Point } from '../math';
 
 interface TruckTrailerVisualizationProps {
-     truck: Truck;
-     cordSystemTransformer: CoordinateSystemTransformation
-     onTruckPositionChanged: (translation: Point) => void
-     draggable: boolean
+    truck: Truck;
+    cordSystemTransformer: CoordinateSystemTransformation
+    onTruckPositionChanged: (translation: Point) => void
+    draggable: boolean
 }
 
 interface TruckTrailerVisualizationState {
@@ -50,12 +50,12 @@ export class TruckTrailerVisualization extends React.Component<TruckTrailerVisua
         // map back into old cord sys
         let translation = this.props.cordSystemTransformer.mapVectorIntoOldCordSystem(groupTranslation);
 
-        this.setState({konvaX: e.target.x(), konvaY: e.target.y()})
+        this.setState({ konvaX: e.target.x(), konvaY: e.target.y() })
         this.props.onTruckPositionChanged(translation);
     }
 
     public componentWillReceiveProps() {
-        this.setState({konvaX: 0, konvaY: 0});
+        this.setState({ konvaX: 0, konvaY: 0 });
     }
 
     private handleDragStart(e: any) {

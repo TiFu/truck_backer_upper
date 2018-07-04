@@ -1,7 +1,7 @@
-import {Vector, Scalar} from './math';
-import {ActivationFunction} from './activation';
-import {Optimizer} from './optimizers';
-import {WeightInitializer} from './weightinitializer';
+import { Vector, Scalar } from './math';
+import { ActivationFunction } from './activation';
+import { Optimizer } from './optimizers';
+import { WeightInitializer } from './weightinitializer';
 
 export interface Unit {
     forward(input: Vector): Scalar;
@@ -74,7 +74,7 @@ export class AdalineUnit implements Unit {
             this.lastInput.push(input);
         }
         if (input.length != this.weights.length) {
-            throw new Error("Invalid Input Size: expected "  + this.weights.length + ", but got " + input.length);
+            throw new Error("Invalid Input Size: expected " + this.weights.length + ", but got " + input.length);
         }
 
         this.lastSum = this.weights.multiply(input); // last is bias
@@ -126,7 +126,7 @@ export class AdalineUnit implements Unit {
         return inputDerivative.getWithoutLastElement();
     }
 
-    private updateWeights( update: Vector) {
+    private updateWeights(update: Vector) {
         // calculate update for current batch
         update = this.optimizer.calculateUpdate(update);
         this.lastUpdate = update;

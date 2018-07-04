@@ -1,8 +1,8 @@
-import {World, Dock, HasState} from '../model/world';
-import {NeuralNet} from './net'
-import {Vector} from './math'
-import {Angle, Point} from '../math'
-import {TruckLesson} from './lesson'
+import { World, Dock, HasState } from '../model/world';
+import { NeuralNet } from './net'
+import { Vector } from './math'
+import { Angle, Point } from '../math'
+import { TruckLesson } from './lesson'
 import { ENGINE_METHOD_ALL } from 'constants';
 import { ControllerError } from './error';
 import { emulatorNet } from './implementations';
@@ -55,8 +55,8 @@ export class TrainTruckEmulator {
             this.trailerAngleError.push(Math.abs(expectedVector.entries[3] - result.entries[3]) * 50);
         }
         this.lastError = this.neuralNet.getError(result, expectedVector);
- 
-       let error = this.neuralNet.backward(result, expectedVector, true); // batch update
+
+        let error = this.neuralNet.backward(result, expectedVector, true); // batch update
 
         this.trainedSteps++;
         if (this.trainedSteps % this.batchSize == 0) {
@@ -137,7 +137,7 @@ export class TrainController {
 
     public setLesson(lesson: TruckLesson): void {
         this.currentLesson = lesson;
-        if (lesson !== undefined) 
+        if (lesson !== undefined)
             this.controllerNet.changeOptimizer(lesson.optimizer);
 
         this.performedTrainSteps = 0;
@@ -177,7 +177,8 @@ export class TrainController {
     }
 
     private fixEmulator(fix: boolean) {
-        if (this.fixedEmulator != fix) {0
+        if (this.fixedEmulator != fix) {
+            0
             this.emulatorNet.setNotTrainable(fix); // do not train emulator
             this.fixedEmulator = fix;
         }
@@ -220,7 +221,7 @@ export class TrainController {
             currentState = this.realPlant.getStateVector();
             outputState = this.realPlant.getOriginalState();
 
-            if (canContinue && i+1 >= this.currentLesson.maxSteps) {
+            if (canContinue && i + 1 >= this.currentLesson.maxSteps) {
                 this.informListeners(i);
                 this.controllerNet.clearInputs();
                 this.emulatorNet.clearInputs();
@@ -247,14 +248,14 @@ export class TrainController {
 
         let error = this.calculateError(finalState, normalizedDock);
 
-        for (let j = i-1; j >= 0; j--) {
+        for (let j = i - 1; j >= 0; j--) {
 
             let emulatorDerivative = this.emulatorNet.backward(controllerDerivative); //.backwardWithGradient(controllerDerivative, false);
 
             let steeringSignalDerivative = emulatorDerivative.entries[emulatorDerivative.entries.length - 1]; // last entry
 
             controllerDerivative = this.controllerNet.backwardWithGradient(new Vector([steeringSignalDerivative]), true);
-            
+
             // get the error from the emulator and add it to the input error for the controller
             // remove the last element
             let errorFromEmulator = new Vector(emulatorDerivative.entries.slice(0, emulatorDerivative.entries.length - 1));

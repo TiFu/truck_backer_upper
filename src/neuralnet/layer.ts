@@ -1,8 +1,8 @@
-import {Vector, Scalar} from './math'
+import { Vector, Scalar } from './math'
 
-import {ActivationFunction} from './activation';
-import {Unit, AdalineUnit} from './unit';
-import {Optimizer} from './optimizers';
+import { ActivationFunction } from './activation';
+import { Unit, AdalineUnit } from './unit';
+import { Optimizer } from './optimizers';
 import { WeightInitializer } from './weightinitializer';
 
 export class Layer {
@@ -54,7 +54,7 @@ export class Layer {
             this.units[i].changeOptimizer(optimizerFunc());
         }
     }
-    
+
     public forward(input: Vector): Vector {
         if (input.length != this.inputDim) {
             throw new Error("Invalid Input Dimension! Expected " + this.inputDim + ", but got " + input.length);
