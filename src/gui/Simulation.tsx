@@ -106,7 +106,14 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
     private handleSetRandomPosition() {
         this.state.world.movableObject.randomizePosition();
         //        this.forceUpdate();
-        this.setState({ isDriving: false })
+        console.log("New Random position: ");
+        console.log("Cab Angle: ", toDeg(this.props.object.getTruckAngle()));
+        console.log("Trailer Angle: ", toDeg(this.props.object.getTrailerAngle()))
+        this.setState({ 
+            isDriving: false, 
+            cabAngle: toDeg(this.props.object.getTruckAngle()), 
+            trailerAngle: toDeg(this.props.object.getTrailerAngle()) 
+        })
     }
 
     private handleDriveController() {
@@ -129,7 +136,7 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
                         <label htmlFor="formGroupExampleInput" className="float-left">Trailer Angle</label>
                     </div>
                     <div className="col-6">
-                        <input defaultValue={toDeg(this.props.object.getTrailerAngle()).toString()} id="learningRate" type="text" onBlur={(e) => this.handleTrailerAngleChanged(e)} className="form-control ml float-right" />
+                        <input key={this.state.trailerAngle} defaultValue={this.state.trailerAngle.toFixed(0)} id="trailerAngle" type="text" onBlur={(e) => this.handleTrailerAngleChanged(e)} className="form-control ml float-right" />
                     </div>
                 </div>
             </div>
@@ -139,7 +146,7 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
                         <label htmlFor="formGroupExampleInput" className="float-left">Cabin Angle (rel. to Trailer)</label>
                     </div>
                     <div className="col-6">
-                        <input defaultValue={toDeg(this.props.object.getTruckAngle()).toString()} id="learningRate" type="text" onBlur={(e) => this.handleCabinAngleChanged(e)} className="form-control ml float-right" />
+                        <input key={this.state.cabAngle} defaultValue={this.state.cabAngle.toFixed(0)} id="cabAngle" type="text" onBlur={(e) => this.handleCabinAngleChanged(e)} className="form-control ml float-right" />
                     </div>
                 </div>
             </div>
@@ -158,21 +165,26 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
             this.props.object.setTruckPosition(
                 this.props.object.getTrailerEndPosition(),
                 toRad(this.state.trailerAngle),
-                toRad(this.state.trailerAngle + Math.max(-90, Math.min(this.state.cabAngle, 90)))
+                toRad(this.state.trailerAngle + this.state.cabAngle)
             )
             this.forceUpdate();
         }
     }
 
     private handleTrailerAngleChanged(e: React.ChangeEvent<HTMLInputElement>) {
+        let trailerAngle = Number.parseFloat(e.currentTarget.value);
         this.setState({
-            trailerAngle: Number.parseFloat(e.currentTarget.value)
+            trailerAngle: trailerAngle
         })
     }
 
     private handleCabinAngleChanged(e: React.ChangeEvent<HTMLInputElement>) {
+        let current = Number.parseFloat(e.currentTarget.value);
+
+        let cabAngle = Math.max(-90, Math.min(90, current));
+
         this.setState({
-            cabAngle: Number.parseFloat(e.currentTarget.value)
+            cabAngle: cabAngle
         })
     }
 

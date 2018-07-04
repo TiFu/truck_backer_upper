@@ -100,10 +100,10 @@ export class Truck implements HasState, Limitable, HasLength {
     private fixAngle(angle: Angle): Angle {
         angle = angle % (2 * Math.PI)
         if (angle > Math.PI) { // 180 deg + some deg => 
-            angle = Math.PI - (angle - Math.PI);
+            angle = -Math.PI + (angle - Math.PI);
         }
         if (angle < - Math.PI) {
-            angle = Math.PI - (angle + Math.PI)
+            angle = Math.PI + (angle + Math.PI)
         }
         return angle;
     }

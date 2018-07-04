@@ -36,7 +36,7 @@ export class HowItWorks extends React.Component<{}, {}> {
 
                     The backpropagation algorithm is used to train the network.
                     All inputs and outputs are scaled to {"[-1, 1]"} in order to
-                    reduce the network error and improve the learning speed.
+                    reduce the error and improve the learning speed.
 
 
                     <h3>Step 2: Train Controller</h3>
@@ -56,9 +56,9 @@ export class HowItWorks extends React.Component<{}, {}> {
                     </figure>
                     <br /><br />
 
-                    Each iteration of the training process follows the same schema (see figure 1):
+                    Each iteration of the training process follows the same schema:
                     <ol>
-                        <li>Freeze the weights of the emulator net</li>
+                        <li>Freeze the weights of the emulator network</li>
                         <li>Place the truck at a random position wrt to the current difficulty<sup>3</sup></li>
                         <li>Forward Pass</li>
                         <ol>
@@ -68,19 +68,19 @@ export class HowItWorks extends React.Component<{}, {}> {
                         </ol>
                         <li>Backward Pass</li>
                         <ol>
-                            <li>If the maximum number of steps was reached, do not perform backpropagation.</li>
+                            <li>If the maximum number of steps was reached in step 3, do not perform backpropagation.</li>
                             <li>Calculate the sum squared error between the final truck position and the dock<sup>4</sup></li>
-                            <li>Calculate the derivative of the error and use backpropagation through time (BPTT) to propagate the error through all emulators and controllers.</li>
+                            <li>Calculate the derivative of the error wrt the truck state and use backpropagation through time (BPTT) to propagate the error through all emulators and controllers.</li>
                             <li>Update the weights of the controller</li>
                         </ol>
                     </ol>
 
                     <sup>1</sup> It's also possible to use the emulator in this step instead of the actual truck model<br />
                     <sup>2</sup> The emulator network in the backward pass can also be replaced by the Jacobi Matrix of the truck model.<br />
-                    <sup>3</sup>At the beginning of training the controller produces a random steering signal - therefore the truck can not
-                        be placed too far away from the dock or it might not reach the dock. Learning has to be performed stepwise
-                        - going from simple lessons to more complicated lessons with further distance from the dock and larger angles.<br />
-                    <sup>4</sup>The error is the squared distance between the (x,y) coordinate of the trailer and the dock, and between the trailer angle and 0 degrees.
+                    <sup>3</sup>At the beginning of the training the controller produces a random steering signal - therefore the truck can not
+                        be placed too far away from the dock (otherwise it might not reach the dock). Learning has to be performed stepwise
+                        - going from simple lessons to more complicated lessons with larger distance from the dock and larger truck and tractor angles.<br />
+                    <sup>4</sup>The error is the squared distance between the (x,y) coordinates of the trailer and the dock, and between the trailer angle and 0 degrees.
 
                     <h2>References</h2>
 

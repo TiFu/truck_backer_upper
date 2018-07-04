@@ -222,8 +222,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.7"
-     inkscape:cx="348.0005"
-     inkscape:cy="89.031696"
+     inkscape:cx="639.12612"
+     inkscape:cy="221.48712"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -243,8 +243,8 @@
        id="grid4518"
        spacingx="1.3229167"
        spacingy="1.3229167"
-       originx="10.583332"
-       originy="-297.52376" />
+       originx="10.583331"
+       originy="-297.52374" />
   </sodipodi:namedview>
   <metadata
      id="metadata5">
@@ -254,7 +254,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -514,5 +514,98 @@
          x="292.19809"
          y="-47.977543"
          style="stroke-width:0.16770333px">Error</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.53983784px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.11349595px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="24.009689"
+       y="-28.511751"
+       id="text1096"><tspan
+         sodipodi:role="line"
+         id="tspan1094"
+         x="24.009689"
+         y="-28.511751"
+         style="stroke-width:0.11349595px">Truck State</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.53983784px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.11349596px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="-1.3258435"
+       y="-56.066025"
+       id="text1096-3"><tspan
+         sodipodi:role="line"
+         id="tspan1094-6"
+         x="-1.3258435"
+         y="-56.066025"
+         style="stroke-width:0.11349596px">Truck State</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.53983784px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.11349596px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="131.60713"
+       y="-29.326992"
+       id="text1096-7"><tspan
+         sodipodi:role="line"
+         id="tspan1094-5"
+         x="131.60713"
+         y="-29.326992"
+         style="stroke-width:0.11349596px">Truck State</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.53983784px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.11349596px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="101.12634"
+       y="-56.145935"
+       id="text1096-35"><tspan
+         sodipodi:role="line"
+         id="tspan1094-62"
+         x="101.12634"
+         y="-56.145935"
+         style="stroke-width:0.11349596px">Truck State</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.50106812px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.11252669px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="41.504692"
+       y="-56.022675"
+       id="text1134"><tspan
+         sodipodi:role="line"
+         id="tspan1132"
+         x="41.504692"
+         y="-56.022675"
+         style="stroke-width:0.11252669px">Steering Signal</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.50106812px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.11252669px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="145.46715"
+       y="-56.690849"
+       id="text1134-9"><tspan
+         sodipodi:role="line"
+         id="tspan1132-1"
+         x="145.46715"
+         y="-56.690849"
+         style="stroke-width:0.11252669px">Steering Signal</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.53983784px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.11349597px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="199.07588"
+       y="-43.879078"
+       id="text1096-7-2"><tspan
+         sodipodi:role="line"
+         id="tspan1094-5-7"
+         x="199.07588"
+         y="-43.879078"
+         style="stroke-width:0.11349597px">Truck State</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.53983784px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.11349597px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="305.51486"
+       y="-47.452301"
+       id="text1096-7-0"><tspan
+         sodipodi:role="line"
+         id="tspan1094-5-9"
+         x="305.51486"
+         y="-47.452301"
+         style="text-align:center;text-anchor:middle;stroke-width:0.11349597px">Final</tspan><tspan
+         sodipodi:role="line"
+         x="305.51486"
+         y="-41.777504"
+         style="text-align:center;text-anchor:middle;stroke-width:0.11349597px"
+         id="tspan1180">Truck State</tspan></text>
   </g>
 </svg>
