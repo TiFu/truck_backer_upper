@@ -69,11 +69,15 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
     private driveStep(timestamp: number, steeringSignal: number, totalTime: number, done: (cont: boolean) => void) {
         const stepLength = this.stepLengthInMs / this.state.simulationSpeed;
         const delta = (timestamp - this.lastTimestamp);
-        const realDelta = this.state.simulationSpeed * Math.min(stepLength - totalTime, delta);
+        let cont = true;
 
-        const cont = this.state.world.nextTimeStep(steeringSignal, realDelta / this.stepLengthInMs);
-        totalTime += delta;
-        this.onFrame(true);
+        if (delta >= 0) {
+            const realDelta = this.state.simulationSpeed * Math.min(stepLength - totalTime, delta);
+
+            cont = this.state.world.nextTimeStep(steeringSignal, realDelta / this.stepLengthInMs);
+            totalTime += delta;
+            this.onFrame(true);
+        }
 
         if (totalTime < stepLength && cont && this.state.isDriving) {
             this.lastTimestamp = performance.now();
