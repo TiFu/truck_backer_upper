@@ -198,7 +198,7 @@ export class TrainController {
     }
 
     private trainStep(): number {
-        if (!this.emulatorNet){
+        if (!this.emulatorNet) {
             throw new Error("The emulator net has to be initialized before trainin gcan begin!");
         }
         this.fixEmulator(true);

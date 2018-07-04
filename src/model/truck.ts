@@ -376,7 +376,7 @@ export class TruckEmulator implements Emulator {
         if (!lastInput) {
             throw new Error("Failed to read last input! Did you call backwards too often?");
         }
-        
+
         let unscaleMatrix = new nnMath.Matrix([
             [50, 0, 0, 0, 0],
             [0, 50, 0, 0, 0],

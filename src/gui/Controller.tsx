@@ -134,14 +134,14 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             } else {
                 alert("Failed to start training because emulator network was not loaded or controller net is missing!");
             }
-    });
+        });
     }
 
     private makeTrainController(): TrainController | null {
         if (!this.state.nn) {
             return null;
         }
- 
+
         let normalizedObject = new NormalizedTruck(this.props.object);
         let dock = normalizedObject.getNormalizedDock(this.props.world.dock);
         let error = new TruckControllerError(dock)
