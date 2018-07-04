@@ -312,13 +312,23 @@ export class Emulator extends React.Component<EmulatorProps, EmulatorState> {
                 }
             ]
         }
-        return <ReactHighcharts
-            config={config}
-            ref="chart"
-        />;
+        return <div>
+            <button type="button" disabled={this.state.train} onClick={() => this.handleResetErrors()} className="btn btn-danger pb">Clear diagram</button>
+            <ReactHighcharts
+                config={config}
+                ref="chart"
+            />
+        </div>;
     }
 
-
+    private handleResetErrors() {
+        this.setState({
+            errors: []
+        }, () => {
+            (this.refs.chart as any).getChart().series[0].setData([], true)
+        })
+    }
+    
     public render() {
         return this.renderConfigureEmulator();
     }
