@@ -33,6 +33,7 @@ interface ControllerState {
     loadingWeights: boolean;
     loadWeightsSuccessful: boolean | null;
     loadWeightsFailureMsg: string | null;
+    updatedController: boolean;
     train: boolean;
     isTrainedNetwork: boolean;
     errors: number[];
@@ -58,6 +59,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
     public constructor(props: ControllerProps) {
         super(props);
         this.state = {
+            updatedController: false,
             network: this.getDefaultNetConfig(),
             nn: undefined,
             loadingWeights: false,
@@ -86,12 +88,18 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                 let ctrl = this.makeTrainController();
                 if (!ctrl) {
                     alert("Failed to create train controller after training!");
+                } else {
+                    this.onControllerTrained(ctrl);
                 }
-                this.props.onControllerTrained(ctrl);
             } else {
                 alert("Error: " + errorMsg.toString());
             }
         });
+    }
+
+    private onControllerTrained(ctrl: TrainController) {
+        this.props.onControllerTrained(ctrl);
+        this.setState({updatedController: true});
     }
 
     public handleMaxStepErrors() {
@@ -119,7 +127,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             nn = new NeuralNet(this.state.network);
         }
 
-        this.setState({ nn: nn, train: true, maxStepErrors: 0 }, () => {
+        this.setState({ updatedController: false, nn: nn, train: true, maxStepErrors: 0 }, () => {
             // we updated the gui
             // start animation
             let ctrl = this.makeTrainController();
@@ -240,12 +248,18 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                     neuralNet.loadWeights(JSON.parse(data));
                     this.setState({
                         loadingWeights: false,
+                        updatedController: false,
                         nn: neuralNet,
                         network: network,
                         loadWeightsSuccessful: true,
                         loadedLessonWeights: lessonIndex
                     }, () => {
-                        this.props.onControllerTrained(this.makeTrainController());
+                        let ctrl = this.makeTrainController()
+                        if (!ctrl) {
+                            alert("Failed to create controller!");
+                        } else {
+                            this.onControllerTrained(ctrl);
+                        }
                     });
                 } catch (e) {
                     this.setState({
@@ -297,6 +311,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             network: this.getDefaultNetConfig(),
             nn: undefined,
             loadWeightsSuccessful: null,
+            updatedController: false,
             errors: []
         }, () => {
             this.props.onControllerTrained(null);
@@ -437,6 +452,13 @@ export class Controller extends React.Component<ControllerProps, ControllerState
             }
         }
 
+        let updatedController = undefined;
+        if (this.state.updatedController) {
+            updatedController = <div className="row alert alert-success" role="alert">
+            <strong>Updated controller!</strong>
+        </div>
+        }
+
         let alertInstability = <div className="row alert alert-warning" role="alert">
             The training is not very stable - the truck might diverge during the earlier lessons and learn to drive
             hard left or hard right only. This depends on the random weight initialization and the chosen random starting
@@ -482,6 +504,7 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                 </div>
             </div>
             {alert}
+            {updatedController}
             {alertInstability}
             {diagram}
             <div className="row">
