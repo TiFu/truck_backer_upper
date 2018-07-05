@@ -268,7 +268,7 @@ class LayerCreator extends React.Component<LayerCreatorProps, {}> {
         let neuronCount = e.currentTarget.value;
         try {
             let layer = this.props.layer;
-            layer.neuronCount = Number.parseInt(neuronCount);
+            layer.neuronCount = Math.max(1, Number.parseInt(neuronCount));
             this.props.onChange(layer);
         } catch (e) {
             console.log(e);
@@ -281,11 +281,11 @@ class LayerCreator extends React.Component<LayerCreatorProps, {}> {
 
     private handleWeightInitializerPropsChanged(e: any) {
         if (this.props.layer.weightInitializer instanceof TwoLayerInitializer) {
-            let overlap = Number.parseFloat(e.currentTarget.value);
+            let overlap = Math.min(1, Math.max(0, Number.parseFloat(e.currentTarget.value)));
             this.props.layer.weightInitializer = new TwoLayerInitializer(overlap, this.props.layer.neuronCount);
             this.props.onChange(this.props.layer);
         } else if (this.props.layer.weightInitializer instanceof RandomWeightInitializer) {
-            let range = Number.parseFloat(e.currentTarget.value);
+            let range = Math.max(0, Number.parseFloat(e.currentTarget.value));
             this.props.layer.weightInitializer = new RandomWeightInitializer(range)
             this.props.onChange(this.props.layer);
         }

@@ -252,7 +252,9 @@ export class Controller extends React.Component<ControllerProps, ControllerState
                         nn: neuralNet,
                         network: network,
                         loadWeightsSuccessful: true,
-                        loadedLessonWeights: lessonIndex
+                        loadedLessonWeights: lessonIndex,
+                        errors: [],
+                        isTrainedNetwork: false
                     }, () => {
                         let ctrl = this.makeTrainController()
                         if (!ctrl) {

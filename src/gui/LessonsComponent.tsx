@@ -5,7 +5,7 @@ import { toDeg } from "../math";
 import { TruckLesson, Range } from '../neuralnet/lesson';
 import { SGD, SGDNesterovMomentum } from '../neuralnet/optimizers';
 import { Optimizer } from '../neuralnet/optimizers';
-
+import {toRad} from '../math'
 export interface LessonsProps {
     object: Truck;
     lessons: TruckLesson[];
@@ -148,7 +148,7 @@ export class LessonsComponent extends React.Component<LessonsProps, LessonsState
 
         let modal = undefined;
         if ((this.state.addLesson || this.state.editLesson) && this.state.lesson !== undefined) {
-            modal = <LessonEditComponent edit={this.state.editLesson} lesson={this.state.lesson} onSave={this.onLessonSave.bind(this)} onCancel={this.onLessonCancel.bind(this)} />
+            modal = <LessonEditComponent lessonCount={this.props.lessons.length} edit={this.state.editLesson} lesson={this.state.lesson} onSave={this.onLessonSave.bind(this)} onCancel={this.onLessonCancel.bind(this)} />
         }
         return <div className="container">
             <h2>Lessons</h2>
@@ -177,6 +177,7 @@ interface LessonProps {
     edit: boolean;
     onSave: (lesson: TruckLesson) => void;
     onCancel: () => void;
+    lessonCount: number;
 }
 
 interface LessonState {
@@ -206,6 +207,7 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
         x.max = this.props.lesson.x.max;
         y.min = this.props.lesson.y.min;
         y.max = this.props.lesson.y.max;
+
         cabAngle.min = toDeg(this.props.lesson.cabAngle.min);
         cabAngle.max = toDeg(this.props.lesson.cabAngle.max);
         trailerAngle.min = toDeg(this.props.lesson.trailerAngle.min);
@@ -233,67 +235,59 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
     }
 
     private handleXMinChanged(e: React.ChangeEvent<HTMLInputElement>) {
-        this.state.x.min = Number.parseFloat(e.currentTarget.value);
+        this.state.x.min = Math.min(this.state.x.max, Number.parseFloat(e.currentTarget.value));
+        console.log("Changed x min to " + this.state.x.min);
         this.setState({ x: this.state.x });
     }
 
     private handleXMaxChanged(e: React.ChangeEvent<HTMLInputElement>) {
-        this.state.x.max = Number.parseFloat(e.currentTarget.value);
+        this.state.x.max = Math.max(this.state.x.min, Number.parseFloat(e.currentTarget.value));
         this.setState({ x: this.state.x });
     }
 
     private handleMaxStepsChanged(e: React.ChangeEvent<HTMLInputElement>) {
-        let maxSteps = Number.parseInt(e.currentTarget.value);
+        let maxSteps = Math.max(Number.parseInt(e.currentTarget.value), 1);
         this.setState({ maxSteps: maxSteps });
     }
 
     private handleYMinChanged(e: React.ChangeEvent<HTMLInputElement>) {
-        this.state.y.min = Number.parseFloat(e.currentTarget.value);
+        this.state.y.min = Math.min(this.state.y.max, Number.parseFloat(e.currentTarget.value));
         this.setState({ y: this.state.y });
     }
 
     private handleYMaxChanged(e: React.ChangeEvent<HTMLInputElement>) {
-        this.state.y.max = Number.parseFloat(e.currentTarget.value);
+        this.state.y.max = Math.max(this.state.y.min, Number.parseFloat(e.currentTarget.value));
         this.setState({ y: this.state.x });
     }
 
-    private handleAngleMaxChanged(e: React.ChangeEvent<HTMLInputElement>) {
-        this.state.angle.max = Number.parseFloat(e.currentTarget.value);
-        this.setState({ angle: this.state.angle });
-    }
-
-    private handleAngleMinChanged(e: React.ChangeEvent<HTMLInputElement>) {
-        this.state.angle.min = Number.parseFloat(e.currentTarget.value);
-        this.setState({ angle: this.state.angle });
-    }
-
     private handleTrailerAngleMinChanged(e: React.ChangeEvent<HTMLInputElement>) {
-        this.state.trailerAngle.min = Number.parseFloat(e.currentTarget.value);
+        this.state.trailerAngle.min = Math.min(this.state.trailerAngle.max, Number.parseFloat(e.currentTarget.value));
         this.setState({ trailerAngle: this.state.trailerAngle });
     }
 
     private handleTrailerAngleMaxChanged(e: React.ChangeEvent<HTMLInputElement>) {
-        this.state.trailerAngle.max = Number.parseFloat(e.currentTarget.value);
+        this.state.trailerAngle.max = Math.max(this.state.trailerAngle.min, Number.parseFloat(e.currentTarget.value));
         this.setState({ trailerAngle: this.state.trailerAngle });
     }
 
     private handleCabinAngleMinChanged(e: React.ChangeEvent<HTMLInputElement>) {
-        this.state.cabinAngle.min = Number.parseFloat(e.currentTarget.value);
+        this.state.cabinAngle.min = Math.min(this.state.cabinAngle.max, Number.parseFloat(e.currentTarget.value));
         this.setState({ cabinAngle: this.state.cabinAngle });
     }
 
     private handleCabinAngleMaxChanged(e: React.ChangeEvent<HTMLInputElement>) {
-        this.state.cabinAngle.max = Number.parseFloat(e.currentTarget.value);
+        this.state.cabinAngle.max = Math.max(this.state.cabinAngle.min, Number.parseFloat(e.currentTarget.value));
         this.setState({ cabinAngle: this.state.cabinAngle });
     }
 
     private handleSamplesChanged(e: React.ChangeEvent<HTMLInputElement>) {
-        let samples = Number.parseInt(e.currentTarget.value);
+        let samples = Math.max(1, Number.parseInt(e.currentTarget.value));
         this.setState({ samples: samples });
     }
 
     private handleLessonNoChanged(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({ no: this.state.no });
+        let no = Math.min(Math.max(-1, Number.parseInt(e.currentTarget.value)), this.props.lessonCount - 1);
+        this.setState({ no: no });
     }
 
 
@@ -356,7 +350,7 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
                         <label htmlFor="learningRate" className="pl pr">Learning Rate:</label>
                     </div>
                     <div className="col-sm-8">
-                        <input defaultValue={optimizer.learningRate.toString()} id="learningRate" type="text" onBlur={(e) => this.handleOptimizerPropertyChanged(0, e)} className="form-control" />
+                        <input key={"lr_" + Math.random()} defaultValue={optimizer.learningRate.toString()} id="learningRate" type="text" onBlur={(e) => this.handleOptimizerPropertyChanged(0, e)} className="form-control" />
                     </div>
                 </div>
             ]
@@ -366,7 +360,7 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
                     <label htmlFor="learningRate" className="pl pr">Learning Rate:</label>
                 </div>
                 <div className="col-sm-8">
-                    <input defaultValue={optimizer.learningRate.toString()} id="learningRate" type="text" onBlur={(e) => this.handleOptimizerPropertyChanged(0, e)} className="form-control" />
+                    <input key={"lr_" + Math.random()} defaultValue={optimizer.learningRate.toString()} id="learningRate" type="text" onBlur={(e) => this.handleOptimizerPropertyChanged(0, e)} className="form-control" />
                 </div>
             </div>,
 
@@ -375,7 +369,7 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
                     <label htmlFor="momentum" className="pl pr">Momentum:</label>
                 </div>
                 <div className="col-sm-8">
-                    <input defaultValue={optimizer.momentum.toString()} id="momentum" type="text" onBlur={(e) => this.handleOptimizerPropertyChanged(1, e)} className="form-control" />
+                    <input key={"momentum_" + optimizer.momentum.toString()} defaultValue={optimizer.momentum.toString()} id="momentum" type="text" onBlur={(e) => this.handleOptimizerPropertyChanged(1, e)} className="form-control" />
                 </div>
             </div>
             ]
@@ -418,27 +412,21 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
                 <label htmlFor="maxSteps" className="pl pr">{name}: </label>
             </div>
             <div className="col-sm-8 form-inline">
-                <input defaultValue={range.min.toFixed(2).toString()} id={name + "_min"} type="text" onBlur={minChanged.bind(this)} className="form-control" />
+                <input key={name + Math.random()} defaultValue={range.min.toFixed(2).toString()} id={name + "_min"} type="text" onBlur={minChanged.bind(this)} className="form-control" />
                 <span className="pl pr">-</span>
-                <input defaultValue={range.max.toFixed(2).toString()} id={name + "_max"} type="text" onBlur={maxChanged.bind(this)} className="form-control" />
+                <input key={name + Math.random()} defaultValue={range.max.toFixed(2).toString()} id={name + "_max"} type="text" onBlur={maxChanged.bind(this)} className="form-control" />
                 <span className="pl pr"> </span>
             </div>
         </div>
 
     }
 
-    public convertRangeToDeg(range: Range): Range {
-        let min = range.min * 180 / Math.PI;
-        let max = range.max * 180 / Math.PI;
-        return new Range(min, max);
-    }
-    // TODO: how to have less copy & paste for optimizer?
     public render() {
         let additionalProperties = [];
-        additionalProperties.push(this.getEditFor("x-Range", this.props.lesson.x, this.handleXMinChanged, this.handleXMaxChanged));
-        additionalProperties.push(this.getEditFor("y-Range", this.props.lesson.y, this.handleYMinChanged, this.handleYMaxChanged));
-        additionalProperties.push(this.getEditFor("Trailer Angle-Range", this.convertRangeToDeg(this.props.lesson.trailerAngle), this.handleTrailerAngleMinChanged, this.handleTrailerAngleMaxChanged));
-        additionalProperties.push(this.getEditFor("Cabin Angle-Range", this.convertRangeToDeg(this.props.lesson.cabAngle), this.handleCabinAngleMinChanged, this.handleCabinAngleMaxChanged));
+        additionalProperties.push(this.getEditFor("x-Range", this.state.x, this.handleXMinChanged, this.handleXMaxChanged));
+        additionalProperties.push(this.getEditFor("y-Range", this.state.y, this.handleYMinChanged, this.handleYMaxChanged));
+        additionalProperties.push(this.getEditFor("Trailer Angle-Range", this.state.trailerAngle, this.handleTrailerAngleMinChanged, this.handleTrailerAngleMaxChanged));
+        additionalProperties.push(this.getEditFor("Cabin Angle-Range", this.state.cabinAngle, this.handleCabinAngleMinChanged, this.handleCabinAngleMaxChanged));
 
         let index = undefined;
         if (this.props.edit) {
@@ -459,7 +447,7 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
                         <label htmlFor="a" className="pl pr">Add after (-1 to add as first lesson): </label>
                     </div>
                     <div className="col-sm-8">
-                        <input defaultValue={this.props.lesson.no.toString()} id="no" type="text" onBlur={this.handleLessonNoChanged.bind(this)} className="form-control" />
+                        <input key={"lesson_no_" + Math.random()} defaultValue={this.state.no.toString()} id="no" type="text" onBlur={this.handleLessonNoChanged.bind(this)} className="form-control" />
                     </div>
                 </div>
             </div>
@@ -474,7 +462,7 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
                             <label htmlFor="samples" className="pl pr">Samples:</label>
                         </div>
                         <div className="col-sm-8">
-                            <input defaultValue={this.props.lesson.samples.toString()} id="samples" type="text" onBlur={this.handleSamplesChanged.bind(this)} className="form-control" />
+                            <input key={"samples_" + Math.random()} defaultValue={this.state.samples.toString()} id="samples" type="text" onBlur={this.handleSamplesChanged.bind(this)} className="form-control" />
                         </div>
                     </div>
                     <div className="row pb">
@@ -482,7 +470,7 @@ class LessonEditComponent extends React.Component<LessonProps, LessonState> {
                             <label htmlFor="maxSteps" className="pl pr">Max Steps:</label>
                         </div>
                         <div className="col-sm-8">
-                            <input defaultValue={Math.floor(this.props.lesson.maxSteps).toString()} id="maxSteps" type="text" onBlur={this.handleMaxStepsChanged.bind(this)} className="form-control" />
+                            <input key={"max_steps_" + Math.random()} defaultValue={Math.floor(this.state.maxSteps).toString()} id="maxSteps" type="text" onBlur={this.handleMaxStepsChanged.bind(this)} className="form-control" />
                         </div>
                     </div>
                     {this.getOptimizerEditProperty(this.state.optimizer)}
