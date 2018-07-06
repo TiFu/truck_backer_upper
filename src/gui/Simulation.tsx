@@ -48,18 +48,19 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
     }
 
     public drive(steeringSignal: number, done: (cont: boolean) => void) {
-        this.setState({ isDriving: true });
-        this.lastTimestamp = performance.now();
-        const callback = (cont: boolean) => {
-            if (cont) {
-                done(cont);
-            } else {
-                this.setState({ isDriving: false }, () => {
+        this.setState({ isDriving: true }, () => {
+            this.lastTimestamp = performance.now();
+            const callback = (cont: boolean) => {
+                if (cont) {
                     done(cont);
-                });
+                } else {
+                    this.setState({ isDriving: false }, () => {
+                        done(cont);
+                    });
+                }
             }
-        }
-        window.requestAnimationFrame(this.driveFrameCallback(steeringSignal, 0, callback));
+            window.requestAnimationFrame(this.driveFrameCallback(steeringSignal, 0, callback));    
+        });
     }
 
     private driveFrameCallback = (steeringSignal: number, totalTime: number, done: (cont: boolean) => void) => {
@@ -94,8 +95,15 @@ export class Simulation extends React.Component<SimulationProps, SimulationState
     }
 
     private handleDriveButton() {
-        this.drive(this.state.steeringSignal, (cont: boolean) => { this.setState({ isDriving: !cont }) });
+        this.drive(this.state.steeringSignal, (cont: boolean) => { 
+            if (cont) {
+                if (cont) {
+                    this.handleDriveButton();
+                }
+            }
+        });
     }
+
     private handleSteeringSignalChanged(value: number) {
         this.setState({ steeringSignal: value })
     }
