@@ -22,7 +22,7 @@ export class MainComponent extends React.Component<{}, MainComponentState> {
         this.state = {
             emulatorNet: undefined,
             controller: undefined,
-            truck: new Truck(new Point(15, 15), 0, 0, new Dock(new Point(0, 0)), [])
+            truck: new Truck(new Point(45, 15), 0, 0, new Dock(new Point(0, 0)), [])
         };
     }
 
@@ -42,7 +42,7 @@ export class MainComponent extends React.Component<{}, MainComponentState> {
     }
 
     public getObject(): Truck {
-        return new Truck(new Point(15, 15), 0, 0, new Dock(new Point(0, 0)), [])
+        return new Truck(new Point(45, 15), 0, 0, new Dock(new Point(0, 0)), [])
     }
 
     public render() {
