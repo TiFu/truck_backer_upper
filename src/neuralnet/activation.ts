@@ -2,15 +2,17 @@ import { Scalar } from './math'
 
 export abstract class ActivationFunction {
 
-    public getName(): string {
-        return this.constructor.name;
-    }
 
+    public abstract getName(): string;
     public abstract apply(input: Scalar): Scalar;
     public abstract applyDerivative(input: Scalar): Scalar;
 }
 
 export class Tanh extends ActivationFunction {
+
+    getName() {
+        return "Tanh";
+    }
     apply(input: Scalar) {
         return Math.tanh(input);
     }
@@ -22,6 +24,10 @@ export class Tanh extends ActivationFunction {
 }
 
 export class Sigmoid extends ActivationFunction {
+
+    getName() {
+        return "Sigmoid";
+    }
 
     apply(input: Scalar) {
         return 1 / (1 + Math.exp(-input));
@@ -41,6 +47,10 @@ export class ReLu extends ActivationFunction {
         }
     }
 
+    getName() {
+        return "ReLu";
+    }
+
     apply(input: Scalar) {
         return Math.max(input, this.epsilon * input);
     }
@@ -57,6 +67,10 @@ export class ReLu extends ActivationFunction {
 export class Linear extends ActivationFunction {
     apply(input: Scalar) {
         return input;
+    }
+
+    getName() {
+        return "Linear";
     }
 
     // TODO: do we assume that the input is tanh(x) or x?

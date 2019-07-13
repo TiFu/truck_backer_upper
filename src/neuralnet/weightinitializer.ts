@@ -2,11 +2,8 @@ import { Vector } from './math';
 
 export abstract class WeightInitializer {
 
-    public getName() {
-        return this.constructor.name;
-    }
-
-    abstract initialize(dim: number): Vector;
+   abstract getName(): string;
+   abstract initialize(dim: number): Vector;
 }
 
 //export type WeightInitializer = (dim: number) => Vector;
@@ -17,6 +14,9 @@ export class StaticInitializer extends WeightInitializer {
         super();
     }
 
+    public getName() {
+        return "StaticInitializer";
+    }
     public initialize(dim: number) {
         if (this.weights.length != dim + 1) {
             throw new Error("Expected dimension " + (dim + 1) + " but got " + this.weights.length + "(" + this.weights + ") in static weight initializer");
@@ -37,6 +37,9 @@ export class TwoLayerInitializer extends WeightInitializer {
         super();
     }
 
+    public getName() {
+        return "TwoLayerInitializer";
+    }
     public initialize(dim: number): Vector {
         let targetScale = this.overlap * Math.pow(this.neuronsInLayer, 1 / dim);
         let weights = getRandomWeights(dim, 2);
@@ -52,6 +55,10 @@ export class RandomWeightInitializer extends WeightInitializer {
         super();
     }
 
+    public getName() {
+        return "RandomWeightInitializer";
+    }
+    
     public initialize(dim: number): Vector {
         return getRandomWeights(dim + 1, this.weightRange);
     }

@@ -2,10 +2,7 @@ import { Vector, } from './math';
 
 export abstract class Optimizer {
 
-    public getName() {
-        return this.constructor.name;
-    }
-
+    abstract getName(): string;
     abstract calculateUpdate(weightDerivative: Vector): Vector;
 
 }
@@ -14,6 +11,10 @@ export class SGD extends Optimizer {
 
     public constructor(public learningRate: number = 0.1) {
         super();
+    }
+
+    public getName() {
+        return "SGD";
     }
 
     calculateUpdate(weightDerivative: Vector): Vector {
@@ -29,6 +30,10 @@ export class SGDNesterovMomentum extends Optimizer {
         this.moments = null;
     }
 
+    public getName(): string {
+        return "SGDNesterovMomentum";
+    }
+    
     calculateUpdate(weightDerivative: Vector): Vector {
         if (this.moments == null) {
             this.moments = new Vector(new Array(weightDerivative.length).fill(0))

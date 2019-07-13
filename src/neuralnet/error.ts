@@ -4,14 +4,16 @@ import { Dock } from '../model/world';
 import { getCiphers } from 'crypto';
 
 export abstract class ErrorFunction {
-    public getName() {
-        return this.constructor.name;
-    }
+    abstract getName(): string;
     abstract getError(is: Vector, should: Vector): Scalar;
     abstract getErrorDerivative(is: Vector, sholud: Vector): Vector;
 }
 
 export class MSE extends ErrorFunction {
+
+    public getName() {
+        return "MSE";
+    }
 
     public getError(is: Vector, should: Vector): Scalar {
         let diff = 0;
@@ -31,6 +33,9 @@ export class MSE extends ErrorFunction {
 export class WeightedMSE extends ErrorFunction {
     private weightSum: number;
 
+    public getName() {
+        return "WeightedMSE";
+    }
     public constructor(private weights: Vector) {
         super();
         this.weightSum = weights.entries.reduce((prev, next) => prev + next, 0);
@@ -57,6 +62,11 @@ export abstract class ControllerError extends ErrorFunction {
 }
 
 export class SimpleControllerError extends ControllerError {
+
+    public getName() {
+        return "SimpleControllerError"
+    }
+
     public getError(finalState: Vector): Scalar {
         return (0 - finalState.entries[0]) * (0 - finalState.entries[0]);
     }
@@ -76,6 +86,9 @@ export class TruckControllerError extends ControllerError {
 
     private saveErrors: boolean = true;
 
+    public getName() {
+        return "TruckControllerError";
+    }
     public constructor(private dock: Point) {
         super();
         this.angleError = [];
